@@ -220,6 +220,10 @@ let toolbox = {
                     'kind': 'block',
                     'type': 'text_print',
                 },
+                {
+                    'kind': 'block',
+                    'type': 'text_ask',
+                },
             ],
         },
         {
@@ -327,10 +331,10 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
      * @param {CodeString} code The Javascript code to be run
      * Runs the code and displays the output in the output div
      */
-    function runCode(code) {
-        const output = lib.silentRunCode(code.getCompleteCodeString());
+    async function runCode(code) {
+        const output = await lib.silentRunCode(code.getCompleteCodeString());
         // Replace newlines with <br /> so that they are displayed correctly
-        const outputHTML = output.replace(/\n/g, "<br />");
+        const outputHTML = String(output).replace(/\n/g, "<br />");
         const outputDiv = document.getElementById('output-div');
         // Wrap the output in a div with max-height and overflow-y: auto to make it scrollable if too long (multiline input)
         outputDiv.innerHTML = `<div style="max-height: 100%; overflow-y: auto;"><pre>${outputHTML}</pre></div>`;
@@ -863,10 +867,9 @@ String.prototype.hideWrapperFunction = function() {
     return lines.join('\n');
 };
 
-// Redefine the text_print block to use the outputString variable instead of alert.
 javascript.javascriptGenerator.forBlock.text_print = function(block, generator) {
     return (
-        "print(" +
+        "customPrintln(" +
         (generator.valueToCode(
             block,
             "TEXT",
@@ -875,6 +878,36 @@ javascript.javascriptGenerator.forBlock.text_print = function(block, generator) 
         ");\n"
     );
 };
+
+javascript.javascriptGenerator.forBlock.text_ask = function(block, generator) {
+    const question = (generator.valueToCode(
+        block,
+        'TEXT',
+        Blockly.JavaScript.ORDER_NONE
+    ) || "''");
+    return (
+        "  customPrint(" +
+        question +
+        ");\n" +
+        "  var answer = await input(" + question + ");\n" +
+        "  customPrintln(answer);\n"
+    );
+};
+
+Blockly.Blocks['text_ask'] = {
+    init: function() {
+        this.appendValueInput("TEXT")
+            .setCheck(null)
+            .appendField("ask");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(160);
+        this.setTooltip("Ask for a specific input.");
+        this.setHelpUrl("");
+    }
+};
+
+
 
 Blockly.Blocks.number_input = {
     init: function() {

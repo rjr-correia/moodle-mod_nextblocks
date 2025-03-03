@@ -58,9 +58,10 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
          * Runs the code and returns the output, does not display it
          * TODO: do something other than use eval
          */
-        silentRunCode: function(code) {
-            // eslint-disable-next-line no-eval
-            return eval(code);
+        silentRunCode: async function(code) {
+            /* eslint-disable no-eval */
+            const result = await eval(code);
+            return typeof result === 'undefined' ? code : result;
         },
 
         /**
@@ -203,9 +204,8 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
             let codeString = new CodeString();
 
             codeString.addAuxFunctions(inputFuncDecs);
-            codeString.addVariable('outputString', '""');
 
-            const functionOpen = '(function () {';
+            const functionOpen = 'await (async () => {';
             codeString.addLine(functionOpen);
 
             let blocks = workspace.getTopBlocks(true);

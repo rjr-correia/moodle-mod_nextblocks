@@ -11,21 +11,87 @@ define([], function() {
         #codeString;
         #userFunctionLinesCount;
 
-        static #auxFunctions = `function print(string) {
-    outputString += string + '\\n';
+        static #auxFunctions =
+            `
+
+customPrintln = function(string) {
+  outputString += string + '\\n';
+  updateTerminal();
+  return string;
+};
+
+customPrint = function(string) {
+  outputString += string + ' ';
+  updateTerminal();
+  return string;
+};
+
+
+updateTerminal = function(){
+  const outputDiv = document.getElementById('output-div');
+  if (outputDiv) {
+    outputDiv.innerHTML = "";
+    const pre = document.createElement('pre');
+    pre.style.whiteSpace = 'pre-wrap'; 
+    pre.textContent = outputString; 
+    outputDiv.appendChild(pre);
+  }
 }
-function input(prompt) {
-    return prompt;
+
+function showInputBox() {
+  const inputBox = document.getElementById('input-box');
+  if (inputBox) {
+    inputBox.style.display = 'block';
+    inputBox.focus();
+  }
 }
+
+function hideInputBox() {
+  const inputBox = document.getElementById('input-box');
+  if (inputBox) {
+    inputBox.style.display = 'none';
+    inputBox.value = '';
+  }
+}
+
+
+
+async function input(promptText) {
+  showInputBox();
+  return new Promise((resolve) => {
+    const inputBox = document.getElementById('input-box');
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        inputBox.removeEventListener('keydown', handleKeyDown);
+        const answer = inputBox.value.trim();
+        hideInputBox();
+        resolve(answer);
+      }
+    };
+    inputBox.addEventListener('keydown', handleKeyDown);
+  });
+}
+
+
+
+
 `;
-        static #codeEnding = `return outputString;
+        static #codeEnding = `})();
+return outputString;
 })();
 `;
         constructor(codeString) {
             if (arguments.length > 0) {
-                this.#codeString = codeString;
+                this.addAsyncDeclaration();
+                this.#codeString += codeString;
+                this.addVariable('outputString', '""');
             } else {
                 this.#codeString = '';
+                this.addAsyncDeclaration();
+                this.addVariable('outputString', '""');
+
+
             }
             this.#userFunctionLinesCount = 0;
         }
@@ -63,6 +129,11 @@ function input(prompt) {
                 throw new Error('Invalid variable name');
             }
             this.#codeString += 'let ' + variableName + ' = ' + variableValue + ';\n';
+            return this.#codeString;
+        }
+
+        addAsyncDeclaration() {
+            this.#codeString += '(async () => {\n';
             return this.#codeString;
         }
 
