@@ -885,13 +885,8 @@ javascript.javascriptGenerator.forBlock.text_ask = function(block, generator) {
         'TEXT',
         Blockly.JavaScript.ORDER_NONE
     ) || "''");
-    return (
-        "  customPrint(" +
-        question +
-        ");\n" +
-        "  var answer = await input(" + question + ");\n" +
-        "  customPrintln(answer);\n"
-    );
+    let code = "  await input(" + question + ")";
+    return [code, Blockly.JavaScript.ORDER_NONE];
 };
 
 Blockly.Blocks['text_ask'] = {
@@ -899,8 +894,7 @@ Blockly.Blocks['text_ask'] = {
         this.appendValueInput("TEXT")
             .setCheck(null)
             .appendField("ask");
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
+        this.setOutput(true, "String");
         this.setColour(160);
         this.setTooltip("Ask for a specific input.");
         this.setHelpUrl("");

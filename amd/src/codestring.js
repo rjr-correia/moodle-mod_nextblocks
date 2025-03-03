@@ -58,6 +58,7 @@ function hideInputBox() {
 
 async function input(promptText) {
   showInputBox();
+  customPrint(promptText);
   return new Promise((resolve) => {
     const inputBox = document.getElementById('input-box');
     const handleKeyDown = (e) => {
@@ -65,6 +66,7 @@ async function input(promptText) {
         e.preventDefault();
         inputBox.removeEventListener('keydown', handleKeyDown);
         const answer = inputBox.value.trim();
+        customPrintln(answer);
         hideInputBox();
         resolve(answer);
       }
