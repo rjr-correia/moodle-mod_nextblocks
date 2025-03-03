@@ -885,7 +885,7 @@ javascript.javascriptGenerator.forBlock.text_ask = function(block, generator) {
         'TEXT',
         Blockly.JavaScript.ORDER_NONE
     ) || "''");
-    let code = "  await input(" + question + ")";
+    let code = "await input(" + question + ")";
     return [code, Blockly.JavaScript.ORDER_NONE];
 };
 
