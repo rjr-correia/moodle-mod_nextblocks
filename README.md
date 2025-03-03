@@ -32,7 +32,8 @@ to complete the installation from the command line.
 
 ## License ##
 
-2023 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
+2025 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
+2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
