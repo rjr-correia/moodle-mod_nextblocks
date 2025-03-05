@@ -20,13 +20,6 @@ customPrintln = function(string) {
   return string;
 };
 
-customPrint = function(string) {
-  outputString += string + ' ';
-  updateTerminal();
-  return string;
-};
-
-
 updateTerminal = function(){
   const outputDiv = document.getElementById('output-div');
   if (outputDiv) {
@@ -97,14 +90,14 @@ return outputString;
             const codeLines = this.#codeString.split(/(?<!\\)\n/);
 
             // Add lines from user functions
-            const functionLines = codeLines.slice(0, this.#userFunctionLinesCount);
+            //const functionLines = codeLines.slice(0, this.#userFunctionLinesCount);
 
             // Add lines from start block
-            const startIndex = codeLines.findIndex(line => line.includes('(function () {')) + 1;
-            const endIndex = codeLines.findIndex(line => line.includes('return outputString;'));
+            const startIndex = codeLines.findIndex(line => line.includes('await (async () => {')) + 1;
+            const endIndex = codeLines.findIndex(line => line.includes('})();'));
             const startCodeLines = codeLines.slice(startIndex, endIndex);
 
-            return functionLines.concat(startCodeLines).join('\n');
+            return startCodeLines.join('\n');
         }
 
         getSubmittableCodeString() {
