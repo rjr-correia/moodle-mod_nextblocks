@@ -87,7 +87,7 @@ return outputString;
 
         getPrintableCodeString() {
             // Split code by unescaped line breaks (code might have escaped line breaks)
-            const codeLines = this.#codeString.split(/(?<!\\)\n/);
+            const codeLines = this.#codeString.replaceAll("customPrintln", "print").split(/(?<!\\)\n/);
 
             // Add lines from user functions
             //const functionLines = codeLines.slice(0, this.#userFunctionLinesCount);
