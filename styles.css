@@ -110,3 +110,17 @@
     padding: 10px;
     font-family: "Lucida Console", "Courier New", monospace;
 }
+
+#output-div {
+    background-color: black !important;
+    color: white !important;
+    font-family: "Courier New", monospace !important;
+    border: none !important;
+}
+
+#output-div * {
+    color: white !important;
+}
+
+
+

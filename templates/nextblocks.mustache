@@ -66,87 +66,75 @@
 <hr>
 
 <div id="nextblocks-container" class="container-fluid mt-6 mb-6">
-    <input id="showCodeButton" type="submit" class="btn btn-primary m-2" value="Toggle text code"/>
-    <div class="row h-100">
-        <div id = "blocklyArea" class="col-md-9 h-100">
-            <div id="blocklyDiv" class="mw-100 h-100"></div>
+    <div class="row align-items-center mb-3">
+        <div class="col-md-3" style="margin-top: 100px;">
+            <input id="showCodeButton" type="submit" class="btn btn-primary m-2" value="Toggle text code"/>
         </div>
-        <div class="col-md-3 mh-100 h-100">
-            <div class="row h-25 border">
-                <!-- "reactions" on top, and a row of three buttons below" -->
-                <div class="col-md-12 h-100">
-                    <div class="row h-25">
-                        <!-- centered text "reactions" -->
-                        <div class="col-md-12 text-center">
+        <div class="col-md-9">
+            <div class="row justify-content-center">
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="col text-center">
                             {{{reactionsHeading}}}
                         </div>
                     </div>
-                    <div class="row h-75">
-                        <!-- three emoji reactions -->
-                        <div class="col-md-4 h-100">
-                            <div class="row h-75">
-                                <img id="emoji-hard" class = "emoji-img img-fluid border border-secondary mx-auto d-block p-1 bg-secondary rounded mh-100" src="pix/emoji-hard.png" alt="Dummy laugh image" role="button">
-                            </div>
-                            <div id="percentage-hard" class="col-md-12 text-center"></div>
+                    <div class="row">
+                        <div class="col text-center">
+                            <img id="emoji-hard" class="emoji-img img-fluid border border-secondary p-1 bg-secondary rounded" src="pix/emoji-hard.png" alt="Hard" role="button">
+                            <div id="percentage-hard"></div>
                         </div>
-                        <div class="col-md-4 h-100">
-                            <div class="row h-75">
-                                <img id="emoji-medium" class = "emoji-img img-fluid border border-secondary mx-auto d-block p-1 bg-secondary rounded mh-100" src="pix/emoji-think.png" alt="Dummy laugh image">
-                            </div>
-                            <div id="percentage-medium" class="col-md-12 text-center"></div>
+                        <div class="col text-center">
+                            <img id="emoji-medium" class="emoji-img img-fluid border border-secondary p-1 bg-secondary rounded" src="pix/emoji-think.png" alt="Medium">
+                            <div id="percentage-medium"></div>
                         </div>
-                        <div class="col-md-4 h-100">
-                            <div class="row h-75">
-                                <img id="emoji-easy" class = "emoji-img img-fluid border border-secondary mx-auto d-block p-1 bg-secondary rounded mh-100" src="pix/emoji-easy.png" alt="Dummy laugh image">
-                            </div>
-                            <div id="percentage-easy" class="col-md-12 text-center"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row h-75 border">
-                <div class="col-md-12 h-100">
-                    <div class="row h-10">
-                        <div class="col-md-12 text-center">
-                            {{{outputHeading}}}
-                        </div>
-                    </div>
-                    <div class="row h-75">
-                        <div id="output-div" class="col-md-12 h-100 p-2"></div>
-                        <input type="text" id="input-box"
-                               placeholder="Enter your answer here"
-                               style="display: none; position: absolute; top: 10px; left: 10px; z-index: 1000; width: 90%;" />
-                    </div>
-                    <div class="row h-15">
-                        <!-- run and run tests buttons -->
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-12 text-center">
-                                    <input id="runButton" type="submit" class="btn btn-primary m-2" value="{{#str}} nextblocks_run, mod_nextblocks {{/str}}" />
-                                    {{{runTestsButton}}}
-                                </div>
-                            </div>
+                        <div class="col text-center">
+                            <img id="emoji-easy" class="emoji-img img-fluid border border-secondary p-1 bg-secondary rounded" src="pix/emoji-easy.png" alt="Easy">
+                            <div id="percentage-easy"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="row h-100">
+        <div id="blocklyArea" class="col-md-12 h-100">
+            <div id="blocklyDiv" class="mw-100 h-100"></div>
+        </div>
+    </div>
+
+    <div class="row h-75 mt-3" id="terminal-container" style="background-color: black; color: white;">
+        <div class="col-md-12 h-100">
+            <div class="row h-15">
+                <div class="col-md-12 text-center">
+                    <input id="runButton" type="submit" class="btn btn-primary m-2" value="{{#str}} nextblocks_run, mod_nextblocks {{/str}}" />
+                    {{{runTestsButton}}}
+                </div>
+            </div>
+            <div class="row h-75">
+                <div id="output-div" class="col-md-12 h-100 p-2" style="color: white;"></div>
+                <input type="text" id="input-box"
+                       placeholder="Enter your answer here"
+                       style="display: none; position: absolute; top: 10px; left: 10px; z-index: 1000; width: 90%;" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12" style="text-align: center;">
+            <input id="saveButton" type="submit" class="btn btn-primary m-2" value="{{#str}} nextblocks_save, mod_nextblocks {{/str}}"/>
+            {{#showSubmitButton}}
+                <input id="submitButton" type="submit" class="btn btn-primary m-2" value="{{#str}} nextblocks_submit, mod_nextblocks {{/str}}"/>
+            {{/showSubmitButton}}
+            <input id="cancelButton" type="submit" class="btn btn-primary m-2" value="{{#str}} nextblocks_cancel, mod_nextblocks {{/str}}"/>
+        </div>
+    </div>
 </div>
 
 <div id="codeDiv" class="container mt-6 mb-6"></div>
 
-<div style="text-align: center;">
-    <input id="saveButton" type="submit" class="btn btn-primary m-2" value="{{#str}} nextblocks_save, mod_nextblocks {{/str}}"/>
-    {{#showSubmitButton}}
-        <input id="submitButton" type="submit" class="btn btn-primary m-2" value="{{#str}} nextblocks_submit, mod_nextblocks {{/str}}"/>
-    {{/showSubmitButton}}
-    <input id="cancelButton" type="submit" class="btn btn-primary m-2" value="{{#str}} nextblocks_cancel, mod_nextblocks {{/str}}"/>
-</div>
-
 <hr>
-
-<div class="container">
+<div class="container" style="margin-top: 700px;">
     <div class="chat-box">
         <div id="messages" class="messages"></div>
         <form action="" class="msg-form">
