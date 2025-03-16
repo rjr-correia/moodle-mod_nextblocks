@@ -114,13 +114,21 @@
 #output-div {
     background-color: black !important;
     color: white !important;
-    font-family: "Courier New", monospace !important;
-    border: none !important;
 }
 
 #output-div * {
-    color: white !important;
+    background-color: transparent !important;
+    color: inherit !important;
 }
 
+#output-div.tests-active {
+    background-color: white !important;
+    color: black !important;
+}
+
+#output-div.tests-active * {
+    background-color: transparent !important;
+    color: black !important;
+}
 
 

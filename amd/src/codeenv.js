@@ -336,8 +336,10 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         // Replace newlines with <br /> so that they are displayed correctly
         const outputHTML = String(output).replace(/\n/g, "<br />");
         const outputDiv = document.getElementById('output-div');
+        outputDiv.classList.remove('tests-active');
         // Wrap the output in a div with max-height and overflow-y: auto to make it scrollable if too long (multiline input)
-        outputDiv.innerHTML = `<div style="max-height: 100%; overflow-y: auto;"><pre>${outputHTML}</pre></div>`;
+        // eslint-disable-next-line max-len
+        outputDiv.innerHTML = `<div style="max-height: 100%; overflow-y: auto; color: white; background-color: black;"><pre>${outputHTML}</pre></div>`;
     }
 
     /**
@@ -385,6 +387,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
      */
     function displayTestResults(results, tests, uncalledInputFuncs) {
         const testResultsDiv = document.getElementById('output-div');
+        testResultsDiv.classList.add('tests-active');
         testResultsDiv.innerHTML = lib.testsAccordion(results, tests, uncalledInputFuncs);
     }
 
@@ -500,7 +503,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                     overlayDiv.style.left = `${paddingLeft}px`;
                     overlayDiv.style.width = `calc(100% - ${paddingLeft + paddingRight}px)`;
                     overlayDiv.style.height = '100%';
-                    overlayDiv.style.backgroundColor = '#f9f9f9';
+                    overlayDiv.style.backgroundColor = '#000000';
                     overlayDiv.style.border = '1px solid #ddd';
                     overlayDiv.style.padding = '10px';
                     overlayDiv.style.fontFamily = '"Lucida Console", "Courier New", monospace';
