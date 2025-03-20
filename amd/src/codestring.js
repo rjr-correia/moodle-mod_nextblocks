@@ -13,6 +13,7 @@ define([], function() {
 
         static #auxFunctions =
             `
+const runningTests = false;
 
 customPrintln = function(string) {
   outputString += string + '\\n';
@@ -21,6 +22,7 @@ customPrintln = function(string) {
 };
 
 updateTerminal = function(){
+  if (runningTests) return;
   const outputDiv = document.getElementById('output-div');
   if (outputDiv) {
     outputDiv.innerHTML = "";

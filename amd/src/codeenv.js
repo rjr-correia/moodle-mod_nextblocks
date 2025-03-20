@@ -332,11 +332,11 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
      * Runs the code and displays the output in the output div
      */
     async function runCode(code) {
+        const outputDiv = document.getElementById('output-div');
+        outputDiv.classList.remove('tests-active');
         const output = await lib.silentRunCode(code.getCompleteCodeString());
         // Replace newlines with <br /> so that they are displayed correctly
         const outputHTML = String(output).replace(/\n/g, "<br />");
-        const outputDiv = document.getElementById('output-div');
-        outputDiv.classList.remove('tests-active');
         // Wrap the output in a div with max-height and overflow-y: auto to make it scrollable if too long (multiline input)
         // eslint-disable-next-line max-len
         outputDiv.innerHTML = `<div style="max-height: 100%; overflow-y: auto; color: white; background-color: black;"><pre>${outputHTML}</pre></div>`;
@@ -382,13 +382,12 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
     /**
      * @param {any[]} results The results of the tests
      * @param {{}} tests The tests that were run
-     * @param {String[]} uncalledInputFuncs The names of the input functions that were not called in the code, if any
      * Displays the results of the tests in the output div
      */
-    function displayTestResults(results, tests, uncalledInputFuncs) {
+    function displayTestResults(results, tests) {
         const testResultsDiv = document.getElementById('output-div');
         testResultsDiv.classList.add('tests-active');
-        testResultsDiv.innerHTML = lib.testsAccordion(results, tests, uncalledInputFuncs);
+        testResultsDiv.innerHTML = lib.testsAccordion(results, tests);
     }
 
     /**
@@ -410,17 +409,11 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         if (tests !== null) {
             // Listen for clicks on the run tests button
             const runTestsButton = document.getElementById('runTestsButton');
-            runTestsButton.addEventListener('click', () => { // Needs anonymous function wrap to pass argument
+            runTestsButton.addEventListener('click', async () => { // Needs anonymous function wrap to pass argument
                 const code = lib.getWorkspaceCode(workspace, inputFuncDecs).getCompleteCodeString();
-                const uncalledInputFuncs = lib.getMissingInputCalls(code, inputFuncDecs);
-                let results;
-                // If not all input functions are called, automatically fails all tests
-                if (uncalledInputFuncs.length > 0) {
-                    results = null;
-                } else {
-                    results = lib.runTests(code, tests);
-                }
-                displayTestResults(results, tests, uncalledInputFuncs);
+                lib.runTests(code, tests).then((results) => {
+                    displayTestResults(results, tests);
+                });
             });
         }
 
@@ -591,24 +584,6 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
             // Parse json from test file contents
             const tests = JSON.parse(contents);
             let inputFunctionDeclarations = {funcDecs: ""};
-            if (tests !== null) {
-                // Create forced input blocks from tests file. Only add to workspace if there is no workspace to load. If there
-                // was a workspace to load, they would be added twice.
-                const inputs = tests[0].inputs;
-
-                inputs.forEach((input, i) => {
-                    const inputName = Object.keys(input)[0];
-                    const inputType = Object.keys(input[inputName])[0];
-                    createForcedInputBlock(inputName, inputType, inputFunctionDeclarations); // Doesn't add block to workspace, just
-                    // defines it. Needed for save loading
-
-                    if (loadedSave === null) { // Only add to workspace if there is no workspace to load
-                        const blockName = "forced_input_" + inputName;
-                        let newBlock = addBlockToWorkspace(blockName, nextblocksWorkspace);
-                        newBlock.moveBy(0, i * 50 + 50); // Move block down a bit so that they don't overlap
-                    }
-                });
-            }
 
             // Load the save, if there is one
             if (loadedSave !== null) {
@@ -820,48 +795,6 @@ function getCMID() {
  * @param {object} inputFunctionDeclarations Contains the string containing the function declarations for the input
  * blocks, to be added to the top of the code. Is an object so that it is passed by reference.
  */
-function createForcedInputBlock(prompt, inputType, inputFunctionDeclarations) {
-    const blockName = "forced_input_" + prompt;
-    if (inputType === "string") {
-        Blockly.Blocks[blockName] = {
-            init: function() {
-                this.appendDummyInput().appendField(prompt).appendField(new Blockly.FieldTextInput('text'), prompt);
-                this.setOutput(true, "String");
-                this.setDeletable(false);
-                this.setColour(180);
-                this.setTooltip("");
-                this.setHelpUrl("");
-            }
-        };
-
-        // eslint-disable-next-line no-unused-vars
-        javascript.javascriptGenerator.forBlock[blockName] = function(block, generator) {
-            const text = block.getFieldValue(prompt);
-            let blockCode = `input${prompt}('${text}')`;
-            return [blockCode, Blockly.JavaScript.ORDER_NONE];
-        };
-    } else if (inputType === "number") {
-        Blockly.Blocks[blockName] = {
-            init: function() {
-                this.appendDummyInput().appendField(prompt).appendField(new Blockly.FieldNumber(0), prompt);
-                this.setOutput(true, "Number");
-                this.setColour(180);
-                this.setTooltip("");
-                this.setHelpUrl("");
-            }
-        };
-
-        // eslint-disable-next-line no-unused-vars
-        javascript.javascriptGenerator.forBlock[blockName] = function(block, generator) {
-            const number = block.getFieldValue(prompt);
-            let blockCode = `input${prompt}(${number})`;
-            return [blockCode, Blockly.JavaScript.ORDER_NONE];
-        };
-    }
-
-    inputFunctionDeclarations.funcDecs += `function input${prompt}(string) {\n   return string;\n}\n`;
-    javascript.javascriptGenerator.addReservedWords(`input${prompt}`);
-}
 
 // eslint-disable-next-line no-extend-native
 String.prototype.hideWrapperFunction = function() {

@@ -198,7 +198,7 @@ function hasTestsFile(object $fromform): bool
 
 function file_structure_is_valid(string $file_string): bool {
     // Validate file structure with regular expression
-    $exp = "/(\|\s+(_\s+\w+\s*:\s*(\w+\s+)+)*-\s+(\w+\s+)+)+/";
+    $exp = "/(\|\s+(\w+\s+)*-\s+(\w+\s+)+)+/";
     return preg_match_all($exp, $file_string) !== 1;
 }
 

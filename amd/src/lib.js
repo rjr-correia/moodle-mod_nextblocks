@@ -35,22 +35,6 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
         return descendantsCode;
     }
 
-    /**
-     * @param {String} input the code to extract the function names from
-     * @returns {String[]} the names of the functions declared in the given code
-     */
-    function extractFunctionNames(input) {
-        const regex = /function\s+(\w+)\s*\(/g;
-        const functionNames = [];
-        let match;
-
-        while ((match = regex.exec(input)) !== null) {
-            functionNames.push(match[1]);
-        }
-
-        return functionNames;
-    }
-
     return {
         /**
          * @param {String} code The Javascript code to be run
@@ -83,45 +67,45 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
          * Inserts the test results accordion in the area above the Run and Tests buttons
          * @param {any[]|null} results the outputs of the tests
          * @param {{}} testsJSON the tests that were run (for displaying the inputs and outputs)
-         * @param {String[]} uncalledInputFuncs the input functions that were not called.
          * Note: if this is not empty, results is null
          * @returns {string} the HTML for the accordion
          */
-        testsAccordion: function(results, testsJSON, uncalledInputFuncs) {
+        testsAccordion: function(results, testsJSON) {
             const testCaseCount = testsJSON.length;
             let accordion = '<div class="d-flex flex-wrap" style="max-height: 100%; overflow-y: auto;">';
-
-            if (results === null) {
-                accordion += '<div class="alert alert-warning w-100" role="alert">';
-                accordion += 'Not all input functions were called. No tests will be executed.';
-                accordion += '<br>Input functions not called: ' + uncalledInputFuncs.join(', ');
-                accordion += '</div>';
-            }
 
             for (let i = 0; i < testCaseCount; i++) {
                 accordion += '<div class="card m-2" style="flex: 1 1 calc(25% - 20px); min-width: 250px;">';
                 accordion += '<details class="card-body">';
-                accordion += '<summary class="card-header">';
+                accordion += '<summary class="card-header" style="border-bottom: none;">';
                 accordion += 'Test ' + (i + 1);
 
                 if (results === null || results[i] === undefined) {
                     accordion += '<span class="badge badge-warning float-right">Not run</span>';
                 } else if (results[i] === testsJSON[i].output) {
-                    accordion += '<span class="badge badge-success float-right">Passed</span>';
+                    accordion += '<span class="badge badge-success float-right" style="color: green !important;">Passed</span>';
                 } else {
-                    accordion += '<span class="badge badge-danger float-right">Failed</span>';
+                    accordion += '<span class="badge badge-danger float-right" style="color: red !important;">Failed</span>';
                 }
                 accordion += '</summary>';
 
-                accordion += '<div class="pt-2" style="border: 1px solid #ddd !important; background-color: white !important;">';
+                accordion += '<div class="pt-2" style="background-color: white !important;">';
                 /* eslint-disable no-loop-func */
                 testsJSON[i].inputs.forEach((input) => {
-                    for (const key in input) {
-                        accordion += '<p class="pt-2 m-0">' + key + ': </p>';
-                        accordion += '<pre class="mt-1 mb-0 test-input">' + Object.values(input[key])[0][0] + '</pre>';
+                    const prompt = Object.keys(input)[0];
+                    const values = Object.values(input[prompt])[0];
+                    const combination = [prompt].concat(values);
+
+                    let inputString = "";
+                    for (const v of combination) {
+                        inputString += v;
+                        inputString += "\n";
                     }
+
+                    accordion += '<p class="pt-2 m-0">Test Input: </p>';
+                    accordion += '<pre class="mt-1 mb-0 test-input">' + inputString + '</pre>';
                 });
-                accordion += '<p class="pt-2 border-top mt-2 mb-0">Test output: </p>';
+                accordion += '<p class="pt-2 mt-2 mb-0">Expected test output: </p>';
                 accordion += '<pre class="mt-1 mb-0 test-output">' + testsJSON[i].output + '</pre>';
                 accordion += '<div class="p-0">';
                 accordion += '<p class="pt-2 m-0">Your output: </p>';
@@ -148,51 +132,53 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
          * @param {{}} tests the tests to run
          * @returns {String[]} the output of each test
          */
-        runTests: function(code, tests) {
+        runTests: async function(code, tests) {
             let results = [];
-            tests.forEach((test) => {
+            code = code.replace("runningTests = false;", "runningTests = true;");
+            for (const test of tests) {
                 let thisTestCode = code; // Need to copy, so that the code is not modified for the next test
                 const inputs = test.inputs;
-                inputs.forEach((input) => {
+                for (const input of inputs) {
                     const prompt = Object.keys(input)[0];
                     const values = Object.values(input[prompt])[0];
 
-                    const inputIndex = thisTestCode.lastIndexOf(prompt);
-                    // Get the indexes of the first and second parentheses of the input function call
-                    const inputParentheses1 = thisTestCode.indexOf('(', inputIndex);
-                    const inputParentheses2 = thisTestCode.indexOf(')', inputParentheses1 + 1);
+                    const combination = [prompt].concat(values);
 
-                    const preStr = thisTestCode.substring(0, inputParentheses1 + 1);
-                    const postStr = thisTestCode.substring(inputParentheses2);
 
-                    thisTestCode = preStr + values[0] + postStr;
-                });
-                let codeOutput = this.silentRunCode(thisTestCode);
-                codeOutput = codeOutput.replace(/\s/g, '');
+                    for (const v of combination) {
+                        const inputParentheses1 = thisTestCode.indexOf('await input(');
+                        if(inputParentheses1 != -1) {
+                            const inputParentheses2 = thisTestCode.indexOf('\')', inputParentheses1);
+
+                            const preStr = thisTestCode.substring(0, inputParentheses1);
+                            const postStr = thisTestCode.substring(inputParentheses2+1);
+
+                            thisTestCode = preStr + '(' + v + postStr;
+                        }
+                    }
+
+                    //fill the rest of asks with empty strings
+                    /* eslint-disable-next-line no-constant-condition */
+                    while(true) {
+                        const inputParentheses1 = thisTestCode.indexOf('await input(');
+                        if(inputParentheses1 == -1){
+                            break;
+                        }
+                        const inputParentheses2 = thisTestCode.indexOf('\')', inputParentheses1);
+
+                        const preStr = thisTestCode.substring(0, inputParentheses1);
+                        const postStr = thisTestCode.substring(inputParentheses2 + 1);
+
+                        thisTestCode = preStr + '(""' + postStr;
+                    }
+
+
+                }
+                let codeOutput =  await this.silentRunCode(thisTestCode);
+                codeOutput = codeOutput.trim();
                 results.push(codeOutput);
-            });
-            return results;
-        },
-
-        /**
-         * @param {String} code the code to check for input function calls
-         * @param {string} inputFuncDecs the function declarations for the forced input functions
-         * @returns {String[]} whether the code has all input function calls
-         */
-        getMissingInputCalls: function(code, inputFuncDecs) {
-
-            // Regex to match input function calls outside of comments
-            const regex = /((?!\/\/ ).{3}|^.{0,2})\binput\w+\s*\([^)]*\)(?=\s*;|\s*\)|\s*[,)])/g;
-            const functionDecNames = extractFunctionNames(inputFuncDecs);
-            const matches = code.match(regex);
-
-            if (matches === null) {
-                return functionDecNames;
             }
-            const functionCallNames = matches.map((match) => match.match(/\b(\w+)(?=\s*\()/g)).flat();
-
-            // Return all function declarations that are not called
-            return functionDecNames.filter((name) => !functionCallNames.includes(name));
+            return results;
         },
 
         /**
