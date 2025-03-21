@@ -14,6 +14,8 @@ define([], function() {
         static #auxFunctions =
             `
 const runningTests = false;
+const testInputs = [];
+var nextInput = 0;
 
 customPrintln = function(string) {
   outputString += string + '\\n';
@@ -34,6 +36,10 @@ updateTerminal = function(){
 }
 
 async function input(promptText) {
+  if(runningTests){
+    if(nextInput >= testInputs.length) return "";
+    return testInputs[nextInput++];
+  }
   const terminal = document.getElementById('output-div')
   customPrintln(promptText);
   const inputBox = document.createElement('input');

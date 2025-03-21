@@ -144,34 +144,8 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
 
                     const combination = [prompt].concat(values);
 
-
-                    for (const v of combination) {
-                        const inputParentheses1 = thisTestCode.indexOf('await input(');
-                        if(inputParentheses1 != -1) {
-                            const inputParentheses2 = thisTestCode.indexOf('\')', inputParentheses1);
-
-                            const preStr = thisTestCode.substring(0, inputParentheses1);
-                            const postStr = thisTestCode.substring(inputParentheses2+1);
-
-                            thisTestCode = preStr + '(' + v + postStr;
-                        }
-                    }
-
-                    //fill the rest of asks with empty strings
-                    /* eslint-disable-next-line no-constant-condition */
-                    while(true) {
-                        const inputParentheses1 = thisTestCode.indexOf('await input(');
-                        if(inputParentheses1 == -1){
-                            break;
-                        }
-                        const inputParentheses2 = thisTestCode.indexOf('\')', inputParentheses1);
-
-                        const preStr = thisTestCode.substring(0, inputParentheses1);
-                        const postStr = thisTestCode.substring(inputParentheses2 + 1);
-
-                        thisTestCode = preStr + '(""' + postStr;
-                    }
-
+                    thisTestCode = thisTestCode.replace("const testInputs = [];",
+                        "const testInputs = ["+combination.toString()+"];");
 
                 }
                 let codeOutput =  await this.silentRunCode(thisTestCode);
