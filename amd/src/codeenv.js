@@ -334,12 +334,24 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
     async function runCode(code) {
         const outputDiv = document.getElementById('output-div');
         outputDiv.classList.remove('tests-active');
-        const output = await lib.silentRunCode(code.getCompleteCodeString());
+        var codeString = code.getCompleteCodeString();
+        //Avoid infinite loops
+        codeString = codeString.replace(/((?:while|for)\s*\([^)]*\)\s*\{)/g,
+            "$1\nif(loopIterations++>MAX_ITERATIONS) return outputString = \"Error: Maximum execution time exceeded\";");
+
+        const output = await lib.silentRunCode(codeString);
+
         // Replace newlines with <br /> so that they are displayed correctly
         const outputHTML = String(output).replace(/\n/g, "<br />");
         // Wrap the output in a div with max-height and overflow-y: auto to make it scrollable if too long (multiline input)
-        // eslint-disable-next-line max-len
-        outputDiv.innerHTML = `<div style="max-height: 100%; overflow-y: auto; color: white; background-color: black;"><pre>${outputHTML}</pre></div>`;
+        if(output.includes("Error")){
+            // eslint-disable-next-line max-len
+            outputDiv.innerHTML = `<div style="max-height: 100%; overflow-y: auto; color: red !important; background-color: black;"><pre>${outputHTML}</pre></div>`;
+        }
+        else {
+            // eslint-disable-next-line max-len
+            outputDiv.innerHTML = `<div style="max-height: 100%; overflow-y: auto; color: white !important; background-color: black;"><pre>${outputHTML}</pre></div>`;
+        }
     }
 
     /**

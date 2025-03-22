@@ -82,6 +82,8 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
 
                 if (results === null || results[i] === undefined) {
                     accordion += '<span class="badge badge-warning float-right">Not run</span>';
+                } else if (results[i].includes("Error")){
+                    accordion += '<span class="badge badge-warning float-right" style="color: black !important;">Error</span>';
                 } else if (results[i] === testsJSON[i].output) {
                     accordion += '<span class="badge badge-success float-right" style="color: green !important;">Passed</span>';
                 } else {
@@ -112,6 +114,11 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
 
                 if (results === null) {
                     accordion += '<pre class="mt-1 mb-0 test-output">Not run</pre>';
+
+                } else if (results[i].includes("Error") &&
+                    results[i].includes("Maximum execution time exceeded")) {
+                        accordion += '<pre class="mt-1 mb-0 test-output" style="color: red !important;">' +
+                            'Error: Maximum execution time exceeded</pre>';
                 } else {
                     accordion += '<pre class="pb-2 mt-1 mb-0 test-output">' + results[i] + '</pre>';
                 }
@@ -135,6 +142,12 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
         runTests: async function(code, tests) {
             let results = [];
             code = code.replace("runningTests = false;", "runningTests = true;");
+
+            //Avoid infinite loops
+            code = code.replace(/((?:while|for)\s*\([^)]*\)\s*\{)/g,
+                "$1\nif(loopIterations++>MAX_ITERATIONS) return outputString = " +
+                "\"Error: Maximum execution time exceeded\";");
+
             for (const test of tests) {
                 let thisTestCode = code; // Need to copy, so that the code is not modified for the next test
                 const inputs = test.inputs;

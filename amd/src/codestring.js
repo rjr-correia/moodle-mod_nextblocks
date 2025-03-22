@@ -15,7 +15,9 @@ define([], function() {
             `
 const runningTests = false;
 const testInputs = [];
+const MAX_ITERATIONS = 10000;
 var nextInput = 0;
+var loopIterations = 0;
 
 customPrintln = function(string) {
   outputString += string + '\\n';
