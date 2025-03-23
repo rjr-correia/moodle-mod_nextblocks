@@ -111,14 +111,12 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
                 accordion += '<pre class="mt-1 mb-0 test-output">' + testsJSON[i].output + '</pre>';
                 accordion += '<div class="p-0">';
                 accordion += '<p class="pt-2 m-0">Your output: </p>';
-
                 if (results === null) {
                     accordion += '<pre class="mt-1 mb-0 test-output">Not run</pre>';
 
-                } else if (results[i].includes("Error") &&
-                    results[i].includes("Maximum execution time exceeded")) {
+                } else if (results[i].includes("Error")) {
                         accordion += '<pre class="mt-1 mb-0 test-output" style="color: red !important;">' +
-                            'Error: Maximum execution time exceeded</pre>';
+                            results[i] + '</pre>';
                 } else {
                     accordion += '<pre class="pb-2 mt-1 mb-0 test-output">' + results[i] + '</pre>';
                 }
@@ -133,6 +131,20 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
         },
 
         /**
+         * Changes the code to correctly output execution errors
+         * @param {CodeString} code the code text to be formatted (string literal)
+         * @returns {string} the formatted code
+         */
+        errorPrevention: (code) => {
+            //Avoid infinite loops
+            code = code.replace(/((?:while|for)\s*\([^)]*\)\s*\{)/g,
+                "$1\nif(loopIterations++>MAX_ITERATIONS) return outputString = " +
+                "\"Error: Maximum execution time exceeded\";");
+
+            return code;
+        },
+
+        /**
          * Runs the tests on the given workspace and returns an array of booleans, one for each test, indicating whether
          * the test passed or not
          * @param {String} code the workspace to run the tests on
@@ -143,10 +155,7 @@ define(['mod_nextblocks/codestring'], function(CodeString) {
             let results = [];
             code = code.replace("runningTests = false;", "runningTests = true;");
 
-            //Avoid infinite loops
-            code = code.replace(/((?:while|for)\s*\([^)]*\)\s*\{)/g,
-                "$1\nif(loopIterations++>MAX_ITERATIONS) return outputString = " +
-                "\"Error: Maximum execution time exceeded\";");
+            code = this.errorPrevention(code);
 
             for (const test of tests) {
                 let thisTestCode = code; // Need to copy, so that the code is not modified for the next test

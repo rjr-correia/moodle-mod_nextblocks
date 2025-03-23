@@ -335,9 +335,8 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         const outputDiv = document.getElementById('output-div');
         outputDiv.classList.remove('tests-active');
         var codeString = code.getCompleteCodeString();
-        //Avoid infinite loops
-        codeString = codeString.replace(/((?:while|for)\s*\([^)]*\)\s*\{)/g,
-            "$1\nif(loopIterations++>MAX_ITERATIONS) return outputString = \"Error: Maximum execution time exceeded\";");
+
+        codeString = lib.errorPrevention(codeString);
 
         const output = await lib.silentRunCode(codeString);
 

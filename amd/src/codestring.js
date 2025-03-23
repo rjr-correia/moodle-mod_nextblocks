@@ -39,8 +39,8 @@ updateTerminal = function(){
 
 async function input(promptText) {
   if(runningTests){
-    if(nextInput >= testInputs.length) return "";
-    return testInputs[nextInput++];
+    if(nextInput++ >= testInputs.length) return "";
+    return testInputs[nextInput-1];
   }
   const terminal = document.getElementById('output-div')
   customPrintln(promptText);
@@ -77,7 +77,7 @@ async function input(promptText) {
 
 `;
         static #codeEnding = `})();
-return outputString;
+return nextInput > testInputs.length ? \"Error: Too many inputs\" : outputString;
 })();
 `;
         constructor(codeString) {
