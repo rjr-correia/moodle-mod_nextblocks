@@ -152,6 +152,13 @@ function toolboxXML() {
       </value>
     </block>
     <block type="math_random_float"></block>
+    <block type="text_to_number"=>
+       <value name="TEXT">
+          <shadow type="text_to_number">
+             <field name="TEXT"></field>
+          </shadow>
+       </value>
+    </block>
   </category>
   <category name="Text" colour="#5ba58c">
     <block type="text">

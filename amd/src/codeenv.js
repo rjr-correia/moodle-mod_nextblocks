@@ -150,6 +150,11 @@ let toolbox = {
                     'kind': 'block',
                     'type': 'math_atan2',
                 },
+                {
+                    'kind': 'block',
+                    'type': 'text_to_number',
+                },
+
             ],
         },
         {
@@ -848,7 +853,27 @@ Blockly.Blocks['text_ask'] = {
     }
 };
 
+javascript.javascriptGenerator.forBlock.text_to_number = function(block, generator) {
+    const prompt = (generator.valueToCode(
+        block,
+        'TEXT',
+        Blockly.JavaScript.ORDER_NONE
+    ) || "''").trim();
+    let code = "text_to_number(" + prompt + ")";
+    return [code, Blockly.JavaScript.ORDER_NONE];
+};
 
+Blockly.Blocks['text_to_number'] = {
+    init: function() {
+        this.appendValueInput("TEXT")
+            .setCheck(null)
+            .appendField("text to number");
+        this.setOutput(true, "Number");
+        this.setColour("#5b67a5");
+        this.setTooltip("Convert a string to a number.");
+        this.setHelpUrl("");
+    }
+};
 
 Blockly.Blocks.number_input = {
     init: function() {
