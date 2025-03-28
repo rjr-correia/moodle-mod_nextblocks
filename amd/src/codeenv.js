@@ -845,7 +845,7 @@ Blockly.Blocks['text_ask'] = {
     init: function() {
         this.appendValueInput("TEXT")
             .setCheck(null)
-            .appendField("ask");
+            .appendField("input");
         this.setOutput(true, "String");
         this.setColour(160);
         this.setTooltip("Ask for a specific input.");
