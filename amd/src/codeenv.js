@@ -521,6 +521,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                 }
                 overlayDiv.innerHTML = codeString;
                 overlayDiv.style.display = 'block';
+                overlayDiv.style.backgroundColor = 'white';
                 codeVisible = true;
             }
         });
