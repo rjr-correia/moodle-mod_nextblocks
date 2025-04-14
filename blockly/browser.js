@@ -1,9 +1,9 @@
 /* eslint-disable */
 ;(function(root, factory) {
   if (typeof define === 'function' && define.amd) { // AMD
-    define(['./core-browser', './msg/en', './blocks', './javascript'], factory);
+    define(['./core-browser', './msg/en', './blocks', './javascript', './python'], factory);
   } else if (typeof exports === 'object') { // Node.js
-    module.exports = factory(require('./core-browser'), require('./msg/en'), require('./blocks'), require('./javascript'));
+    module.exports = factory(require('./core-browser'), require('./msg/en'), require('./blocks'), require('./javascript'), require('./python'));
   } else { // Browser
     root.Blockly = factory(root.Blockly, root.En, root.BlocklyBlocks, root.BlocklyJS);
   }

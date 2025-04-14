@@ -56,7 +56,9 @@ echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-a
 echo '<script src="./blockly/blockly_compressed.js"></script>
     <script src="./blockly/blocks_compressed.js"></script>
     <script src="./blockly/msg/en.js"></script>
-    <script src="./blockly/javascript_compressed.js"></script>';
+    <script src="./blockly/javascript_compressed.js"></script>
+    <script src="./blockly/python_compressed.js"></script>';
+
 
 //import custom category
 //echo '<script src="./amd/src/custom_category.js"></script>';

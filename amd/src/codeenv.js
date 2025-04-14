@@ -9,6 +9,9 @@
 
 /* globals javascript */
 
+/* globals python */
+
+
 let toolbox = {
     'kind': 'categoryToolbox',
     'readOnly': true,
@@ -492,39 +495,77 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
 
         textCodeButton.addEventListener('click', () => {
             const blocklyArea = document.getElementById('blocklyArea');
-            const codeString = lib.formatCodeHTML(lib.getWorkspaceCode(workspace, inputFuncDecs)).replace(/\n/g, "<br />");
-
-            // Get the padding of the blocklyArea
             const paddingLeft = parseInt(window.getComputedStyle(blocklyArea).getPropertyValue('padding-left'));
             const paddingRight = parseInt(window.getComputedStyle(blocklyArea).getPropertyValue('padding-right'));
 
             if (codeVisible) {
-                // If the code is currently visible, hide it
                 overlayDiv.style.display = 'none';
                 codeVisible = false;
             } else {
-                // If the code is currently hidden, show it
                 if (!overlayDiv) {
-                    // If the overlay div doesn't exist, create it
                     overlayDiv = document.createElement('div');
                     overlayDiv.style.position = 'absolute';
                     overlayDiv.style.top = '0';
                     overlayDiv.style.left = `${paddingLeft}px`;
                     overlayDiv.style.width = `calc(100% - ${paddingLeft + paddingRight}px)`;
                     overlayDiv.style.height = '100%';
-                    overlayDiv.style.backgroundColor = '#000000';
+                    overlayDiv.style.backgroundColor = 'white';
                     overlayDiv.style.border = '1px solid #ddd';
                     overlayDiv.style.padding = '10px';
                     overlayDiv.style.fontFamily = '"Lucida Console", "Courier New", monospace';
                     overlayDiv.style.zIndex = '1000';
                     blocklyArea.appendChild(overlayDiv);
+
+                    const headerDiv = document.createElement('div');
+                    headerDiv.id = 'langContainer';
+                    headerDiv.style.position = 'absolute';
+                    headerDiv.style.top = '5px';
+                    headerDiv.style.left = '5px';
+                    headerDiv.style.zIndex = '1100';
+                    overlayDiv.appendChild(headerDiv);
+
+                    const jsButton = document.createElement('button');
+                    jsButton.id = 'jsButton';
+                    jsButton.textContent = 'JavaScript';
+                    jsButton.style.marginRight = '5px';
+                    headerDiv.appendChild(jsButton);
+
+                    const pyButton = document.createElement('button');
+                    pyButton.id = 'pyButton';
+                    pyButton.textContent = 'Python';
+                    headerDiv.appendChild(pyButton);
+
+                    const codeContentDiv = document.createElement('div');
+                    codeContentDiv.id = 'codeContent';
+                    codeContentDiv.style.marginTop = '40px';
+                    overlayDiv.appendChild(codeContentDiv);
+
+                    jsButton.addEventListener('click', () => { updateOverlayCode('javascript'); });
+                    pyButton.addEventListener('click', () => { updateOverlayCode('python'); });
                 }
-                overlayDiv.innerHTML = codeString;
+
+                updateOverlayCode('javascript');
                 overlayDiv.style.display = 'block';
-                overlayDiv.style.backgroundColor = 'white';
                 codeVisible = true;
             }
         });
+        /**
+         * A helper function to update the code in the overlay according to the chosen language.
+         * @param {string} lang The chosen language.
+         */
+        function updateOverlayCode(lang) {
+            let codeString = '';
+            if (lang == 'python') {
+                codeString = lib.formatPythonCodeHTML(lib.getWorkspaceCodePython(workspace, inputFuncDecs));
+            } else {
+                codeString = lib.formatCodeHTML(lib.getWorkspaceCode(workspace, inputFuncDecs));
+            }
+            codeString = codeString.replace(/\n/g, "<br />");
+            const codeContentDiv = document.getElementById('codeContent');
+            if (codeContentDiv) {
+                codeContentDiv.innerHTML = codeString;
+            }
+        }
     }
 
     return {
@@ -593,7 +634,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
 
             nextblocksWorkspace = Blockly.inject(blocklyDiv, getOptions(remainingSubmissions, reportType !== 0));
             javascript.javascriptGenerator.init(nextblocksWorkspace);
-
+            python.pythonGenerator.init(nextblocksWorkspace);
             // Use resize observer instead of window resize event. This captures both window resize and element resize
             const resizeObserver = new ResizeObserver(() => onResize(blocklyArea, blocklyDiv, nextblocksWorkspace));
             resizeObserver.observe(blocklyArea);
@@ -840,6 +881,16 @@ javascript.javascriptGenerator.forBlock.text_ask = function(block, generator) {
     ) || "''");
     let code = "await input(" + question + ")";
     return [code, Blockly.JavaScript.ORDER_NONE];
+};
+
+python.pythonGenerator.forBlock.text_ask = function(block, generator) {
+    const question = (generator.valueToCode(
+        block,
+        'TEXT',
+        Blockly.Python.ORDER_NONE
+    ) || "''");
+    let code = "input(" + question + ")";
+    return [code, Blockly.Python.ORDER_NONE];
 };
 
 Blockly.Blocks['text_ask'] = {
