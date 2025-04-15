@@ -114,7 +114,10 @@ async function input(promptText) {
 
         getPrintableCodeString() {
             // Split code by unescaped line breaks (code might have escaped line breaks)
-            const codeLines = this.#codeString.replaceAll("customPrintln", "print").split(/(?<!\\)\n/);
+            const codeLines = this.#codeString
+                .replaceAll("customPrintln", "print")
+                .replaceAll("text_to_number", "parseFloat")
+                .split(/(?<!\\)\n/);
 
             // Add lines from user functions
             //const functionLines = codeLines.slice(0, this.#userFunctionLinesCount);

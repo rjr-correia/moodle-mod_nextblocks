@@ -915,6 +915,16 @@ javascript.javascriptGenerator.forBlock.text_to_number = function(block, generat
     return [code, Blockly.JavaScript.ORDER_NONE];
 };
 
+python.pythonGenerator.forBlock.text_to_number = function(block, generator) {
+    const prompt = (generator.valueToCode(
+        block,
+        'TEXT',
+        Blockly.Python.ORDER_NONE
+    ) || "''").trim();
+    let code = "text_to_number(" + prompt + ")";
+    return [code, Blockly.Python.ORDER_NONE];
+};
+
 Blockly.Blocks['text_to_number'] = {
     init: function() {
         this.appendValueInput("TEXT")

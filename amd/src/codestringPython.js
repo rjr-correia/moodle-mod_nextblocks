@@ -116,6 +116,7 @@ async function input(promptText) {
             const codeLines = this.#codeString
                 .replaceAll("customPrintln", "print")
                 .replaceAll("await ", "")
+                .replaceAll("text_to_number", "float")
                 .split(/(?<!\\)\n/);
 
             // Add lines from user functions
