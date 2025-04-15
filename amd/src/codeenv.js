@@ -540,8 +540,20 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                     codeContentDiv.style.marginTop = '40px';
                     overlayDiv.appendChild(codeContentDiv);
 
-                    jsButton.addEventListener('click', () => { updateOverlayCode('javascript'); });
-                    pyButton.addEventListener('click', () => { updateOverlayCode('python'); });
+
+                    jsButton.addEventListener('click', () => {
+                        updateOverlayCode('javascript');
+                        jsButton.classList.add('selected-button');
+                        pyButton.classList.remove('selected-button');
+                    });
+
+                    pyButton.addEventListener('click', () => {
+                        updateOverlayCode('python');
+                        pyButton.classList.add('selected-button');
+                        jsButton.classList.remove('selected-button');
+                    });
+
+                    jsButton.classList.add('selected-button');
                 }
 
                 updateOverlayCode('javascript');
