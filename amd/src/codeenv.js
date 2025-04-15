@@ -557,6 +557,9 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                 }
 
                 updateOverlayCode('javascript');
+                document.querySelectorAll('.blocklyHtmlInput').forEach(input => {
+                    input.style.display = 'none';
+                });
                 overlayDiv.style.display = 'block';
                 codeVisible = true;
             }
