@@ -1,7 +1,8 @@
 /**
  *
  * @module      mod_nextblocks/codestringPython
- * @copyright   2023 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
+ * @copyright   2025 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
+ * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

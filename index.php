@@ -18,8 +18,8 @@
  * Display information about all the mod_nextblocks modules in the requested course.
  *
  * @package     mod_nextblocks
- * @copyright   2023 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright   2025 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
+ * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt> * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require(__DIR__.'/../../config.php');

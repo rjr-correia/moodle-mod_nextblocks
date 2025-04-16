@@ -1,3 +1,0 @@
-add support for updating plugin without reinstalling
-
-add timestamps to message in chat box

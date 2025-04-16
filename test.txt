@@ -1,36 +1,27 @@
 |
-_
-Number1: number
 2
-_
-Number2: number
 10
 -
 20
 |
-_
-Number1: number
 4
-_
-Number2: number
 10
 -
 40
 |
-_
-Number1: number
 40000000
-_
-Number2: number
 1000
 -
 40000000000
 |
-_
-Number1: number
 0
-_
-Number2: number
 0
 -
 0
+|
+1
+2
+3
+-
+3
+4
