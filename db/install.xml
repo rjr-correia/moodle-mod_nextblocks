@@ -47,7 +47,8 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="blockdefinition" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Definition for the custom block"/>
-        <FIELD NAME="blockgenerator" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Code generator for the custom block"/>
+        <FIELD NAME="blockgenerator" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Code generator for the custom block in Javascript"/>
+        <FIELD NAME="blockpythongenerator" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Code generator for the custom block in Python"/>
         <FIELD NAME="nextblocksid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="Id of the exercise to which this custom block belongs"/>
       </FIELDS>
       <KEYS>

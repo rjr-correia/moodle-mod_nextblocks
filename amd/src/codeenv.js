@@ -642,10 +642,23 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                     'type': blockName,
                 });
 
-                // eslint-disable-next-line no-eval
-                eval(block.definition);
+                const definition = JSON.parse(block.definition);
+                Blockly.defineBlocksWithJsonArray([definition]);
                 // eslint-disable-next-line no-eval
                 eval(block.generator);
+                // eslint-disable-next-line no-console
+                console.log(blockName);
+                if(block.pythongenerator.length === 0){
+                    var code = "python.pythonGenerator.forBlock['"+blockName+"'] = function(block) {\n" +
+                        "  const code = '"+blockName+"()';\n" +
+                        "  return [code, python.pythonGenerator.ORDER_ATOMIC];\n" +
+                        "};\n";
+                    // eslint-disable-next-line no-eval
+                    eval(code);
+                } else {
+                    // eslint-disable-next-line no-eval
+                    eval(block.pythongenerator);
+                }
             });
 
             nextblocksWorkspace = Blockly.inject(blocklyDiv, getOptions(remainingSubmissions, reportType !== 0));

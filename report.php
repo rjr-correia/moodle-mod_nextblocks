@@ -78,7 +78,8 @@ $custom_blocks_json = array();
 foreach ($custom_blocks as $custom_block) {
     $custom_blocks_json[] = array(
         'definition' => $custom_block->blockdefinition,
-        'generator' => $custom_block->blockgenerator
+        'generator' => $custom_block->blockgenerator,
+        'pythongenerator' => $custom_block->blockpythongenerator
     );
 }
 

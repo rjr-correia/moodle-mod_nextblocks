@@ -174,6 +174,7 @@ function save_custom_blocks(object $fromform, int $id)
     //get block definitions and generators from form
     $blockdefinitions = $fromform->definition;
     $blockgenerators = $fromform->generator;
+    $blockpythongenerators = $fromform->pythongenerator;
 
     if((count($blockdefinitions) == 1 && $blockdefinitions[0] == '') || (count($blockgenerators) == 1 && $blockgenerators[0] == '')){
         return;
@@ -186,7 +187,9 @@ function save_custom_blocks(object $fromform, int $id)
     //save each block definition and generator in the mdl_nextblocks_customblocks table
     foreach ($blockdefinitions as $key => $blockdefinition) {
         $blockgenerator = $blockgenerators[$key];
-        $DB->insert_record('nextblocks_customblocks', ['blockdefinition' => $blockdefinition, 'blockgenerator' => $blockgenerator, 'nextblocksid' => $id]);
+        $blockpythongenerator = $blockpythongenerators[$key];
+        $DB->insert_record('nextblocks_customblocks', ['blockdefinition' => $blockdefinition, 'blockgenerator' => $blockgenerator,
+            'blockpythongenerator' => $blockpythongenerator, 'nextblocksid' => $id]);
     }
 }
 

@@ -112,6 +112,10 @@ class mod_nextblocks_mod_form extends moodleform_mod {
                 'wrap="virtual" rows="8" cols="80"');
             $mform->addHelpButton('blockgenerator', 'blockgenerator', 'mod_nextblocks');
             $mform->setType('blockgenerator', PARAM_TEXT);
+            $mform->addElement('textarea', 'blockpythongenerator', get_string("blockgeneratorPython", "mod_nextblocks"),
+                'wrap="virtual" rows="8" cols="80"');
+            $mform->addHelpButton('blockpythongenerator', 'blockgeneratorPython', 'mod_nextblocks');
+            $mform->setType('blockpythongenerator', PARAM_TEXT);
         }
 
         $mform->addElement('header', 'customblocks', get_string('nextblockscreatecustomblocks', 'mod_nextblocks'));
@@ -120,6 +124,7 @@ class mod_nextblocks_mod_form extends moodleform_mod {
         $repeatarray = [
             $mform->createElement('textarea', 'definition', get_string('blockdefinition', 'mod_nextblocks'), 'wrap="virtual" rows="8" cols="80"'),
             $mform->createElement('textarea', 'generator', get_string('blockgenerator', 'mod_nextblocks'), 'wrap="virtual" rows="8" cols="80"'),
+            $mform->createElement('textarea', 'pythongenerator', get_string('blockpythongenerator', 'mod_nextblocks'), 'wrap="virtual" rows="8" cols="80"'),
             $mform->createElement('hidden', 'optionid', 0),
             $mform->createElement('submit', 'delete', get_string('deletestr', 'mod_nextblocks'), [], false),
         ];
