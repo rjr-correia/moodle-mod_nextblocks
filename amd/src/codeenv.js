@@ -646,8 +646,6 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                 Blockly.defineBlocksWithJsonArray([definition]);
                 // eslint-disable-next-line no-eval
                 eval(block.generator);
-                // eslint-disable-next-line no-console
-                console.log(blockName);
                 if(block.pythongenerator.length === 0){
                     var code = "python.pythonGenerator.forBlock['"+blockName+"'] = function(block) {\n" +
                         "  const code = '"+blockName+"()';\n" +
