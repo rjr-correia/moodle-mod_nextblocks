@@ -86,10 +86,6 @@ let toolbox = {
                 },
                 {
                     'kind': 'block',
-                    'type': 'controls_repeat',
-                },
-                {
-                    'kind': 'block',
                     'type': 'controls_flow_statements',
                 }
             ],
@@ -306,28 +302,6 @@ let toolbox = {
                 'icon': 'customIcon fa-solid fa-code',
             },
             'custom': 'PROCEDURE',
-        },
-        {
-            'kind': 'category',
-            'name': 'Input',
-            'colour': '180',
-            "cssConfig": {
-                'icon': 'customIcon fa-solid fa-keyboard',
-            },
-            'contents': [
-                {
-                    'kind': 'block',
-                    'type': 'number_input',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_input',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_multiline_input',
-                },
-            ],
         },
     ],
 };

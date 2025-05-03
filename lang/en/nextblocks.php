@@ -82,3 +82,5 @@ $string['howmanysubmissions'] = 'How many submissions';
 $string['testsfile'] = 'Tests file';
 $string['testsfile_help'] = "File containing the test cases. <br> The file must be in the following format: <br> <br> <b>Input1</b> <br> <b>Output1</b> <br> <b>Input2</b> <br> <b>Output2</b> <br> <b>...</b> <br> <b>InputN</b> <br> <b>OutputN</b> <br> <br> Where <b>Input</b> is the input for the test case and <b>Output</b> is the expected output for the test case.";
 $string['newgrade'] = "New Grade: ";
+$string['blocklimits'] = 'Block limits';
+$string['limitblock'] = 'Max uses for block: {$a}';

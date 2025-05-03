@@ -157,6 +157,132 @@ class mod_nextblocks_mod_form extends moodleform_mod {
         //addCustomBlocksInputs($mform);
         //$mform->addElement('button', 'addanothercustomblock', get_string('addanothercustomblock', 'mod_nextblocks'));
 
+        //<<------------------------------------------ Block limits tab ------------------------------------------>>//
+
+        global $DB;
+
+        $mform->addElement('header', 'hdr_blocklimits', 'Block Limits');
+
+        $builtin_categories = [
+            'Logic' => [
+                'controls_if'      => 'If / Else',
+                'logic_compare'    => 'Number Compare',
+                'logic_negate'     => 'Not',
+                'logic_operation'  => 'AND/OR',
+                'logic_boolean'    => 'True/False',
+                'logic_null'       => 'Null',
+                'logic_ternary'    => 'If {1} return {2} else return {3}'
+            ],
+            'Loops' => [
+                'controls_repeat_ext'    => 'Repeat {1} Times',
+                'controls_whileUntil'    => 'While / Until',
+                'controls_for'           => 'Count from {1} to {2} step {3}',
+                'controls_forEach'       => 'For Each',
+                'controls_flow_statements'=> 'Continue / Break'
+            ],
+            'Math' => [
+                'math_number'        => 'Number',
+                'math_arithmetic'    => '2 argument arithmetic operations',
+                'math_single'        => '1 argument arithmetic operations',
+                'math_trig'          => 'Trigonometric functions',
+                'math_constant'      => 'Constants',
+                'math_number_property'=> 'Number Properties',
+                'math_round'         => 'Round',
+                'math_on_list'       => 'Math on List',
+                'math_modulo'        => 'Remainder',
+                'math_constrain'     => 'Constrain',
+                'math_random_int'    => 'Random Integer',
+                'math_random_float'  => 'Random Fractional Number',
+                'math_atan2'         => 'Arctangent of point',
+                'text_to_number'     => 'Convert text to number'
+
+            ],
+            'Text' => [
+                'text'               => 'Text',
+                'text_multiline'     => 'Multiline Text',
+                'text_join'          => 'Join Text',
+                'text_append'        => 'Append Text',
+                'text_length'        => 'Length',
+                'text_isEmpty'       => 'Is Empty',
+                'text_indexOf'       => 'Index Of',
+                'text_charAt'        => 'Char At',
+                'text_getSubstring'  => 'Get Substring',
+                'text_changeCase'    => 'Change Case',
+                'text_trim'          => 'Trim',
+                'text_count'         => 'Count',
+                'text_replace'       => 'Replace',
+                'text_reverse'       => 'Reverse',
+                'text_print'         => 'Print',
+                'text_ask'           => 'Input'
+            ],
+            'Lists' => [
+                'lists_create_with'    => 'Create List from enumeration',
+                'lists_repeat'         => 'Create List by repetition',
+                'lists_length'         => 'Length of List',
+                'lists_isEmpty'        => 'Is List Empty',
+                'lists_indexOf'        => 'Index Of Item',
+                'lists_getIndex'       => 'Get Item at Index',
+                'lists_setIndex'       => 'Set Item at Index',
+                'lists_getSublist'     => 'Get Sublist',
+                'lists_split'          => 'Split Text',
+                'lists_sort'           => 'Sort List',
+                'lists_reverse'        => 'Reverse List'
+
+            ],
+            'Variables' => [
+                'variables_get'    => 'Get Variable',
+                'variables_set'    => 'Set Variable'
+            ],
+            'Functions' => [
+                'procedures_defnoreturn' => 'Define Function',
+                'procedures_defreturn'   => 'Define Function w/ Return',
+                'procedures_callnoreturn'=> 'Call Function',
+                'procedures_callreturn'  => 'Call Function w/ Return',
+                'procedures_ifreturn'    => 'If Return'
+            ],
+        ];
+
+        foreach ($builtin_categories as $catname => $blocks) {
+            $mform->addElement('html',
+                '<details style="margin-top:1em;"><summary><strong>'
+                . $catname .
+                '</strong></summary>'
+            );
+
+            foreach ($blocks as $type => $label) {
+                $field = 'limit_' . $type;
+                $mform->addElement('text', $field, $label, ['size' => 4]);
+                $mform->setType($field, PARAM_INT);
+                $mform->setDefault($field, 0);
+            }
+            $mform->addElement('html', '</details>');
+        }
+
+        $customrecs = $DB->get_records('nextblocks_customblocks',
+            ['nextblocksid' => $this->current->instance]
+        );
+        if ($customrecs) {
+            $mform->addElement('html',
+                '<details style="margin-top:1em;"><summary><strong>'
+                . 'Custom Blocks' .
+                '</strong></summary>'
+            );
+            foreach ($customrecs as $rec) {
+                $def = json_decode($rec->blockdefinition, true);
+                if (!empty($def['type'])) {
+                    $label = !empty($def['message0']) ? $def['message0'] : $def['type'];
+                    $field = 'limit_' . $def['type'];
+                    $mform->addElement('text', $field, $label, ['size' => 4]);
+                    $mform->setType($field, PARAM_INT);
+                    $mform->setDefault($field, 0);
+                }
+            }
+            $mform->addElement('html', '</details>');
+        }
+
+
+
+
         //<<------------------------------------------ Primitive Restricions tab ------------------------------------------>>//
 
         //$mform->addElement(
