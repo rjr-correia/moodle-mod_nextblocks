@@ -572,9 +572,10 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
          * 2 = student report).
          * @param {string} userName The name of the user that loaded the page.
          * @param {number} activityId The id of the activity
+         * @param {{}} blockLimits the use limit of each block
          */
         init: function(contents, loadedSave, customBlocks, remainingSubmissions, reactions, lastUserReaction, reportType = 0,
-                       userName, activityId) {
+                       userName, activityId, blockLimits) {
             // If report is student but he can still submit, change to no report so he can use the workspace
             if (reportType === 2 && remainingSubmissions > 0) {
                 reportType = 0;
@@ -633,7 +634,12 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                 }
             });
 
-            nextblocksWorkspace = Blockly.inject(blocklyDiv, getOptions(remainingSubmissions, reportType !== 0));
+            Object.keys(blockLimits).forEach(function(k) {
+                blockLimits[k] = parseInt(blockLimits[k], 10);
+            });
+
+
+            nextblocksWorkspace = Blockly.inject(blocklyDiv, getOptions(remainingSubmissions, reportType !== 0, blockLimits));
             javascript.javascriptGenerator.init(nextblocksWorkspace);
             python.pythonGenerator.init(nextblocksWorkspace);
             // Use resize observer instead of window resize event. This captures both window resize and element resize
@@ -766,7 +772,7 @@ const calcPercentages = (easy, medium, hard) => {
     return total === 0 ? [0, 0, 0] : [easy, medium, hard].map(val => Math.round((val / total) * 100));
 };
 
-const getOptions = function(remainingSubmissions, readOnly) {
+const getOptions = function(remainingSubmissions, readOnly, blockLimits) {
     return {
         toolbox: readOnly ? null : toolbox,
         collapse: true,
@@ -797,6 +803,7 @@ const getOptions = function(remainingSubmissions, readOnly) {
             minScale: 0.3,
             scaleSpeed: 1.2,
         },
+        maxInstances: blockLimits,
     };
 };
 

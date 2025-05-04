@@ -69,5 +69,17 @@
         <KEY NAME="nextblocksid" TYPE="foreign" FIELDS="nextblocksid" REFTABLE="nextblocks" REFFIELDS="id" COMMENT="the activity to which this message was posted"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="nextblocks_blocklimit" COMMENT="Block limits">
+      <FIELDS>
+        <FIELD NAME="id"           TYPE="int"    LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="nextblocksid" TYPE="int"    LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="id of the nextblocks activity"/>
+        <FIELD NAME="blocktype"    TYPE="char"   LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="type of the block being limited"/>
+        <FIELD NAME="blocklimit"        TYPE="int"    LENGTH="5"  NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="max uses of that block"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="nextblocksid" TYPE="foreign" FIELDS="nextblocksid" REFTABLE="nextblocks" REFFIELDS="id" COMMENT="the activity to which this message was posted"/>
+      </KEYS>
+    </TABLE>
   </TABLES>
 </XMLDB>

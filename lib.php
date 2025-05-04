@@ -108,6 +108,23 @@ function nextblocks_add_instance(object $moduleinstance, mod_nextblocks_mod_form
         //$mform->display();
     }
 
+
+    //------------------------Save block limits------------------------------
+
+    foreach ($moduleinstance as $fieldname => $value) {
+        if (strpos($fieldname, 'limit_') === 0 && $value !== '' && $value !== '0') {
+            $blocktype = substr($fieldname, 6);
+            $limit     = (int)$value;
+
+            $record = (object)[
+                'nextblocksid' => $id,
+                'blocktype'    => $blocktype,
+                'blocklimit'        => $limit
+            ];
+            $DB->insert_record('nextblocks_blocklimit', $record);
+        }
+    }
+
     return $id;
 }
 
@@ -366,6 +383,26 @@ function nextblocks_update_instance(object $moduleinstance, mod_nextblocks_mod_f
 
     $moduleinstance->timemodified = time();
     $moduleinstance->id = $moduleinstance->instance;
+
+
+
+
+    //-------------------Update block limits----------------------------
+
+    $DB->delete_records('nextblocks_blocklimit', ['nextblocksid' => $moduleinstance->id]);
+
+    foreach ($moduleinstance as $fieldname => $value) {
+        if (strpos($fieldname, 'limit_') === 0 && $value !== '' && $value !== '0') {
+            $blocktype = substr($fieldname, 6);
+            $limit     = (int)$value;
+            $record    = (object)[
+                'nextblocksid' => $moduleinstance->id,
+                'blocktype'    => $blocktype,
+                'blocklimit'        => $limit
+            ];
+            $DB->insert_record('nextblocks_blocklimit', $record);
+        }
+    }
 
     return $DB->update_record('nextblocks', $moduleinstance);
 }

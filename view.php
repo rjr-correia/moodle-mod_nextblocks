@@ -95,12 +95,19 @@ if($record) {
     $remaining_submissions = $moduleinstance->maxsubmissions;
 }
 
+$limits = $DB->get_records_menu(
+    'nextblocks_blocklimit',
+    ['nextblocksid' => $instanceid],
+    '',
+    'blocktype,blocklimit'
+);
+
 $reactions = [intval($moduleinstance->reactionseasy), intval($moduleinstance->reactionsmedium), intval($moduleinstance->reactionshard)];
 $last_user_reaction = $record ? intval($record->reacted) : 0;
 
 $user = $DB->get_record('user', array('id' => $USER->id));
 $username = $user->firstname . ' ' . $user->lastname;
-$PAGE->requires->js_call_amd('mod_nextblocks/codeenv', 'init', [$tests_file_contents, $saved_workspace, $custom_blocks_json, $remaining_submissions, $reactions, $last_user_reaction, 0, $username, $cmid]);
+$PAGE->requires->js_call_amd('mod_nextblocks/codeenv', 'init', [$tests_file_contents, $saved_workspace, $custom_blocks_json, $remaining_submissions, $reactions, $last_user_reaction, 0, $username, $cmid, $limits]);
 
 $PAGE->set_url('/mod/nextblocks/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($moduleinstance->name));
