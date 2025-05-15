@@ -1,4 +1,4 @@
-# NextBlocks #
+# NextBlocks Installation #
 
 NextBlocks is a new block programming platform implemented as a Moodle plugin. This 
 platform will allow for the creation of custom exercises by educators, and it will 
@@ -29,6 +29,8 @@ Alternatively, you can run
     $ php admin/cli/upgrade.php
 
 to complete the installation from the command line.
+
+A tutorial explaining how the environment works is available in the [SUPPORT page](SUPPORT.md).
 
 ## License ##
 

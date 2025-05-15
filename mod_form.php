@@ -253,7 +253,7 @@ class mod_nextblocks_mod_form extends moodleform_mod {
                 $field = 'limit_' . $type;
                 $mform->addElement('text', $field, $label, ['size' => 4]);
                 $mform->setType($field, PARAM_INT);
-                $mform->setDefault($field, 0);
+                $mform->setDefault($field, 10);
             }
             $mform->addElement('html', '</details>');
         }
