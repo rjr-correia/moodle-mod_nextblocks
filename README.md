@@ -30,7 +30,7 @@ Alternatively, you can run
 
 to complete the installation from the command line.
 
-A tutorial explaining how the environment works is available in the [SUPPORT page](SUPPORT.md).
+NextBlock's User Manual is available in the [SUPPORT page](SUPPORT.md).
 
 ## License ##
 

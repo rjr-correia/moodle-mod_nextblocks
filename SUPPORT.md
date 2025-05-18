@@ -1,4 +1,4 @@
-# NextBlocks Tutorial #
+# NextBlocks User Manual #
 
 A guide to NextBlocks installation is available in the [README page](README.md).
 
