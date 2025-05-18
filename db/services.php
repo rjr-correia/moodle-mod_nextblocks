@@ -1,5 +1,14 @@
 <?php
 
+/**
+ *
+ * @package     mod_nextblocks
+ * @category    upgrade
+ * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
+ * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 $services = array(
     'mypluginservice' => array(                      //the name of the web service
         'functions' => array ('mod_nextblocks_save_workspace', 'mod_nextblocks_submit_workspace', 'mod_nextblocks_submit_reaction', 'mod_nextblocks_save_message', 'mod_nextblocks_get_messages'), //web service functions of this service

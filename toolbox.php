@@ -1,5 +1,13 @@
 <?php
 
+/**
+ *
+ * @package     mod_nextblocks
+ * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
+ * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 function toolboxXML() {
     echo '<xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
   <category name="Logic" colour="#5b80a5">

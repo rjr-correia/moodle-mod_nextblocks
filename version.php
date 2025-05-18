@@ -18,8 +18,8 @@
  * Plugin version and other meta-data are defined here.
  *
  * @package     mod_nextblocks
- * @copyright   2025 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
  * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
+ * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->component = 'mod_nextblocks';
 $plugin->type = "mod";
 $plugin->name = 'nextblocks';
-$plugin->release = '1.0.1';
-$plugin->version = 2025051801;
+$plugin->release = '1.0.2';
+$plugin->version = 2025051802;
 $plugin->requires = 2021060900;
 $plugin->maturity = MATURITY_ALPHA;

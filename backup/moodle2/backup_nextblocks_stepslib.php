@@ -1,4 +1,12 @@
 <?php
+
+/**
+ *
+ * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
+ * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 class backup_nextblocks_activity_structure_step extends backup_activity_structure_step {
