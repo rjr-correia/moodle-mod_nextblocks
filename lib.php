@@ -35,6 +35,7 @@ function nextblocks_supports(string $feature): ?bool {
     switch ($feature) {
     case FEATURE_GRADE_HAS_GRADE:
     case FEATURE_MOD_INTRO:
+    case FEATURE_BACKUP_MOODLE2:
         return true;
     default:
         return null;
@@ -83,12 +84,6 @@ function nextblocks_add_instance(object $moduleinstance, mod_nextblocks_mod_form
         if(hasTestsFile($fromform)) {
             //save the tests file in File API
             save_tests_file($fromform, $id);
-
-            // In-place replace tests file with json file. better to do this here than in the client, because all clients
-            // will have the same tests file, so we don't need to do this for every client.
-            // I don't think it can be done before, in save_tests_file, because we don't have access to the file's contents
-            // until its saved
-            convert_tests_file_to_json($id);
 
             //save hash of the file in the database for later file retrieval
             save_tests_file_hash($id);
@@ -231,44 +226,78 @@ function file_structure_is_valid(string $file_string): bool {
  */
 function convert_tests_file_to_json(int $id)
 {
-    global $PAGE;
+global $PAGE, $DB;
     $fileinfo = array(
         'contextid' => $PAGE->context->id,
         'component' => 'mod_nextblocks',
         'filearea' => 'attachment',
         'itemid' => $id,
         'filepath' => '/',
-        'filename' => 'tests.json'
+        'filename' => 'tests'.$id.'.json'
     );
 
     //create get tests file
     $fs = get_file_storage();
-    $hash = get_filenamehash($id);
-    $file = $fs->get_file_by_hash($hash);
+    $records = $DB->get_records_sql("
+    SELECT *
+    FROM {files}
+    WHERE component = :component
+      AND filearea = :filearea
+      AND itemid = :itemid
+      AND filename != '.'",
+        [
+            'component' => 'mod_nextblocks',
+            'filearea' => 'attachment',
+            'itemid' => $id,
+            'filename' => 'tests'.$id.'.txt',
+        ]
+    );
+
+    $rec = reset($records);
+
+    $file = $fs->get_file(
+        $rec->contextid,
+        'mod_nextblocks',
+        'attachment',
+        $id,
+        $rec->filepath,
+        $rec->filename
+    );
     $fileString = $file->get_content();
 
-    //convert contents of tests file to json
     $json = parse_tests_file($fileString);
     $new_file = $fs->create_file_from_string($fileinfo, json_encode($json));
 
-    //in-place replace tests file with json file
     $file->replace_file_with($new_file);
 
-    // $file->replace_content_with($fileString); is deprecated :(
-    $new_file->delete();
+    $file->delete();
 }
 
 /**
  * @throws dml_exception
  */
-function save_tests_file_hash(int $id)
-{
-    global $DB;
-    $pathnamehash = $DB->get_field('files', 'pathnamehash', ['component' => 'mod_nextblocks', 'filearea' => 'attachment', 'itemid' => $id]);
-    //if file exists, i.e., a tests file was uploaded, save the hash of the file in the database, else it stays null
-    if($pathnamehash){
-        $DB->set_field('nextblocks', 'testsfilehash', $pathnamehash, ['id' => $id]);
+function save_tests_file_hash(int $id) {
+    global $DB, $PAGE;
+    $fs = get_file_storage();
+
+    $files = $fs->get_area_files(
+        $PAGE->context->id,
+        'mod_nextblocks',
+        'attachment',
+        $id,
+        'id',
+        false
+    );
+
+    if (empty($files)) {
+        return;
     }
+
+    $file = reset($files);
+    $pathnamehash = $file->get_pathnamehash();
+
+    $DB->set_field('nextblocks', 'testsfilehash', $pathnamehash, ['id' => $id]);
+
 }
 
 /**
@@ -278,8 +307,22 @@ function save_tests_file_hash(int $id)
  */
 function get_filenamehash(int $id)
 {
-    global $DB;
-    return $DB->get_field('files', 'pathnamehash', ['component' => 'mod_nextblocks', 'filearea' => 'attachment', 'itemid' => $id]);
+    global $PAGE;
+    $fs = get_file_storage();
+    $files = $fs->get_area_files(
+        $PAGE->context->id,
+        'mod_nextblocks',
+        'attachment',
+        $id,
+        'id',
+        false
+    );
+    if (empty($files)) {
+        return false;
+    }
+    $file = reset($files);
+    return $file->get_pathnamehash();
+
 }
 
 function save_tests_file(object $fromform, int $id)
@@ -303,11 +346,37 @@ function save_tests_file(object $fromform, int $id)
             'maxfiles' => 1,
         ]
     );
+
+    $fs    = get_file_storage();
+    $files = $fs->get_area_files(
+        $PAGE->context->id,
+        'mod_nextblocks',
+        'attachment',
+        $id,
+        'id',
+        false
+    );
+    if (empty($files)) {
+        return;
+    }
+    $file = reset($files);
+
+    $content = $file->get_content();
+
+    $fileinfo = [
+        'contextid' => $PAGE->context->id,
+        'component' => 'mod_nextblocks',
+        'filearea'  => 'attachment',
+        'itemid'    => $id,
+        'filepath'  => '/',
+        'filename'  => 'tests'.$id.'.txt',
+    ];
+
+    $fs->create_file_from_string($fileinfo, $content);
+
+    $file->delete();
 }
 
-// Maybe in the future write regular expression to validate the tests file
-// Consider doing parsing on the server side, when the file is submitted
-// TODO a more formal file format description
 /**
  * @param String $fileString The contents of the tests file
  *
@@ -349,7 +418,9 @@ function parse_tests_file(String $fileString): array
                 array_pop($inputLines); // Remove the last line (junk)
 
                 $inputName = explode(":", $inputLines[0])[0]; // Get the name of the input
-                $inputType = trim(explode(":", $inputLines[0])[1]); // Get the type of the input
+
+                $parts = explode(':', $inputLines[0], 2);
+                $inputType = trim($parts[1] ?? '');
 
                 $inputValue = [];
                 $inputValue[$inputType] = array_slice($inputLines, 1); // Get the input values, skipping the first line

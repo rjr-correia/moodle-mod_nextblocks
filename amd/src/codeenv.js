@@ -908,7 +908,7 @@ Blockly.Blocks['text_ask'] = {
             .appendField("input");
         this.setOutput(true, "String");
         this.setColour(160);
-        this.setTooltip("Ask for a specific input.");
+        this.setTooltip("");
         this.setHelpUrl("");
     }
 };
@@ -940,7 +940,7 @@ Blockly.Blocks['text_to_number'] = {
             .appendField("text to number");
         this.setOutput(true, "Number");
         this.setColour("#5b67a5");
-        this.setTooltip("Convert a string to a number.");
+        this.setTooltip("");
         this.setHelpUrl("");
     }
 };
@@ -1085,5 +1085,3 @@ class ToolboxLabel extends Blockly.ToolboxItem {
 Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, 'toolboxlabel', ToolboxLabel);
 
 Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, Blockly.ToolboxCategory.registrationName, CustomCategory, true);
-
-// O problema é que, ao fazer save, estou a guardar o workspace do aluno na minha linha da base de dados, não na dele

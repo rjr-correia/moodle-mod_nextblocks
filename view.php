@@ -46,8 +46,6 @@ if ($id) {
 
 require_login($course, true, $cm);
 
-$modulecontext = context_module::instance($cm->id);
-
 //import css
 echo '<link rel="stylesheet" href="styles.css">';
 //import icons
@@ -84,9 +82,74 @@ foreach ($custom_blocks as $custom_block) {
 }
 
 $fs = get_file_storage();
-$filenamehash = get_filenamehash($instanceid);
 
-$tests_file = $fs->get_file_by_hash($filenamehash);
+$modulecontext = context_module::instance($cm->id);
+
+$existingjson = $fs->get_file(
+    $modulecontext->id,
+    'mod_nextblocks',
+    'attachment',
+    $cm->instance,
+    '/',
+    'tests'.$cm->instance.'.json'
+);
+
+if(!$existingjson){
+    $files = $DB->get_records_sql("
+    SELECT *
+    FROM {files}
+    WHERE component = :component
+      AND filearea = :filearea
+      AND itemid = :itemid
+      AND filename != '.'",
+        [
+            'component' => 'mod_nextblocks',
+            'filearea' => 'attachment',
+            'itemid' => $instanceid,
+        ]
+    );
+    $itemid = 0;
+    $txtfilefound = false;
+    foreach ($files as $file) {
+        if($file->filename === 'tests'.$instanceid.'.txt') {
+            $itemid = $file->itemid;
+            $txtfilefound = true;
+            break;
+        }
+    }
+    if($txtfilefound){
+        convert_tests_file_to_json($itemid);
+    }
+}
+
+//The contextid might not be accurate, so we search based on instanceid instead.
+$records = $DB->get_records_sql("
+    SELECT contextid, filepath, filename
+    FROM {files}
+    WHERE component = :component
+      AND filearea  = :filearea
+      AND itemid    = :itemid
+      AND filename != '.'",
+    [
+        'component' => 'mod_nextblocks',
+        'filearea'  => 'attachment',
+        'itemid'    => $instanceid,
+        'filename'  => 'tests'.$instanceid.'.json',
+    ]
+);
+
+$rec = reset($records);
+
+$fs = get_file_storage();
+$tests_file = $fs->get_file(
+    $rec->contextid,
+    'mod_nextblocks',
+    'attachment',
+    $instanceid,
+    $rec->filepath,
+    $rec->filename
+);
+
 $tests_file_contents = $tests_file ? $tests_file->get_content() : null;
 
 if($record) {
@@ -119,18 +182,8 @@ echo $OUTPUT->header();
 $title = $DB->get_field('nextblocks', 'name', array('id' => $instanceid));
 $description = $DB->get_field('nextblocks', 'intro', array('id' => $instanceid));
 
-//$runButton = '<input id="runButton" type="submit" class="btn btn-primary m-2" value="'.get_string("nextblocks_run", "nextblocks").'" />';
 $runTestsButton = $tests_file ? '<input id="runTestsButton" type="submit" class="btn btn-primary m-2" value="'.get_string("nextblocks_runtests", "nextblocks").'" />' : '';
 
-//display tests file
-/*
-if($filenamehash != false){
-    echo '<div id="testsDiv" class="container mt-6 mb-6">';
-    echo '<h3>Tests</h3>';
-    echo '<p>' . $tests_file_contents . '</p>';
-    echo '</div>';
-}
-*/
 
 $data = [
     'title' => $OUTPUT->heading($title),
