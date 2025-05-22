@@ -19,7 +19,6 @@
  *               and adds a helper method for setting the locale.
  */
 
-/* eslint-disable */
 'use strict';
 
 return Blockly;

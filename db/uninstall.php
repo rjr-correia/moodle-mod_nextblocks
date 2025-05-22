@@ -31,5 +31,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 function xmldb_nextblocks_uninstall() {
 
+    global $DB;
+
+    //Deletes all test files since their activities are also deleted
+    $DB->delete_records('files');
+
     return true;
 }

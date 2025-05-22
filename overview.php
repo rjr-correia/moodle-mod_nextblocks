@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -14,18 +13,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-global $PAGE, $OUTPUT, $USER;
 
 /**
  * NextBlocks report overview page.
- *
- * @package    mod_nextblocks
+ * @package     mod_nextblocks
  * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
  * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $DB;
+global $DB, $PAGE, $OUTPUT, $USER;
 require(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
 
@@ -36,45 +33,41 @@ $id = optional_param('id', 0, PARAM_INT);
 $n = optional_param('n', 0, PARAM_INT);
 
 $cm = get_coursemodule_from_id('nextblocks', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-$moduleinstance = $DB->get_record('nextblocks', array('id' => $cm->instance), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+$moduleinstance = $DB->get_record('nextblocks', ['id' => $cm->instance], '*', MUST_EXIST);
 
 require_login($course, true, $cm);
 
 $modulecontext = context_module::instance($cm->id);
 
-//import css
+// Import css.
 echo '<link rel="stylesheet" href="styles.css">';
-//import icons
-//echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">';
 
 $instanceid = $cm->instance;
 
-$PAGE->set_url('/mod/nextblocks/overview.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/nextblocks/overview.php', ['id' => $cm->id]);
 $PAGE->set_title(format_string($moduleinstance->name) . " Overview");
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
 
-$record = $DB->get_records('nextblocks_userdata', array('nextblocksid' => $instanceid));
+$record = $DB->get_records('nextblocks_userdata', ['nextblocksid' => $instanceid]);
 
-//get username, grade, submission timestamp
-$grades = array();
+$grades = [];
 foreach ($record as $r) {
     $userid = $r->userid;
 
-    if (has_capability('mod/nextblocks:isgraded', $modulecontext, $userid)) { //switch to this one after reinstalling the plugin
-        $user = $DB->get_record('user', array('id' => $r->userid));
+    if (has_capability('mod/nextblocks:isgraded', $modulecontext, $userid)) {
+        $user = $DB->get_record('user', ['id' => $r->userid]);
         $grade = $r->grade ?? "-";
-        //$submission = $r->submission_timestamp;
         $reaction = $r->reacted == 0 ? "-" : $r->reacted;
-        $grades[] = array('username' => $user->username, 'userId'=> $userid, 'grade' => $grade, /*'submission' => $submission, */'reaction' => $reaction);
+        $grades[] = ['username' => $user->username, 'userId'=> $userid, 'grade' => $grade, 'reaction' => $reaction];
     }
 }
 
-$avg_grade = avg_filter(array_column($grades, 'grade'), function($value) {
+$avggrade = avg_filter(array_column($grades, 'grade'), function($value) {
     return $value != '-';
 });
-$avg_reaction = avg_filter(array_column($grades, 'reaction'), function($value) {
+$avgreaction = avg_filter(array_column($grades, 'reaction'), function($value) {
     return $value != '-';
 });
 
@@ -82,9 +75,9 @@ $data = [
     'activityId' => $cm->id,
     'activityName' => $moduleinstance->name,
     'grades' => $grades,
-    'avgGrade' => $avg_grade,
-    'avgReaction' => $avg_reaction,
-    'totalSubmissions' => count($grades)
+    'avgGrade' => $avggrade,
+    'avgReaction' => $avgreaction,
+    'totalSubmissions' => count($grades),
 ];
 
 echo $OUTPUT->header();
@@ -101,8 +94,8 @@ echo $OUTPUT->footer();
  */
 function avg_filter(array $grades, callable $filter): float {
     $elements = array_filter($grades, $filter);
-    //if there are no elements remaining, return 0 to avoid division by 0 error
-    if(count($elements) == 0) {
+    // If there are no elements remaining, return 0 to avoid division by 0 error.
+    if (count($elements) == 0) {
         return 0;
     }
     $avg = array_sum($elements) / count($elements);

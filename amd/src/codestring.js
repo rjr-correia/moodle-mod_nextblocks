@@ -89,7 +89,7 @@ async function input(promptText) {
 
 `;
         static #codeEnding = `})();
-        if(nextInput > testInputs.length) return \"Error: Too many inputs\";
+        if(nextInput > testInputs.length) return "Error: Too many inputs";
         if(error.length > 0) return error;
         return outputString;
 })();
@@ -119,9 +119,6 @@ async function input(promptText) {
                 .replaceAll("customPrintln", "print")
                 .replaceAll("text_to_number", "parseFloat")
                 .split(/(?<!\\)\n/);
-
-            // Add lines from user functions
-            //const functionLines = codeLines.slice(0, this.#userFunctionLinesCount);
 
             // Add lines from start block
             const startIndex = codeLines.findIndex(line => line.includes('await (async () => {')) + 1;

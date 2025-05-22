@@ -1,26 +1,38 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ *
+ * @package     mod_nextblocks
+ * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
+ * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/**
+ * Handles submission of student grades
+ */
 
 // Instantiate the myform form from within the plugin.
-//global $toform;
 $mform = new \mod_nextblocks\form\grade_submit();
 
 // Form processing and displaying is done here.
-if ($mform->is_cancelled()) {
-    // If there is a cancel element on the form, and it was pressed,
-    // then the `is_cancelled()` function will return true.
-    // You can handle the cancel operation here.
-    error_log(1, 3, "C:\wamp64\logs\php_error.log");
-} else if ($fromform = $mform->get_data()) {
-    // When the form is submitted, and the data is successfully validated,
-    // the `get_data()` function will return the data posted in the form.
-    error_log(2, 3, "C:\wamp64\logs\php_error.log");
-} else {
-    error_log(3, 3, "C:\wamp64\logs\php_error.log");
-    // This branch is executed if the form is submitted but the data doesn't
-    // validate and the form should be redisplayed or on the first display of the form.
-
-    // Set anydefault data (if any).
-    //$mform->set_data($toform);
+if(!$mform->is_cancelled() && !$mform->get_data()) {
+    // This branch is executed if the form is submitted but the data doesn't...
+    // ...validate and the form should be redisplayed or on the first display of the form.
 
     // Display the form.
     $mform->display();

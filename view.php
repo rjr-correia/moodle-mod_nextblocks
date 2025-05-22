@@ -36,49 +36,42 @@ $n = optional_param('n', 0, PARAM_INT);
 
 if ($id) {
     $cm = get_coursemodule_from_id('nextblocks', $id, 0, false, MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $moduleinstance = $DB->get_record('nextblocks', array('id' => $cm->instance), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    $moduleinstance = $DB->get_record('nextblocks', ['id' => $cm->instance], '*', MUST_EXIST);
 } else {
-    $moduleinstance = $DB->get_record('nextblocks', array('id' => $n), '*', MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $moduleinstance->course), '*', MUST_EXIST);
+    $moduleinstance = $DB->get_record('nextblocks', ['id' => $n], '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $moduleinstance->course], '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('nextblocks', $moduleinstance->id, $course->id, false, MUST_EXIST);
 }
 
 require_login($course, true, $cm);
 
-//import css
 echo '<link rel="stylesheet" href="styles.css">';
-//import icons
 echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">';
 
-//import blockly
 echo '<script src="./blockly/blockly_compressed.js"></script>
     <script src="./blockly/blocks_compressed.js"></script>
     <script src="./blockly/msg/en.js"></script>
     <script src="./blockly/javascript_compressed.js"></script>
     <script src="./blockly/python_compressed.js"></script>';
 
-
-//import custom category
-//echo '<script src="./amd/src/custom_category.js"></script>';
-
 $cmid = $PAGE->cm->id;
 $cm = get_coursemodule_from_id('nextblocks', $cmid, 0, false, MUST_EXIST);
 $instanceid = $cm->instance;
 
-// call init, with saved workspace and tests file if they exist
-$record = $DB->get_record('nextblocks_userdata', array('userid' => $USER->id, 'nextblocksid' => $cm->instance));
-$saved_workspace = $record ? $record->saved_workspace : null;
+// Call init, with saved workspace and tests file if they exist.
+$record = $DB->get_record('nextblocks_userdata', ['userid' => $USER->id, 'nextblocksid' => $cm->instance]);
+$savedworkspace = $record ? $record->saved_workspace : null;
 
-// get custom blocks
-$custom_blocks = $DB->get_records('nextblocks_customblocks', array('nextblocksid' => $instanceid));
-$custom_blocks_json = array();
-foreach ($custom_blocks as $custom_block) {
-    $custom_blocks_json[] = array(
-        'definition' => $custom_block->blockdefinition,
-        'generator' => $custom_block->blockgenerator,
-        'pythongenerator' => $custom_block->blockpythongenerator
-    );
+// Get custom blocks.
+$customblocks = $DB->get_records('nextblocks_customblocks', ['nextblocksid' => $instanceid]);
+$customblocksjson = [];
+foreach ($customblocks as $customblock) {
+    $customblocksjson[] = [
+        'definition' => $customblock->blockdefinition,
+        'generator' => $customblock->blockgenerator,
+        'pythongenerator' => $customblock->blockpythongenerator,
+    ];
 }
 
 $fs = get_file_storage();
@@ -94,7 +87,7 @@ $existingjson = $fs->get_file(
     'tests'.$cm->instance.'.json'
 );
 
-if(!$existingjson){
+if (!$existingjson) {
     $files = $DB->get_records_sql("
     SELECT *
     FROM {files}
@@ -111,18 +104,18 @@ if(!$existingjson){
     $itemid = 0;
     $txtfilefound = false;
     foreach ($files as $file) {
-        if($file->filename === 'tests'.$instanceid.'.txt') {
+        if ($file->filename === 'tests'.$instanceid.'.txt') {
             $itemid = $file->itemid;
             $txtfilefound = true;
             break;
         }
     }
-    if($txtfilefound){
+    if ($txtfilefound) {
         convert_tests_file_to_json($itemid);
     }
 }
 
-//The contextid might not be accurate, so we search based on instanceid instead.
+// The contextid might not be accurate, so we search based on instanceid instead.
 $records = $DB->get_records_sql("
     SELECT contextid, filepath, filename
     FROM {files}
@@ -141,7 +134,7 @@ $records = $DB->get_records_sql("
 $rec = reset($records);
 
 $fs = get_file_storage();
-$tests_file = $fs->get_file(
+$testsfile = $fs->get_file(
     $rec->contextid,
     'mod_nextblocks',
     'attachment',
@@ -150,12 +143,12 @@ $tests_file = $fs->get_file(
     $rec->filename
 );
 
-$tests_file_contents = $tests_file ? $tests_file->get_content() : null;
+$testsfilecontents = $testsfile ? $testsfile->get_content() : null;
 
-if($record) {
-    $remaining_submissions = $moduleinstance->maxsubmissions - $record->submissionnumber;
+if ($record) {
+    $remainingsubmissions = $moduleinstance->maxsubmissions - $record->submissionnumber;
 } else {
-    $remaining_submissions = $moduleinstance->maxsubmissions;
+    $remainingsubmissions = $moduleinstance->maxsubmissions;
 }
 
 $limits = $DB->get_records_menu(
@@ -165,32 +158,35 @@ $limits = $DB->get_records_menu(
     'blocktype,blocklimit'
 );
 
-$reactions = [intval($moduleinstance->reactionseasy), intval($moduleinstance->reactionsmedium), intval($moduleinstance->reactionshard)];
-$last_user_reaction = $record ? intval($record->reacted) : 0;
+$reactions = [intval($moduleinstance->reactionseasy), intval($moduleinstance->reactionsmedium), 
+    intval($moduleinstance->reactionshard)];
+$lastuserreaction = $record ? intval($record->reacted) : 0;
 
-$user = $DB->get_record('user', array('id' => $USER->id));
+$user = $DB->get_record('user', ['id' => $USER->id]);
 $username = $user->firstname . ' ' . $user->lastname;
-$PAGE->requires->js_call_amd('mod_nextblocks/codeenv', 'init', [$tests_file_contents, $saved_workspace, $custom_blocks_json, $remaining_submissions, $reactions, $last_user_reaction, 0, $username, $cmid, $limits]);
+$PAGE->requires->js_call_amd('mod_nextblocks/codeenv', 'init', [$testsfilecontents, $savedworkspace, $customblocksjson,
+    $remainingsubmissions, $reactions, $lastuserreaction, 0, $username, $cmid, $limits]);
 
-$PAGE->set_url('/mod/nextblocks/view.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/nextblocks/view.php', ['id' => $cm->id]);
 $PAGE->set_title(format_string($moduleinstance->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
 
 echo $OUTPUT->header();
 
-$title = $DB->get_field('nextblocks', 'name', array('id' => $instanceid));
-$description = $DB->get_field('nextblocks', 'intro', array('id' => $instanceid));
+$title = $DB->get_field('nextblocks', 'name', ['id' => $instanceid]);
+$description = $DB->get_field('nextblocks', 'intro', ['id' => $instanceid]);
 
-$runTestsButton = $tests_file ? '<input id="runTestsButton" type="submit" class="btn btn-primary m-2" value="'.get_string("nextblocks_runtests", "nextblocks").'" />' : '';
+$runtestsbutton = $testsfile ? '<input id="runTestsButton" type="submit" class="btn btn-primary m-2" value="'
+    .get_string("nextblocks_runtests", "nextblocks").'" />' : '';
 
 
 $data = [
     'title' => $OUTPUT->heading($title),
     'description' => $description,
-    'outputHeading' => $OUTPUT->heading("Output", $level=4),
-    'reactionsHeading' => $OUTPUT->heading("Reactions", $level=4),
-    'runTestsButton' => $runTestsButton,
+    'outputHeading' => $OUTPUT->heading("Output", $level = 4),
+    'reactionsHeading' => $OUTPUT->heading("Reactions", $level = 4),
+    'runTestsButton' => $runtestsbutton,
     'showSubmitButton' => true,
     'showGrader' => false,
 ];

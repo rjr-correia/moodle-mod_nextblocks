@@ -23,8 +23,6 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Return if the plugin supports $feature.
  *
@@ -34,12 +32,12 @@ defined('MOODLE_INTERNAL') || die();
  */
 function nextblocks_supports(string $feature): ?bool {
     switch ($feature) {
-    case FEATURE_GRADE_HAS_GRADE:
-    case FEATURE_MOD_INTRO:
-    case FEATURE_BACKUP_MOODLE2:
-        return true;
-    default:
-        return null;
+        case FEATURE_GRADE_HAS_GRADE:
+        case FEATURE_MOD_INTRO:
+        case FEATURE_BACKUP_MOODLE2:
+            return true;
+        default:
+            return null;
     }
 }
 
@@ -57,14 +55,12 @@ function nextblocks_supports(string $feature): ?bool {
  * @throws dml_exception
  * @throws moodle_exception
  */
-function nextblocks_add_instance(object $moduleinstance, mod_nextblocks_mod_form $mform = null): int {
+function nextblocks_add_instance(object $moduleinstance, ?mod_nextblocks_mod_form $mform = null): int {
     global $DB;
 
     $moduleinstance->timecreated = time();
 
     $id = (int)$DB->insert_record('nextblocks', $moduleinstance);
-
-    //post form submission stuff here!
 
     // Form processing and displaying is done here.
     if ($mform->is_cancelled()) {
@@ -72,40 +68,30 @@ function nextblocks_add_instance(object $moduleinstance, mod_nextblocks_mod_form
         // then the `is_cancelled()` function will return true.
         // You can handle the cancel operation here.
 
-        //redirect to course page
-        redirect(new moodle_url('/course/view.php', array('id' => $moduleinstance->course)), 'Cancelled');
+        // Redirect to course page.
+        redirect(new moodle_url('/course/view.php', ['id' => $moduleinstance->course]), 'Cancelled');
 
     } else if ($fromform = $mform->get_data()) {
         // When the form is submitted, and the data is successfully validated,
         // the `get_data()` function will return the data posted in the form.
 
-        // Save custom blocks
+        // Save custom blocks.
         save_custom_blocks($fromform, $id);
 
-        if(hasTestsFile($fromform)) {
-            //save the tests file in File API
+        if (hastestsfile($fromform)) {
+            // Save the tests file in File API.
             save_tests_file($fromform, $id);
 
-            //save hash of the file in the database for later file retrieval
+            // Save hash of the file in the database for later file retrieval.
             save_tests_file_hash($id);
         }
 
-        $record = $DB->get_record('nextblocks', array('id' => $id));
+        $record = $DB->get_record('nextblocks', ['id' => $id]);
         nextblocks_grade_item_update($record);
-    } else {
-        // This branch is executed if the form is submitted but the data doesn't
-        // validate and the form should be redisplayed or on the first display of the form.
-
-        //send log to C:\wamp64\logs\php_error.log
-        // Set anydefault data (if any).
-        //$this->set_data($toform);
-
-        // Display the form.
-        //$mform->display();
     }
 
 
-    //------------------------Save block limits------------------------------
+    // ...-----------------------Save block limits------------------------------
 
     foreach ($moduleinstance as $fieldname => $value) {
         if (strpos($fieldname, 'limit_') === 0 && $value !== '' && $value !== '0') {
@@ -115,7 +101,7 @@ function nextblocks_add_instance(object $moduleinstance, mod_nextblocks_mod_form
             $record = (object)[
                 'nextblocksid' => $id,
                 'blocktype'    => $blocktype,
-                'blocklimit'        => $limit
+                'blocklimit'        => $limit,
             ];
             $DB->insert_record('nextblocks_blocklimit', $record);
         }
@@ -124,28 +110,40 @@ function nextblocks_add_instance(object $moduleinstance, mod_nextblocks_mod_form
     return $id;
 }
 
+/**
+ * Handles grade updates
+ *
+ * @param $nextblocks object plugin instance
+ * @param $userid int
+ * @param $nullifnone bool
+ * @return void
+ */
 function nextblocks_update_grades($nextblocks, $userid=0, $nullifnone=true) {
-    global $CFG, $DB;
+    global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
     nextblocks_grade_item_update($nextblocks);
-    // Updating user's grades is not supported at this time in the logic module.
-    return;
 }
 
+/**
+ * Handles the grade update from a single submission
+ *
+ * @param $nextblocks object plugin instance
+ * @param $grades array list of grades
+ * @return int that submission's grade
+ */
 function nextblocks_grade_item_update($nextblocks, $grades=null): int {
     global $CFG;
-    if (!function_exists('grade_update')) { //workaround for buggy PHP versions
+    if (!function_exists('grade_update')) {
         require_once($CFG->libdir.'/gradelib.php');
     }
 
-    if (property_exists($nextblocks, 'cm_id')) { //it may not be always present
-        $params = array('itemname'=>$nextblocks->name, 'idnumber'=>$nextblocks->cm_id);
+    if (property_exists($nextblocks, 'cm_id')) {
+        $params = ['itemname' => $nextblocks->name, 'idnumber' => $nextblocks->cm_id];
     } else {
-        $params = array('itemname'=>$nextblocks->name);
+        $params = ['itemname' => $nextblocks->name];
     }
 
-    //from assign/lib.php
     if ($nextblocks->grade > 0) {
         $params['gradetype'] = GRADE_TYPE_VALUE;
         $params['grademax']  = $nextblocks->grade;
@@ -161,11 +159,10 @@ function nextblocks_grade_item_update($nextblocks, $grades=null): int {
         $params['reset'] = true;
         $grades = null;
     } else if (!empty($grades)) {
-        // Need to calculate raw grade (Note: $grades has many forms)
         if (is_object($grades)) {
-            $grades = array($grades->userid => $grades);
-        } else if (array_key_exists('userid', $grades)){
-            $grades = array($grades['userid'] => $grades);
+            $grades = [$grades->userid => $grades];
+        } else if (array_key_exists('userid', $grades)) {
+            $grades = [$grades['userid'] => $grades];
         }
         foreach ($grades as $key => $grade) {
             if (!is_array($grade)) {
@@ -178,26 +175,28 @@ function nextblocks_grade_item_update($nextblocks, $grades=null): int {
 }
 
 /**
- * @throws dml_exception
+ * Saves custom blocks in the database
+ *
+ * @param object $fromform general data related to the blocks
+ * @param int $id block id
  */
-function save_custom_blocks(object $fromform, int $id)
-{
+function save_custom_blocks(object $fromform, int $id) {
     global $DB;
 
-    //get block definitions and generators from form
     $blockdefinitions = $fromform->definition;
     $blockgenerators = $fromform->generator;
     $blockpythongenerators = $fromform->pythongenerator;
 
-    if((count($blockdefinitions) == 1 && $blockdefinitions[0] == '') || (count($blockgenerators) == 1 && $blockgenerators[0] == '')){
+    if((count($blockdefinitions) == 1 && $blockdefinitions[0] == '') ||
+        (count($blockgenerators) == 1 && $blockgenerators[0] == '')) {
         return;
     }
 
-    if(count($blockdefinitions) !== count($blockgenerators)){
+    if(count($blockdefinitions) !== count($blockgenerators)) {
         throw new dml_exception('Block definitions and generators do not match');
     }
 
-    //save each block definition and generator in the mdl_nextblocks_customblocks table
+    // Save each block definition and generator in the mdl_nextblocks_customblocks table.
     foreach ($blockdefinitions as $key => $blockdefinition) {
         $blockgenerator = $blockgenerators[$key];
         $blockpythongenerator = $blockpythongenerators[$key];
@@ -206,38 +205,45 @@ function save_custom_blocks(object $fromform, int $id)
     }
 }
 
-function hasTestsFile(object $fromform): bool
-{
+/**
+ * Checks whether a test file is present
+ *
+ * @param object $fromform General data related to test file
+ * @return bool true if test file is present, false otherwise
+ */
+function hastestsfile(object $fromform): bool {
     $files = file_get_all_files_in_draftarea($fromform->attachments);
     return count($files) > 0;
 }
 
-function file_structure_is_valid(string $file_string): bool {
-    // Validate file structure with regular expression
+/**
+ * Checks whether the file structure is valid
+ *
+ * @param string $file_string text inside file
+ * @return bool true if structure is valid, false otherwise
+ */
+function file_structure_is_valid(string $filestring): bool {
+    // Validate file structure with regular expression.
     $exp = "/(\|\s+(\w+\s+)*-\s+(\w+\s+)+)+/";
-    return preg_match_all($exp, $file_string) !== 1;
+    return preg_match_all($exp, $filestring) !== 1;
 }
 
 /**
- * @throws coding_exception
- * @throws dml_exception
- * @throws stored_file_creation_exception
- * @throws file_exception
- * @throws Exception
+ * Converts test file to json
+ *
+ * @param int $id file id
  */
-function convert_tests_file_to_json(int $id)
-{
-global $PAGE, $DB;
-    $fileinfo = array(
+function convert_tests_file_to_json(int $id) {
+    global $PAGE, $DB;
+    $fileinfo = [
         'contextid' => $PAGE->context->id,
         'component' => 'mod_nextblocks',
         'filearea' => 'attachment',
         'itemid' => $id,
         'filepath' => '/',
-        'filename' => 'tests'.$id.'.json'
-    );
+        'filename' => 'tests'.$id.'.json',
+    ];
 
-    //create get tests file
     $fs = get_file_storage();
     $records = $DB->get_records_sql("
     SELECT *
@@ -264,18 +270,20 @@ global $PAGE, $DB;
         $rec->filepath,
         $rec->filename
     );
-    $fileString = $file->get_content();
+    $filestring = $file->get_content();
 
-    $json = parse_tests_file($fileString);
-    $new_file = $fs->create_file_from_string($fileinfo, json_encode($json));
+    $json = parse_tests_file($filestring);
+    $newfile = $fs->create_file_from_string($fileinfo, json_encode($json));
 
-    $file->replace_file_with($new_file);
+    $file->replace_file_with($newfile);
 
     $file->delete();
 }
 
 /**
- * @throws dml_exception
+ * Saves the hash of the test file in the database
+ * 
+ * @param int $id id of the test file
  */
 function save_tests_file_hash(int $id) {
     global $DB, $PAGE;
@@ -302,12 +310,13 @@ function save_tests_file_hash(int $id) {
 }
 
 /**
+ * Gets the hash of the file name from a file id
+ * 
  * @param int $id The id of the instance.
  * @return false|mixed The pathnamehash of the file or false if it does not exist.
  * @throws dml_exception
  */
-function get_filenamehash(int $id)
-{
+function get_filenamehash(int $id) {
     global $PAGE;
     $fs = get_file_storage();
     $files = $fs->get_area_files(
@@ -323,11 +332,15 @@ function get_filenamehash(int $id)
     }
     $file = reset($files);
     return $file->get_pathnamehash();
-
 }
 
-function save_tests_file(object $fromform, int $id)
-{
+/**
+ * Saves the tests file in the database
+ * 
+ * @param object $fromform file information
+ * @param int $id file id
+ */
+function save_tests_file(object $fromform, int $id) {
     // Save the tests file with File API.
     // Will need a check for whether the exercise creator selected the file option or not.
     global $PAGE;
@@ -379,60 +392,60 @@ function save_tests_file(object $fromform, int $id)
 }
 
 /**
- * @param String $fileString The contents of the tests file
- *
+ * Parses the tests file into json
+ * 
+ * @param String $filestring The contents of the tests file
  * @return array [{}] An array of test cases, each test case containing a list of inputs and an output, in JSON format
  * @throws Exception If the file is not in the correct format
  */
-function parse_tests_file(String $fileString): array
-{
+function parse_tests_file(String $filestring): array {
     try {
-        // The returned object has a list of test cases
-        $jsonReturn = [];
+        // The returned object has a list of test cases.
+        $jsonreturn = [];
 
-        // Different test cases are separated by |
-        $testCases = explode("|", $fileString);
+        // Different test cases are separated by |.
+        $testcases = explode("|", $filestring);
 
-        // File starts with a |, so the first element of the array is empty
-        array_shift($testCases);
+        // File starts with a |, so the first element of the array is empty.
+        array_shift($testcases);
 
-        foreach ($testCases as $testCase) {
-            // Each test case contains a list of inputs (and an output)
-            $thisTestCaseJson = [];
-            $thisTestCaseJson['inputs'] = [];
+        foreach ($testcases as $testcase) {
+            // Each test case contains a list of inputs (and an output).
+            $thistestcasejson = [];
+            $thistestcasejson['inputs'] = [];
 
-            // The input and output of the test are separated by -
-            $inputOutput = explode("-", $testCase);
-            $inputs = $inputOutput[0];
-            $thisTestCaseJson['output'] = trim($inputOutput[1]); // Remove newlines and add output of test to JSON
+            // The input and output of the test are separated by -.
+            $inputoutput = explode("-", $testcase);
+            $inputs = $inputoutput[0];
+            $thistestcasejson['output'] = trim($inputoutput[1]); // Remove newlines and add output of test to JSON.
 
-            $inputLines = explode("_", $inputs);
+            $inputlines = explode("_", $inputs);
 
-            foreach ($inputLines as $input) {
-                if (strlen($input) < 3) { // Skip junk elements
+            foreach ($inputlines as $input) {
+                if (strlen($input) < 3) { // Skip junk elements.
                     continue;
                 }
                 // Each input has multiple lines. The first line is the input name and type, and the rest are
-                // the input values for that input
-                $inputLines = array_map('trim', explode("\n", $input)); // Remove junk line breaks from every line
-                array_shift($inputLines); // Remove the first line (junk)
-                array_pop($inputLines); // Remove the last line (junk)
+                // the input values for that input.
+                $inputlines = array_map('trim', explode("\n", $input)); // Remove junk line breaks from every line.
+                array_shift($inputlines); // Remove the first line (junk).
+                array_pop($inputlines); // Remove the last line (junk).
 
-                $inputName = explode(":", $inputLines[0])[0]; // Get the name of the input
+                $inputName = explode(":", $inputlines[0])[0]; // Get the name of the input.
 
-                $parts = explode(':', $inputLines[0], 2);
-                $inputType = trim($parts[1] ?? '');
+                $parts = explode(':', $inputlines[0], 2);
+                $inputtype = trim($parts[1] ?? '');
 
-                $inputValue = [];
-                $inputValue[$inputType] = array_slice($inputLines, 1); // Get the input values, skipping the first line
+                $inputvalue = [];
+                $inputvalue[$inputtype] = array_slice($inputlines, 1); // Get the input values, skipping the first line.
 
-                // Contains the input prompt and a list of input values
-                $thisInputJson = [$inputName => $inputValue];
-                $thisTestCaseJson['inputs'][] = $thisInputJson; // Add this input to the list of inputs of this test case
+                // Contains the input prompt and a list of input values.
+                $thisinputjson = [$inputName => $inputvalue];
+                $thistestcasejson['inputs'][] = $thisinputjson; // Add this input to the list of inputs of this test case.
             }
-            $jsonReturn[] = $thisTestCaseJson; // Add this test case to the list of test cases
+            $jsonreturn[] = $thistestcasejson; // Add this test case to the list of test cases.
         }
-        return $jsonReturn;
+        return $jsonreturn;
     } catch (Exception $e) {
         throw new Exception("Error parsing tests file: " . $e->getMessage());
     }
@@ -450,16 +463,13 @@ function parse_tests_file(String $fileString): array
  * @return bool True if successful, false otherwise.
  * @throws dml_exception
  */
-function nextblocks_update_instance(object $moduleinstance, mod_nextblocks_mod_form $mform = null): bool {
+function nextblocks_update_instance(object $moduleinstance, ?mod_nextblocks_mod_form $mform = null): bool {
     global $DB;
 
     $moduleinstance->timemodified = time();
     $moduleinstance->id = $moduleinstance->instance;
 
-
-
-
-    //-------------------Update block limits----------------------------
+    // ...-------------------Update block limits----------------------------
 
     $DB->delete_records('nextblocks_blocklimit', ['nextblocksid' => $moduleinstance->id]);
 
@@ -470,7 +480,7 @@ function nextblocks_update_instance(object $moduleinstance, mod_nextblocks_mod_f
             $record    = (object)[
                 'nextblocksid' => $moduleinstance->id,
                 'blocktype'    => $blocktype,
-                'blocklimit'        => $limit
+                'blocklimit'        => $limit,
             ];
             $DB->insert_record('nextblocks_blocklimit', $record);
         }
@@ -490,25 +500,27 @@ function nextblocks_update_instance(object $moduleinstance, mod_nextblocks_mod_f
 function nextblocks_delete_instance(int $id): bool {
     global $DB;
 
-    $exists = $DB->get_record('nextblocks', array('id' => $id));
+    $exists = $DB->get_record('nextblocks', ['id' => $id]);
     if (!$exists) {
         return false;
     }
 
-    $DB->delete_records('nextblocks', array('id' => $id));
+    $DB->delete_records('nextblocks', ['id' => $id]);
 
     return true;
 }
 
-function nextblocks_console_log($output, $with_script_tags = true) {
-    $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
+/**
+ * Browser Console logging debug tool
+ *
+ * @param $output string output to debug
+ * @param $withscripttags boolean
+ */
+function nextblocks_console_log($output, $withscripttags = true) {
+    $jscode = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
         ');';
-    if ($with_script_tags) {
-        $js_code = '<script>' . $js_code . '</script>';
+    if ($withscripttags) {
+        $jscode = '<script>' . $jscode . '</script>';
     }
-    echo $js_code;
-}
-
-function nextblocks_log($message) {
-    error_log($message, 3, "C:\wamp64\logs\php_error.log");
+    echo $jscode;
 }

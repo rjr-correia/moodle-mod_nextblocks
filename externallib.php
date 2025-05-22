@@ -1,17 +1,41 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ *
+ * @package     mod_nextblocks
+ * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
+ * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 global $CFG;
 require_once("$CFG->libdir/externallib.php");
 require_once(__DIR__ . '/lib.php');
 
+/**
+ * Handles communications with external sources
+ */
 class mod_nextblocks_external extends external_api {
 
-    //need to get the course module id because this does not run in the page
     /**
      * Saves the workspace of a user.
      *
-     * @param int $nextblocksid Id of the nextblocks activity
-     * @param string $saved_workspace The workspace to be saved, in base64
+     * @param int    $nextblocksid Id of the nextblocks activity
+     * @param string $savedworkspace The workspace to be saved, in base64
      * @param int    $userid          The id of the user that is saving the workspace.
      *                                By default is not needed, and the current user is used.
      *                                Only used when teacher is adding comments to user's workspace.
@@ -21,152 +45,176 @@ class mod_nextblocks_external extends external_api {
      * @throws dml_exception
      * @throws invalid_parameter_exception
      */
-    public static function save_workspace($nextblocksid, $saved_workspace, $userid=null) {
+    public static function save_workspace($nextblocksid, $savedworkspace, $userid=null) {
         global $DB, $USER;
         if (!$userid) {
             $userid = $USER->id;
         }
         $params = self::validate_parameters(self::save_workspace_parameters(),
-            array('nextblocksid' => $nextblocksid, 'saved_workspace' => $saved_workspace));
+            ['nextblocksid' => $nextblocksid, 'saved_workspace' => $savedworkspace]);
         $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
-
-        //check if record exists
-        $record = $DB->get_record('nextblocks_userdata', array('userid' => $userid, 'nextblocksid' => $cm->instance));
-        //if record exists with same userid and nextblocksid, update it, else insert new record
+        // Check if record exists.
+        $record = $DB->get_record('nextblocks_userdata', ['userid' => $userid, 'nextblocksid' => $cm->instance]);
+        // If record exists with same userid and nextblocksid, update it, else insert new record.
         if ($record) {
-            $DB->update_record('nextblocks_userdata', array('id' => $record->id, 'userid' => $userid, 'nextblocksid' => $cm->instance, 'saved_workspace' => $saved_workspace));
+            $DB->update_record('nextblocks_userdata', ['id' => $record->id, 'userid' => $userid,
+                'nextblocksid' => $cm->instance, 'saved_workspace' => $savedworkspace]);
         } else {
-            $DB->insert_record('nextblocks_userdata', array('userid' => $userid, 'nextblocksid' => $cm->instance, 'saved_workspace' => $saved_workspace));
+            $DB->insert_record('nextblocks_userdata', ['userid' => $userid,
+                'nextblocksid' => $cm->instance, 'saved_workspace' => $savedworkspace]);
         }
     }
 
-    public static function save_workspace_parameters()
-    {
+    /**
+     * @return external_function_parameters
+     */
+    public static function save_workspace_parameters(){
         return new external_function_parameters(
-            array(
-                'nextblocksid' => new external_value(PARAM_INT, 'module id'),
-                'saved_workspace' => new external_value(PARAM_RAW, 'workspace'),
-                'userid' => new external_value(PARAM_INT, 'user id', false)
-            )
+            [
+                'nextblocksid' => new external_value(PARAM_INT, 'module id', VALUE_REQUIRED),
+                'saved_workspace' => new external_value(PARAM_RAW, 'workspace', VALUE_REQUIRED),
+                'userid' => new external_value(PARAM_INT, 'user id', VALUE_OPTIONAL, 0),
+            ]
         );
     }
 
+    /**
+     * @return null
+     */
     public static function save_workspace_returns() {
         return null;
     }
 
-    public static function submit_workspace($nextblocksid, $submitted_workspace, $codeString) {
-        global $DB, $USER;
+    /**
+     * Handles program submission when user clicks "Submit" button
+     * 
+     * @param $nextblocksid int activity instance id
+     * @param $submittedworkspace object program to submit 
+     * @param $codestring string javascript code generated from program
+     */
+    public static function submit_workspace($nextblocksid, $submittedworkspace, $codestring) {
+        global $DB, $USER, $PAGE;
 
         $params = self::validate_parameters(self::submit_workspace_parameters(),
-            array('nextblocksid' => $nextblocksid, 'submitted_workspace' => $submitted_workspace, 'codeString' => $codeString));
-
+            ['nextblocksid' => $nextblocksid, 'submitted_workspace' => $submittedworkspace, 'codeString' => $codestring]);
         $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
-
-        //check if record exists
-        $record = $DB->get_record('nextblocks_userdata', array('userid' => $USER->id, 'nextblocksid' => $cm->instance));
-        //if record exists with same userid and nextblocksid, update it, else insert new record
+        // Check if record exists.
+        $record = $DB->get_record('nextblocks_userdata', ['userid' => $USER->id, 'nextblocksid' => $cm->instance]);
+        // If record exists with same userid and nextblocksid, update it, else insert new record.
         if ($record) {
-            $DB->update_record('nextblocks_userdata', array('id' => $record->id, 'userid' => $USER->id, 'nextblocksid' => $cm->instance, 'saved_workspace' => $submitted_workspace, 'submitted_workspace' => $submitted_workspace, 'submissionnumber' => $record->submissionnumber + 1));
+            $DB->update_record('nextblocks_userdata', ['id' => $record->id, 'userid' => $USER->id, 'nextblocksid' => $cm->instance, 
+                'saved_workspace' => $submittedworkspace, 'submitted_workspace' => $submittedworkspace, 'submissionnumber' => $record->submissionnumber + 1]);
         } else {
-            $DB->insert_record('nextblocks_userdata', array('userid' => $USER->id, 'nextblocksid' => $cm->instance, 'saved_workspace' => $submitted_workspace, 'submitted_workspace' => $submitted_workspace, 'submissionnumber' => 1));
+            $DB->insert_record('nextblocks_userdata', ['userid' => $USER->id, 'nextblocksid' => $cm->instance, 
+                'saved_workspace' => $submittedworkspace, 'submitted_workspace' => $submittedworkspace, 'submissionnumber' => 1]);
         }
 
-        $nextblocks = $DB->get_record('nextblocks', array('id' => $cm->instance));
+        $nextblocks = $DB->get_record('nextblocks', ['id' => $cm->instance]);
+
+        $context = context_module::instance($cm->id);
+        $PAGE->set_context($context);
 
         $fs = get_file_storage();
         $filenamehash = get_filenamehash($cm->instance);
 
-        // if has point grade and tests, run auto grading
-        if($nextblocks->grade > 0 && $filenamehash != false) {
-            $tests_file = $fs->get_file_by_hash($filenamehash);
-            self::auto_grade($cm, $codeString, $nextblocks, $tests_file);
+        // If has point grade and tests, run auto grading.
+        if ($nextblocks->grade > 0 && $filenamehash != false) {
+            $testsfile = $fs->get_file_by_hash($filenamehash);
+            self::auto_grade($cm, $codestring, $nextblocks, $testsfile);
         }
     }
 
-    public static function auto_grade($cm, $codeString, $nextblocks, $tests_file) {
+    /**
+     * Automatically grade students' submissions using test system
+     *
+     * @param $cm object context module
+     * @param $codestring string javascript code generated from program
+     * @param $nextblocks object plugin instance
+     * @param $testsfile object tests file
+     */
+    public static function auto_grade($cm, $codestring, $nextblocks, $testsfile) {
         global $USER, $DB;
 
-        $tests_file_contents = $tests_file->get_content();
+        $testsfile_contents = $testsfile->get_content();
 
-        $tests = json_decode($tests_file_contents, true);
+        $tests = json_decode($testsfile_contents, true);
 
-        $testsCount = count($tests);
-        $testsCorrectCount = self::run_tests_jobe($tests, $codeString);
-        $newGrade = $testsCorrectCount / $testsCount * $nextblocks->grade; //$nextblocks->grade is the max grade
+        $testscount = count($tests);
+        $testscorrectcount = self::run_tests_jobe($tests, $codestring);
+        $newgrade = $testscorrectcount / $testscount * $nextblocks->grade; //... $nextblocks->grade is the max grade.
+
 
         $grades = new stdClass();
         $grades->userid = $USER->id;
-        $grades->rawgrade = $newGrade;
+        $grades->rawgrade = $newgrade;
 
         nextblocks_grade_item_update($nextblocks, $grades);
 
-        // update userdata with new grade
-        $userdata = $DB->get_record('nextblocks_userdata', array('userid' => $USER->id, 'nextblocksid' => $cm->instance));
-        $DB->update_record('nextblocks_userdata', array('id' => $userdata->id, 'userid' => $USER->id, 'nextblocksid' => $cm->instance, 'grade' => $newGrade));
+        // Update userdata with new grade.
+        $userdata = $DB->get_record('nextblocks_userdata', ['userid' => $USER->id, 'nextblocksid' => $cm->instance]);
+        $DB->update_record('nextblocks_userdata', ['id' => $userdata->id, 'userid' => $USER->id,
+            'nextblocksid' => $cm->instance, 'grade' => $newgrade]);
     }
 
-    public static function run_tests_jobe($tests, $codeString): int {
-        $testsCorrectCount = 0;
+    /**
+     * Runs the program against the given tests
+     * 
+     * @param $tests object[]
+     * @param $codestring string javascript code from the program
+     * @return int number of passed tests
+     */
+    public static function run_tests_jobe($tests, $codestring): int {
+        $testscorrectcount = 0;
         for ($i = 0; $i < count($tests); $i++) {
             $test = $tests[$i];
             $inputs = $test['inputs'];
-            $expected_output = $test['output'];
-            //json has arrays where there shouldn't be, as there is only one element, so the foreaches are necessary even though they look redundant
-            foreach($inputs as $key => $val) {
-                $inputName = "";
+            $expectedoutput = $test['output'];
+            // Json has arrays where there shouldn't be, as there is only one element, so the foreaches are necessary.
+            foreach ($inputs as $key => $val) {
+                $inputname = "";
                 $input = "";
-                foreach($val as $inputName_ => $val1) {
-                    $inputName = $inputName_;
+                foreach ($val as $inputname_ => $val1) {
+                    $inputname = $inputname_;
                     $input = "";
-                    foreach($val1 as $key2 => $inputValue_) {
-                        $input = $inputValue_;
+                    foreach ($val1 as $key2 => $inputvalue_) {
+                        $input = $inputvalue_;
                     }
                 }
-                // Get the indices of the first and second parentheses of the last occurrence of the input function call
-                $firstParenIndex = strrpos($codeString, "input" . $inputName . "(");
-                $secondParenIndex = strpos($codeString, ")", $firstParenIndex);
+                // Get the indices of the first and second parentheses of the last occurrence of the input function call.
+                $firstparenindex = strrpos($codestring, "input" . $inputname . "(");
+                $secondparenindex = strpos($codestring, ")", $firstparenindex);
 
-                //replace everything between the parentheses with the input
-                $codeString = substr_replace($codeString, $input, $firstParenIndex + strlen("input" . $inputName . "("), $secondParenIndex - $firstParenIndex - strlen("input" . $inputName . "("));
+                // Replace everything between the parentheses with the input.
+                $codestring = substr_replace($codestring, $input, $firstparenindex + strlen("input" . $inputname . "("),
+                    $secondparenindex - $firstparenindex - strlen("input" . $inputname . "("));
             }
 
-            $test_output = self::run_test_jobe($codeString);
-            if ($test_output == $expected_output) {
-                $testsCorrectCount++;
+            $testoutput = self::run_test_jobe($codestring);
+            if ($testoutput == $expectedoutput) {
+                $testscorrectcount++;
             }
         }
-
-
-        return $testsCorrectCount;
+        
+        return $testscorrectcount;
     }
 
-    /*
-         * Make http request to localhost:4000/jobe/index.php/restapi/runs/ with the following json:
-         * {
-         *   "run_spec": {
-         *     "language_id": "c",
-         *     "sourcefilename": "test.c",
-         *     "sourcecode": "\n#include <stdio.h>\n\nint main() {\n    printf(\"Hello world\\n\");\n}\n"
-         *    }
-         * }
-         *
-         * and the headers:
-         * Content-type: application/json; charset-utf-8
-         *
-         * Run docker container first
-         */
-    public static function run_test_jobe($codeString){
+    /**
+     * Runs tests through jobe
+     * 
+     * @param $codestring string JavaScript code from the program
+     * @return mixed test results
+     */
+    public static function run_test_jobe($codestring) {
         $url = 'http://localhost:4000/jobe/index.php/restapi/runs/';
         $data = [
             "run_spec" => [
                 'language_id' => 'nodejs',
                 'sourcefilename' => 'test.js',
-                'sourcecode' => $codeString
-            ]
+                'sourcecode' => $codestring,
+            ],
         ];
 
-        // use key 'http' even if you send the request to https://...
+        // Use key 'http' even if you send the request to https://...
         $options = [
             'http' => [
                 'header' => "Content-type: application/json\r\n",
@@ -178,159 +226,210 @@ class mod_nextblocks_external extends external_api {
         $context = stream_context_create($options);
         $result = file_get_contents($url, false, $context);
         if ($result === false) {
-            /* Handle error */
-
+            // Unexpected error.
+            return null;
         }
 
         $result = json_decode($result, true);
         return $result['stdout'];
     }
 
-    public static function submit_workspace_parameters()
-    {
+    /**
+     * @return external_function_parameters
+     */
+    public static function submit_workspace_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'nextblocksid' => new external_value(PARAM_INT, 'module id'),
                 'submitted_workspace' => new external_value(PARAM_RAW, 'workspace'),
                 'codeString' => new external_value(PARAM_RAW, 'codeString'),
-            )
+            ]
         );
     }
 
+    /**
+     * @return null
+     */
     public static function submit_workspace_returns() {
         return null;
     }
 
+    /**
+     * Submits a reaction to an exercise made by a user
+     * 
+     * @param $nextblocksid int the id of the activity
+     * @param $reaction string the reaction done by the user (easy, medium, hard)
+     * @return array reaction counter
+     */
     public static function submit_reaction($nextblocksid, $reaction) {
         global $DB, $USER;
         $params = self::validate_parameters(self::submit_reaction_parameters(),
-            array('nextblocksid' => $nextblocksid, 'reaction' => $reaction));
+            ['nextblocksid' => $nextblocksid, 'reaction' => $reaction]);
 
         $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
-        $nextblocks = $DB->get_record('nextblocks', array('id' => $cm->instance));
-        $userdata = $DB->get_record('nextblocks_userdata', array('userid' => $USER->id, 'nextblocksid' => $cm->instance));
-        //if userdata does not exist, insert new record
+        $nextblocks = $DB->get_record('nextblocks', ['id' => $cm->instance]);
+        $userdata = $DB->get_record('nextblocks_userdata', ['userid' => $USER->id, 'nextblocksid' => $cm->instance]);
+        // If userdata does not exist, insert new record.
         if (!$userdata) {
-            $new_id = $DB->insert_record('nextblocks_userdata', array('userid' => $USER->id, 'nextblocksid' => $cm->instance));
-            $userdata = $DB->get_record('nextblocks_userdata', array('id' => $new_id));
+            $newid = $DB->insert_record('nextblocks_userdata', ['userid' => $USER->id, 'nextblocksid' => $cm->instance]);
+            $userdata = $DB->get_record('nextblocks_userdata', ['id' => $newid]);
         }
 
-        //get reaction database column name
-        $newReactionColumnName = "reactions".$reaction;
-        //reaction to number, for database (easy-1, medium-2, hard-3)
-        $newReactionNumber = array_search($reaction, array('easy', 'medium', 'hard')) + 1;
+        // Get reaction database column name.
+        $newreactioncolumnname = "reactions".$reaction;
+        // Reaction to number, for database (easy-1, medium-2, hard-3).
+        $newreactionnumber = array_search($reaction, ['easy', 'medium', 'hard']) + 1;
 
-        $new_reactions = [
+        $newreactions = [
             'reactionseasy' => $nextblocks->reactionseasy,
             'reactionsmedium' => $nextblocks->reactionsmedium,
-            'reactionshard' => $nextblocks->reactionshard,];
+            'reactionshard' => $nextblocks->reactionshard,
+        ];
 
-        // if new reaction is same as previous reaction, decrement reaction
-        if ($userdata->reacted == $newReactionNumber) {
-            $DB->update_record('nextblocks', array('id' => $nextblocks->id, $newReactionColumnName => $nextblocks->$newReactionColumnName - 1));
-            //user unreacted, update userdata
-            $DB->update_record('nextblocks_userdata', array('id' => $userdata->id, 'userid' => $USER->id, 'nextblocksid' => $cm->instance, 'reacted' => 0));
-            $new_reactions[$newReactionColumnName] = $nextblocks->$newReactionColumnName - 1;
-        } else { // else, decrement previous reaction (if it exists) and increment new reaction.
+        // If new reaction is same as previous reaction, decrement reaction.
+        if ($userdata->reacted == $newreactionnumber) {
+            $DB->update_record('nextblocks', ['id' => $nextblocks->id, 
+                $newreactioncolumnname => $nextblocks->$newreactioncolumnname - 1]);
+            // User unreacted, update userdata.
+            $DB->update_record('nextblocks_userdata', ['id' => $userdata->id, 'userid' => $USER->id, 
+                'nextblocksid' => $cm->instance, 'reacted' => 0]);
+            $newreactions[$newreactioncolumnname] = $nextblocks->$newreactioncolumnname - 1;
+        } else { // Else, decrement previous reaction (if it exists) and increment new reaction.
             if ($userdata->reacted == 0) {
-                $DB->update_record('nextblocks', array('id' => $nextblocks->id, $newReactionColumnName => $nextblocks->$newReactionColumnName + 1));
-                $new_reactions[$newReactionColumnName] = $nextblocks->$newReactionColumnName + 1;
+                $DB->update_record('nextblocks', ['id' => $nextblocks->id, 
+                    $newreactioncolumnname => $nextblocks->$newreactioncolumnname + 1]);
+                $newreactions[$newreactioncolumnname] = $nextblocks->$newreactioncolumnname + 1;
             } else {
-                $oldReactionColumnName = "reactions" . array('easy', 'medium', 'hard')[$userdata->reacted - 1];
+                $oldreactioncolumnname = "reactions" . ['easy', 'medium', 'hard'][$userdata->reacted - 1];
 
                 $DB->update_record(
-                    'nextblocks', array(
+                    'nextblocks', [
                         'id' => $nextblocks->id,
-                        $newReactionColumnName => $nextblocks->$newReactionColumnName + 1,
-                        $oldReactionColumnName => $nextblocks->$oldReactionColumnName - 1
-                    )
+                        $newreactioncolumnname => $nextblocks->$newreactioncolumnname + 1,
+                        $oldreactioncolumnname => $nextblocks->$oldreactioncolumnname - 1,
+                    ]
                 );
-                $new_reactions[$newReactionColumnName] = $nextblocks->$newReactionColumnName + 1;
-                $new_reactions[$oldReactionColumnName] = $nextblocks->$oldReactionColumnName - 1;
+                $newreactions[$newreactioncolumnname] = $nextblocks->$newreactioncolumnname + 1;
+                $newreactions[$oldreactioncolumnname] = $nextblocks->$oldreactioncolumnname - 1;
             }
-            //update userdata with new reaction
-            $DB->update_record('nextblocks_userdata', array('id' => $userdata->id, 'userid' => $USER->id, 'nextblocksid' => $cm->instance, 'reacted' => $newReactionNumber));
+            // Update userdata with new reaction.
+            $DB->update_record('nextblocks_userdata', ['id' => $userdata->id, 'userid' => $USER->id, 
+                'nextblocksid' => $cm->instance, 'reacted' => $newreactionnumber]);
         }
 
-        return $new_reactions;
+        return $newreactions;
     }
 
-    public static function submit_reaction_parameters()
-    {
+    /**
+     * @return external_function_parameters
+     */
+    public static function submit_reaction_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'nextblocksid' => new external_value(PARAM_INT, 'module id'),
                 'reaction' => new external_value(PARAM_ALPHA, 'workspace'),
-            )
+            ]
         );
     }
 
+    /**
+     * @return external_single_structure
+     */
     public static function submit_reaction_returns() {
         return new external_single_structure(
-            array(
+            [
                 'reactionseasy' => new external_value(PARAM_INT, 'number of easy reactions'),
                 'reactionsmedium' => new external_value(PARAM_INT, 'number of medium reactions'),
                 'reactionshard' => new external_value(PARAM_INT, 'number of hard reactions'),
-            )
+            ]
         );
     }
 
-    public static function save_message($message, $userName, $nextblocksId, $timestamp) {
+    /**
+     * Saves a message sent by a user in the database
+     * 
+     * @param $message string 
+     * @param $username string 
+     * @param $nextblocksid int activity id
+     * @param $timestamp int
+     */
+    public static function save_message($message, $username, $nextblocksid, $timestamp) {
         global $DB;
         $params = self::validate_parameters(self::save_message_parameters(),
-            array('message' => $message, 'userName' => $userName, 'nextblocksId' => $nextblocksId, 'timestamp' => $timestamp));
-        $DB->insert_record('nextblocks_messages', array('message' => $message, 'username' => $userName, 'nextblocksid' => $nextblocksId, 'timestamp' => $timestamp));
+            ['message' => $message, 'userName' => $username, 'nextblocksId' => $nextblocksid, 'timestamp' => $timestamp]);
+        $DB->insert_record('nextblocks_messages', ['message' => $message, 'username' => $username, 
+            'nextblocksid' => $nextblocksid, 'timestamp' => $timestamp]);
     }
 
+    /**
+     * @return external_function_parameters
+     */
     public static function save_message_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'message' => new external_value(PARAM_TEXT, 'message sent'),
                 'userName' => new external_value(PARAM_TEXT, 'name of the user who sent the message'),
                 'nextblocksId' => new external_value(PARAM_INT, 'id of the activity where the message was sent'),
                 'timestamp' => new external_value(PARAM_INT, 'when the message was sent (UNIX time)'),
-            )
+            ]
         );
     }
 
+    /**
+     * @return null
+     */
     public static function save_message_returns() {
         return null;
     }
 
-    public static function get_messages($messageCount, $nextblocksId){
+    /**
+     * Gets a specific number of messages in an activity through the database
+     * 
+     * @param $messagecount int number of messages to get
+     * @param $nextblocksid int activity id
+     * @return array list of messages
+     */
+    public static function get_messages($messagecount, $nextblocksid) {
         global $DB;
         $params = self::validate_parameters(self::get_messages_parameters(),
-            array('messageCount' => $messageCount, 'nextblocksId' => $nextblocksId));
-        $messages = $DB->get_records('nextblocks_messages', array('nextblocksid' => $nextblocksId), 'timestamp ASC', '*', 0, $messageCount);
-        $messagesArray = array();
+            ['messageCount' => $messagecount, 'nextblocksId' => $nextblocksid]);
+        $messages = $DB->get_records('nextblocks_messages', ['nextblocksid' => $nextblocksid], 
+            'timestamp ASC', '*', 0, $messagecount);
+        $messagesarray = [];
         foreach ($messages as $message) {
-            $messageArray = array(
+            $messagearray = [
                 'message' => $message->message,
                 'username' => $message->username,
-                'timestamp' => $message->timestamp
-            );
-            $messagesArray[] = $messageArray;
+                'timestamp' => $message->timestamp,
+            ];
+            $messagesarray[] = $messagearray;
         }
-        return $messagesArray;
+        return $messagesarray;
     }
 
+    /**
+     * @return external_function_parameters
+     */
     public static function get_messages_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'messageCount' => new external_value(PARAM_INT, 'number of messages to get'),
                 'nextblocksId' => new external_value(PARAM_INT, 'id of the activity where the messages were sent'),
-            )
+            ]
         );
     }
 
+    /**
+     * @return external_multiple_structure
+     */
     public static function get_messages_returns() {
         return new external_multiple_structure(
             new external_single_structure(
-                array(
+                [
                     'message' => new external_value(PARAM_TEXT, 'message sent'),
                     'username' => new external_value(PARAM_TEXT, 'name of the user who sent the message'),
                     'timestamp' => new external_value(PARAM_INT, 'when the message was sent (UNIX time)'),
-                )
+                ]
             )
         );
     }

@@ -16,6 +16,7 @@
 
 /**
  *
+ * @package     mod_nextblocks
  * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
  * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,11 +30,18 @@ use moodleform;
 
 require_once("$CFG->libdir/formslib.php");
 
+/**
+ * Handles grade submission to moodle's gradebook
+ */
 class grade_submit extends moodleform {
+
+    /**
+     * Defines a grade submission
+     */
     public function definition() {
         $mform = $this->_form;
 
-        // Somehow passing the id and userid to the form as hidden fields makes it redirect correctly
+        // Somehow passing the id and userid to the form as hidden fields makes it redirect correctly.
         $id = required_param('id', PARAM_INT);
         $userid = required_param('userid', PARAM_INT);
         $mform->addElement('hidden', 'id', $id);
@@ -43,10 +51,5 @@ class grade_submit extends moodleform {
 
         $mform->addElement('float', 'newgrade', get_string('newgrade', 'mod_nextblocks'));
         $this->add_action_buttons(false);
-    }
-
-    // Custom validation should be added here.
-    function validation($data, $files) {
-        return parent::validation($data, $files);
     }
 }

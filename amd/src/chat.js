@@ -39,6 +39,7 @@ define([], function() {
                         timestamp: dbMessage.timestamp};
                     appendMessage(message, activityId, true);
                 });
+                return;
             });
         },
     };
@@ -59,8 +60,6 @@ const socketError = function(activityId, errorMessage = "Connection error") {
  */
 const appendMessage = function(message, activityId, isParsed = false) {
     if (!isParsed) {
-        // eslint-disable-next-line no-console
-        console.log(message);
         message = parseMessage(message);
     }
     if (activityId === message.activity) {

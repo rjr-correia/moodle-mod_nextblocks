@@ -20,7 +20,6 @@
  * localization files.
  */
 
-/* eslint-disable */
 'use strict';
 
 // Include the EN Locale by default.

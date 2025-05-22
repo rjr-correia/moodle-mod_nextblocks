@@ -326,11 +326,10 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         // Replace newlines with <br /> so that they are displayed correctly
         const outputHTML = String(output).replace(/\n/g, "<br />");
         // Wrap the output in a div with max-height and overflow-y: auto to make it scrollable if too long (multiline input)
-        if(output.includes("Error")){
+        if (output.includes("Error")) {
             // eslint-disable-next-line max-len
             outputDiv.innerHTML = `<div style="max-height: 100%; overflow-y: auto; color: red !important; background-color: black;"><pre>${outputHTML}</pre></div>`;
-        }
-        else {
+        } else {
             // eslint-disable-next-line max-len
             outputDiv.innerHTML = `<div style="max-height: 100%; overflow-y: auto; color: white !important; background-color: black;"><pre>${outputHTML}</pre></div>`;
         }
@@ -367,7 +366,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         const cmid = getCMID();
         repository.submitWorkspace(cmid, stateB64, codeString);
 
-        const delay = ms => new Promise(res => setTimeout(res, ms));
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
         await delay(1000);
 
         location.reload();
@@ -403,7 +402,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         if (tests !== null) {
             // Listen for clicks on the run tests button
             const runTestsButton = document.getElementById('runTestsButton');
-            runTestsButton.addEventListener('click', async () => { // Needs anonymous function wrap to pass argument
+            runTestsButton.addEventListener('click', async() => { // Needs anonymous function wrap to pass argument
                 const code = lib.getWorkspaceCode(workspace, inputFuncDecs).getCompleteCodeString();
                 lib.runTests(code, tests).then((results) => {
                     displayTestResults(results, tests);
@@ -621,9 +620,9 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                 Blockly.defineBlocksWithJsonArray([definition]);
                 // eslint-disable-next-line no-eval
                 eval(block.generator);
-                if(block.pythongenerator.length === 0){
-                    var code = "python.pythonGenerator.forBlock['"+blockName+"'] = function(block) {\n" +
-                        "  const code = '"+blockName+"()';\n" +
+                if (block.pythongenerator.length === 0) {
+                    var code = "python.pythonGenerator.forBlock['" + blockName + "'] = function(block) {\n" +
+                        "  const code = '" + blockName + "()';\n" +
                         "  return [code, python.pythonGenerator.ORDER_ATOMIC];\n" +
                         "};\n";
                     // eslint-disable-next-line no-eval

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * NextBlocks report page.
  *
@@ -24,6 +22,7 @@
  * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 global $PAGE, $OUTPUT, $USER, $DB;
 
 use mod_nextblocks\form\grade_submit;
@@ -39,11 +38,11 @@ $n = optional_param('n', 0, PARAM_INT);
 
 if ($id) {
     $cm = get_coursemodule_from_id('nextblocks', $id, 0, false, MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $moduleinstance = $DB->get_record('nextblocks', array('id' => $cm->instance), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    $moduleinstance = $DB->get_record('nextblocks', ['id' => $cm->instance], '*', MUST_EXIST);
 } else {
-    $moduleinstance = $DB->get_record('nextblocks', array('id' => $n), '*', MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $moduleinstance->course), '*', MUST_EXIST);
+    $moduleinstance = $DB->get_record('nextblocks', ['id' => $n], '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $moduleinstance->course], '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('nextblocks', $moduleinstance->id, $course->id, false, MUST_EXIST);
 }
 
@@ -51,12 +50,12 @@ require_login($course, true, $cm);
 
 $modulecontext = context_module::instance($cm->id);
 
-//import css
+// Import css.
 echo '<link rel="stylesheet" href="styles.css">';
-//import icons
+// Import icons.
 echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">';
 
-//import blockly
+// Import blockly.
 echo '<script src="./blockly/blockly_compressed.js"></script>
     <script src="./blockly/blocks_compressed.js"></script>
     <script src="./blockly/msg/en.js"></script>
@@ -68,91 +67,103 @@ $userid = required_param('userid', PARAM_INT);
 
 $instanceid = $cm->instance;
 
-$record = $DB->get_record('nextblocks_userdata', array('userid' => $userid, 'nextblocksid' => $instanceid));
+$record = $DB->get_record('nextblocks_userdata', ['userid' => $userid, 'nextblocksid' => $instanceid]);
 
-$saved_workspace = $record->saved_workspace;
+$savedworkspace = $record->saved_workspace;
 
-// get custom blocks
-$custom_blocks = $DB->get_records('nextblocks_customblocks', array('nextblocksid' => $instanceid));
-$custom_blocks_json = array();
-foreach ($custom_blocks as $custom_block) {
-    $custom_blocks_json[] = array(
-        'definition' => $custom_block->blockdefinition,
-        'generator' => $custom_block->blockgenerator,
-        'pythongenerator' => $custom_block->blockpythongenerator
-    );
+// Get custom blocks.
+$customblocks = $DB->get_records('nextblocks_customblocks', ['nextblocksid' => $instanceid]);
+$customblocksjson = [];
+foreach ($customblocks as $customblock) {
+    $customblocksjson[] = [
+        'definition' => $customblock->blockdefinition,
+        'generator' => $customblock->blockgenerator,
+        'pythongenerator' => $customblock->blockpythongenerator,
+    ];
 }
 
 $fs = get_file_storage();
 $filenamehash = get_filenamehash($instanceid);
 
-$tests_file = $fs->get_file_by_hash($filenamehash);
-$tests_file_contents = $tests_file ? $tests_file->get_content() : null;
+$testsfile = $fs->get_file_by_hash($filenamehash);
+$testsfilecontents = $testsfile ? $testsfile->get_content() : null;
 
-$reactions = [intval($moduleinstance->reactionseasy), intval($moduleinstance->reactionsmedium), intval($moduleinstance->reactionshard)];
-$last_user_reaction = intval($record->reacted);
+$reactions = [intval($moduleinstance->reactionseasy), intval($moduleinstance->reactionsmedium), 
+    intval($moduleinstance->reactionshard)];
+$lastuserreaction = intval($record->reacted);
 
 if (has_capability('mod/nextblocks:gradeitems', context_module::instance($cm->id))) {
-    $reportType = 1;
+    $reporttype = 1;
 } else {
-    $reportType = 2;
+    $reporttype = 2;
 }
 
-//We need the username of the user whose report we are viewing, and the username of the logged in user. they can be different, in the case when a teacher is viewing a student's report
-$user = $DB->get_record('user', array('id' => $userid));
-$reportSubjectUserName = $user->firstname . ' ' . $user->lastname;
+$limits = $DB->get_records_menu(
+    'nextblocks_blocklimit',
+    ['nextblocksid' => $instanceid],
+    '',
+    'blocktype,blocklimit'
+);
 
-$loggedInUserName = $USER->firstname . ' ' . $USER->lastname;
+// We need the username of the user whose report we are viewing,
+// ...and the username of the logged in user. they can be different,
+// ...in the case when a teacher is viewing a student's report.
+$user = $DB->get_record('user', ['id' => $userid]);
+$reportsubjectusername = $user->firstname . ' ' . $user->lastname;
 
-$PAGE->requires->js_call_amd('mod_nextblocks/codeenv', 'init', [$tests_file_contents, $saved_workspace, $custom_blocks_json, 1, $reactions, $last_user_reaction, $reportType, $loggedInUserName, $id]);
+$loggedinusername = $USER->firstname . ' ' . $USER->lastname;
 
-$PAGE->set_url('/mod/nextblocks/report.php', array('id' => $cm->id));
+$PAGE->requires->js_call_amd('mod_nextblocks/codeenv', 'init', [$testsfilecontents, $savedworkspace, $customblocksjson, 1, 
+    $reactions, $lastuserreaction, $reporttype, $loggedinusername, $id, $limits]);
+
+$PAGE->set_url('/mod/nextblocks/report.php', ['id' => $cm->id]);
 $PAGE->set_title("Report " . format_string($moduleinstance->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
 
-$title = $DB->get_field('nextblocks', 'name', array('id' => $instanceid));
-$description = $DB->get_field('nextblocks', 'intro', array('id' => $instanceid));
+$title = $DB->get_field('nextblocks', 'name', ['id' => $instanceid]);
+$description = $DB->get_field('nextblocks', 'intro', ['id' => $instanceid]);
 
-$runTestsButton = $tests_file ? '<input id="runTestsButton" type="submit" class="btn btn-primary m-2" value="'.get_string("nextblocks_runtests", "nextblocks").'" />' : '';
+$runtestsbutton = $testsfile ? '<input id="runTestsButton" type="submit" class="btn btn-primary m-2" value="'
+    .get_string("nextblocks_runtests", "nextblocks").'" />' : '';
 
 $mform = new grade_submit();
 
-if($data = $mform->get_data()) {
+if ($data = $mform->get_data()) {
 
     $grades = new stdClass();
     $grades->userid = $userid;
-    $grades->rawgrade = $data->newgrade; // Fetch new grade from form
+    $grades->rawgrade = $data->newgrade; // Fetch new grade from form.
 
-    nextblocks_grade_item_update($moduleinstance, $grades); // Update grade in gradebook
+    nextblocks_grade_item_update($moduleinstance, $grades); // Update grade in gradebook.
 
-    //update grade in database
+    // Update grade in database.
     $record->grade = $data->newgrade;
     $DB->update_record('nextblocks_userdata', $record);
 
-    redirect(new moodle_url($PAGE->url, array('id' => $id, 'userid' => $userid)), 'Grade Updated');
+    redirect(new moodle_url($PAGE->url, ['id' => $id, 'userid' => $userid]), 'Grade Updated');
 } else {
-    $graderForm = $mform->render();
+    $graderform = $mform->render();
 
-    $student = $DB->get_record('user', array('id' => $userid));
+    $student = $DB->get_record('user', ['id' => $userid]);
 
-    $currentGrade = $record->grade;
-    $maxGrade = $moduleinstance->grade;
+    $currentgrade = $record->grade;
+    $maxgrade = $moduleinstance->grade;
 
-    $showGrader = has_capability('mod/nextblocks:gradeitems', context_module::instance($cm->id));
+    $showgrader = has_capability('mod/nextblocks:gradeitems', context_module::instance($cm->id));
 
     $data = [
         'title' => $OUTPUT->heading($title),
         'description' => $description,
-        'outputHeading' => $OUTPUT->heading("Output", $level=4),
-        'reactionsHeading' => $OUTPUT->heading("Reactions", $level=4),
-        'runTestsButton' => $runTestsButton,
+        'outputHeading' => $OUTPUT->heading("Output", $level = 4),
+        'reactionsHeading' => $OUTPUT->heading("Reactions", $level = 4),
+        'runTestsButton' => $runtestsbutton,
         'showSubmitButton' => false,
-        'showGrader' => $showGrader,
-        'graderForm' => $graderForm,
-        'studentName' => $reportSubjectUserName,
-        'currentGrade' => $currentGrade,
-        'maxGrade' => $maxGrade,
+        'showGrader' => $showgrader,
+        'graderForm' => $graderform,
+        'studentName' => $reportsubjectusername,
+        'currentGrade' => $currentgrade,
+        'maxGrade' => $maxgrade,
     ];
 
     echo $OUTPUT->header();
