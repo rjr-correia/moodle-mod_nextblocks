@@ -66,9 +66,11 @@ class mod_nextblocks_external extends external_api {
     }
 
     /**
+     * Saves needed workspace parameters
+     * 
      * @return external_function_parameters
      */
-    public static function save_workspace_parameters(){
+    public static function save_workspace_parameters() {
         return new external_function_parameters(
             [
                 'nextblocksid' => new external_value(PARAM_INT, 'module id', VALUE_REQUIRED),
@@ -79,6 +81,8 @@ class mod_nextblocks_external extends external_api {
     }
 
     /**
+     * Nothing needs to be done
+     * 
      * @return null
      */
     public static function save_workspace_returns() {
@@ -87,9 +91,9 @@ class mod_nextblocks_external extends external_api {
 
     /**
      * Handles program submission when user clicks "Submit" button
-     * 
+     *
      * @param $nextblocksid int activity instance id
-     * @param $submittedworkspace object program to submit 
+     * @param $submittedworkspace object program to submit
      * @param $codestring string javascript code generated from program
      */
     public static function submit_workspace($nextblocksid, $submittedworkspace, $codestring) {
@@ -102,10 +106,11 @@ class mod_nextblocks_external extends external_api {
         $record = $DB->get_record('nextblocks_userdata', ['userid' => $USER->id, 'nextblocksid' => $cm->instance]);
         // If record exists with same userid and nextblocksid, update it, else insert new record.
         if ($record) {
-            $DB->update_record('nextblocks_userdata', ['id' => $record->id, 'userid' => $USER->id, 'nextblocksid' => $cm->instance, 
-                'saved_workspace' => $submittedworkspace, 'submitted_workspace' => $submittedworkspace, 'submissionnumber' => $record->submissionnumber + 1]);
+            $DB->update_record('nextblocks_userdata', ['id' => $record->id, 'userid' => $USER->id, 'nextblocksid' => $cm->instance,
+                'saved_workspace' => $submittedworkspace, 'submitted_workspace' => $submittedworkspace, 
+                'submissionnumber' => $record->submissionnumber + 1]);
         } else {
-            $DB->insert_record('nextblocks_userdata', ['userid' => $USER->id, 'nextblocksid' => $cm->instance, 
+            $DB->insert_record('nextblocks_userdata', ['userid' => $USER->id, 'nextblocksid' => $cm->instance,
                 'saved_workspace' => $submittedworkspace, 'submitted_workspace' => $submittedworkspace, 'submissionnumber' => 1]);
         }
 
@@ -135,14 +140,11 @@ class mod_nextblocks_external extends external_api {
     public static function auto_grade($cm, $codestring, $nextblocks, $testsfile) {
         global $USER, $DB;
 
-        $testsfile_contents = $testsfile->get_content();
-
-        $tests = json_decode($testsfile_contents, true);
-
+        $testsfilecontents = $testsfile->get_content();
+        $tests = json_decode($testsfilecontents, true);
         $testscount = count($tests);
-        $testscorrectcount = self::run_tests_jobe($tests, $codestring);
-        $newgrade = $testscorrectcount / $testscount * $nextblocks->grade; //... $nextblocks->grade is the max grade.
-
+        $testscorrectcount = self::run_tests_judge0($tests, $codestring);
+        $newgrade = $testscorrectcount / $testscount * $nextblocks->grade; // ...$nextblocks->grade is the max grade.
 
         $grades = new stdClass();
         $grades->userid = $USER->id;
@@ -157,81 +159,72 @@ class mod_nextblocks_external extends external_api {
     }
 
     /**
-     * Runs the program against the given tests
-     * 
-     * @param $tests object[]
-     * @param $codestring string javascript code from the program
-     * @return int number of passed tests
+     * Run all tests via Judge0.
+     *
+     * @param array  $tests      Array of tests (with 'inputs' and 'output').
+     * @param string $codestring The raw code.
+     * @return int               Number of tests passed.
      */
-    public static function run_tests_jobe($tests, $codestring): int {
-        $testscorrectcount = 0;
-        for ($i = 0; $i < count($tests); $i++) {
-            $test = $tests[$i];
+    public static function run_tests_judge0($tests, $codestring) {
+        $submissions = [];
+        $languageid = "102"; // JavaScript (Node.js 22.08.0)
+        foreach ($tests as $test) {
             $inputs = $test['inputs'];
-            $expectedoutput = $test['output'];
-            // Json has arrays where there shouldn't be, as there is only one element, so the foreaches are necessary.
-            foreach ($inputs as $key => $val) {
-                $inputname = "";
-                $input = "";
-                foreach ($val as $inputname_ => $val1) {
-                    $inputname = $inputname_;
-                    $input = "";
-                    foreach ($val1 as $key2 => $inputvalue_) {
-                        $input = $inputvalue_;
-                    }
-                }
-                // Get the indices of the first and second parentheses of the last occurrence of the input function call.
-                $firstparenindex = strrpos($codestring, "input" . $inputname . "(");
-                $secondparenindex = strpos($codestring, ")", $firstparenindex);
-
-                // Replace everything between the parentheses with the input.
-                $codestring = substr_replace($codestring, $input, $firstparenindex + strlen("input" . $inputname . "("),
-                    $secondparenindex - $firstparenindex - strlen("input" . $inputname . "("));
+            foreach ($inputs as $input) {
+                $prompt = array_keys($input)[0];
+                $values = array_values($input[$prompt])[0];
+                $combination = array_merge([$prompt], $values);
+            }
+            $inputstring = "";
+            foreach($combination as $c){
+                $inputstring .= $c;
+                $inputstring .= "\n";
             }
 
-            $testoutput = self::run_test_jobe($codestring);
-            if ($testoutput == $expectedoutput) {
-                $testscorrectcount++;
+            if(strlen($inputstring) != 0){
+                $inputstring = substr($inputstring, 0, strlen($inputstring)-1);
+            }
+            $output = $test['output'];
+            
+            $submissions[] = [
+                'expected_output' => $output,
+                'language_id'     => $languageid,
+                'source_code'     => $codestring,
+                'stdin'           => $inputstring
+            ];
+        }
+
+        $curl = new \curl();
+        $headers = [
+            "Accept: application/json",
+            "Authorization: Bearer sk_live_spZDwoQjgwyN4GTGuNoSrdy8qCdU3vUD",
+            "Content-Type: application/json"
+        ];
+
+        $response = $curl->post("https://judge0-ce.p.sulu.sh/submissions/batch",
+            json_encode(['submissions' => $submissions]),
+            ['CURLOPT_HTTPHEADER' => $headers]
+        );
+
+        sleep(5); // Give API time to execute the tests.
+
+        $passed = 0;
+        $tokens = array_column(json_decode($response, true), 'token');
+        $tokenlist = implode(',', $tokens);
+        $geturl = "https://judge0-ce.p.sulu.sh/submissions/batch?tokens={$tokenlist}";
+        $resp2 = $curl->get($geturl, ['CURLOPT_HTTPHEADER' => $headers]);
+        $results = json_decode($resp2, true);
+        if (empty($results['submissions']) || !is_array($results['submissions'])) {
+            throw new \moodle_exception('judge0timeout', 'mod_nextblocks');
+        }
+
+        foreach ($results['submissions'] as $res) {
+            if (isset($res['status']['id']) && (int)$res['status']['id'] === 3) {
+                $passed++;
             }
         }
-        
-        return $testscorrectcount;
-    }
 
-    /**
-     * Runs tests through jobe
-     * 
-     * @param $codestring string JavaScript code from the program
-     * @return mixed test results
-     */
-    public static function run_test_jobe($codestring) {
-        $url = 'http://localhost:4000/jobe/index.php/restapi/runs/';
-        $data = [
-            "run_spec" => [
-                'language_id' => 'nodejs',
-                'sourcefilename' => 'test.js',
-                'sourcecode' => $codestring,
-            ],
-        ];
-
-        // Use key 'http' even if you send the request to https://...
-        $options = [
-            'http' => [
-                'header' => "Content-type: application/json\r\n",
-                'method' => 'POST',
-                'content' => json_encode($data),
-            ],
-        ];
-
-        $context = stream_context_create($options);
-        $result = file_get_contents($url, false, $context);
-        if ($result === false) {
-            // Unexpected error.
-            return null;
-        }
-
-        $result = json_decode($result, true);
-        return $result['stdout'];
+        return $passed;
     }
 
     /**

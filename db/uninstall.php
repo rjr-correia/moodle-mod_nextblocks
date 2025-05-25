@@ -24,8 +24,6 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Custom uninstallation procedure.
  */
@@ -33,7 +31,7 @@ function xmldb_nextblocks_uninstall() {
 
     global $DB;
 
-    //Deletes all test files since their activities are also deleted
+    // Deletes all test files since their activities are also deleted.
     $DB->delete_records('files');
 
     return true;

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,11 +23,10 @@
  *  and RFC 6455: https://datatracker.ietf.org/doc/html/rfc6455
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class Chat_Server {
 
     /** @var string Address to the chat server */
-    private $address;  
+    private $address;
     /** @var int port to the chat server */
     private $port;
     /** @var null null representation */
@@ -37,7 +35,7 @@ class Chat_Server {
     /**
      * Constructs the chat server with default parameters
      */
-    function __construct() {
+    public function __construct() {
         $this->address = "0.0.0.0";
         $this->port = 8060;
         $this->null = null;
@@ -132,7 +130,7 @@ class Chat_Server {
 
                         // Send message to all connected clients.
                         foreach ($connections as $ckey => $cvalue) {
-                            // Skip main socket
+                            // Skip main socket.
                             if ($ckey === 0) {
                                 continue;
                             }

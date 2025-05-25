@@ -10,8 +10,18 @@ define([], function() {
 
     class CodeString {
         #codeString;
+        #originalCodeString;
         #userFunctionLinesCount;
 
+        static #judge0codeheader = `
+        const fs = require('fs');
+        const stdin = fs.readFileSync(0, 'utf-8').trim().split('\\n');
+        let nextInput = 0;
+        function input(promptText) {
+          return stdin[nextInput++] || "";
+        }
+        
+        `;
         static #auxFunctions =
             `
 const runningTests = false;
@@ -95,16 +105,16 @@ async function input(promptText) {
 })();
 `;
         constructor(codeString) {
+            this.#originalCodeString = CodeString.#judge0codeheader;
             if (arguments.length > 0) {
                 this.addAsyncDeclaration();
                 this.#codeString += codeString;
+                this.#originalCodeString = codeString;
                 this.addVariable('outputString', '""');
             } else {
                 this.#codeString = '';
                 this.addAsyncDeclaration();
                 this.addVariable('outputString', '""');
-
-
             }
             this.#userFunctionLinesCount = 0;
         }
@@ -135,6 +145,14 @@ async function input(promptText) {
                 this.#codeString.substring(lastIndex + 'return outputString;'.length);
         }
 
+        getTestableCodeString(){
+            this.#originalCodeString = this.#originalCodeString.replaceAll("customPrintln", "console.log");
+            this.#originalCodeString = this.#originalCodeString.replaceAll("undefined", "");
+            this.#originalCodeString = this.#originalCodeString.replaceAll("await ", "");
+            this.#originalCodeString = this.#originalCodeString.replaceAll("text_to_number", "parseFloat");
+            return this.#originalCodeString;
+        }
+
         addVariable(variableName, variableValue) {
             // Check if variableName is a valid variable name
             const regex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
@@ -142,6 +160,9 @@ async function input(promptText) {
                 throw new Error('Invalid variable name');
             }
             this.#codeString += 'let ' + variableName + ' = ' + variableValue + ';\n';
+            if(variableName !== 'outputString') {
+                this.#originalCodeString += 'let ' + variableName + ' = ' + variableValue + ';\n';
+            }
             return this.#codeString;
         }
 
@@ -156,6 +177,7 @@ async function input(promptText) {
                 throw new Error('Invalid line');
             }
             this.#codeString += line + '\n';
+            if(!line.includes("async")){ this.#originalCodeString += line + '\n'; }
             return this.#codeString;
         }
 
@@ -172,6 +194,7 @@ async function input(promptText) {
 
         addMainCode(codeString) {
             this.#codeString += codeString;
+            this.#originalCodeString += codeString;
             return this.#codeString;
         }
 
@@ -182,6 +205,7 @@ async function input(promptText) {
             this.#userFunctionLinesCount += functionLinesCount;
 
             this.#codeString = functionCode + this.#codeString;
+            this.#originalCodeString = functionCode + this.#originalCodeString;
             return this.#codeString;
         }
     }

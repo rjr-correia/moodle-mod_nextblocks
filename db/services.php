@@ -26,14 +26,14 @@
 $services = [
     'mypluginservice' => [                      // The name of the web service.
         'functions' => ['mod_nextblocks_save_workspace', 'mod_nextblocks_submit_workspace', 'mod_nextblocks_submit_reaction',
-            'mod_nextblocks_save_message', 'mod_nextblocks_get_messages'], // Web service functions of this service
+            'mod_nextblocks_save_message', 'mod_nextblocks_get_messages'], // Web service functions of this service.
         'requiredcapability' => '',                // If set, the web service user need this capability to access.
         // Any function of this service. For example: 'some/capability:specified'.
         'restrictedusers' => 0,                      // If enabled, the Moodle administrator must link some user to this service.
         // Into the administration.
         'enabled' => 1,                               // If enabled, the service can be reachable on a default installation.
         'shortname' => 'nextblocksservice', // The short name used to refer to this service from elsewhere.
-    ]
+    ],
 ];
 
 $functions = [

@@ -360,7 +360,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
     };
 
     const submitWorkspace = async(inputFuncDecs) => {
-        const codeString = lib.getWorkspaceCode(nextblocksWorkspace, inputFuncDecs).getSubmittableCodeString();
+        const codeString = lib.getWorkspaceCode(nextblocksWorkspace, inputFuncDecs).getTestableCodeString();
         const state = Blockly.serialization.workspaces.save(nextblocksWorkspace);
         const stateB64 = btoa(JSON.stringify(state));
         const cmid = getCMID();
@@ -370,6 +370,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         await delay(1000);
 
         location.reload();
+        alert("Submitted successfully");
     };
 
     /**
