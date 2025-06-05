@@ -50,9 +50,14 @@ class mod_nextblocks_external extends external_api {
         if (!$userid) {
             $userid = $USER->id;
         }
+
+        $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
+        $context = context_module::instance($cm->id);
+        self::validate_context($context);
+        require_capability('mod/nextblocks:view', $context);
+
         $params = self::validate_parameters(self::save_workspace_parameters(),
             ['nextblocksid' => $nextblocksid, 'saved_workspace' => $savedworkspace]);
-        $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
         // Check if record exists.
         $record = $DB->get_record('nextblocks_userdata', ['userid' => $userid, 'nextblocksid' => $cm->instance]);
         // If record exists with same userid and nextblocksid, update it, else insert new record.
