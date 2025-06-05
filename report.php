@@ -115,7 +115,7 @@ $PAGE->requires->js_call_amd('mod_nextblocks/codeenv', 'init', [$testsfileconten
     $reactions, $lastuserreaction, $reporttype, $loggedinusername, $id, $limits]);
 
 $PAGE->set_url('/mod/nextblocks/report.php', ['id' => $cm->id]);
-$PAGE->set_title("Report " . format_string($moduleinstance->name));
+$PAGE->set_title(get_string("report", "nextblocks") . format_string($moduleinstance->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
 
@@ -153,8 +153,8 @@ if ($data = $mform->get_data()) {
     $data = [
         'title' => $OUTPUT->heading($title),
         'description' => $description,
-        'outputHeading' => $OUTPUT->heading("Output", $level = 4),
-        'reactionsHeading' => $OUTPUT->heading("Reactions", $level = 4),
+        'outputHeading' => $OUTPUT->heading(get_string('testsoutput', 'mod_nextblocks'), $level = 4),
+        'reactionsHeading' => $OUTPUT->heading(get_string('reactions', 'mod_nextblocks'), $level = 4),
         'runTestsButton' => $runtestsbutton,
         'showSubmitButton' => false,
         'showGrader' => $showgrader,

@@ -107,6 +107,24 @@ $string['mod/nextblocks:viewreports']   = 'View NextBlocks reports';
 $string['mod/nextblocks:gradeitems']    = 'Manage NextBlocks grade items';
 $string['mod/nextblocks:isgraded']      = 'Allow NextBlocks to be graded';
 $string['eventcourselistviewed'] = 'NextBlocks instance list viewed';
+$string['nonextblocksinstances'] = 'No NextBlocks instances found';
+$string['report'] = 'Report';
+$string['submissionreport'] = '<h1>Submission Report</h1>
+    <p>
+To add comments to the code, right-click on a block and select "Add Comment".<br>
+The comments will only be saved when you click the "Save" button.
+    </p>
+    <hr>';
+$string['nextblocksreport'] = 'NextBlocks Report';
+$string['studentscodegraded'] = '\'s code has been graded. Here are the results:';
+$string['customblocks'] = 'Custom Blocks';
+$string['reactions'] = 'Reactions';
+$string['username'] = 'Username';
+$string['grade'] = 'Grade';
+$string['reaction'] = 'Reaction';
+$string['totalsubmissions'] = 'Total submissions';
+$string['averagegrade'] = 'Average grade';
+$string['averagereaction'] = 'Average reaction';
 
 $string['privacy:metadata:nextblocks_userdata']               = 'Stored user workspace and test-run data for NextBlocks.';
 $string['privacy:metadata:nextblocks_userdata:userid']        = 'The user ID who saved the workspace.';

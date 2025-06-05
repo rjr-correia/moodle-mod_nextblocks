@@ -53,7 +53,7 @@ echo $OUTPUT->heading($modulenameplural);
 $nextblockss = get_all_instances_in_course('nextblocks', $course);
 
 if (empty($nextblockss)) {
-    notice(get_string('no$nextblocksinstances', 'mod_nextblocks'), new moodle_url('/course/view.php', ['id' => $course->id]));
+    notice(get_string('nonextblocksinstances', 'mod_nextblocks'), new moodle_url('/course/view.php', ['id' => $course->id]));
 }
 
 $table = new html_table();

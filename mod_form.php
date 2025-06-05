@@ -111,9 +111,9 @@ class mod_nextblocks_mod_form extends moodleform_mod {
                 'wrap="virtual" rows="8" cols="80"');
             $mform->addHelpButton('blockgenerator', 'blockgenerator', 'mod_nextblocks');
             $mform->setType('blockgenerator', PARAM_TEXT);
-            $mform->addElement('textarea', 'blockpythongenerator', get_string("blockgeneratorPython", "mod_nextblocks"),
+            $mform->addElement('textarea', 'blockpythongenerator', get_string("blockpythongenerator", "mod_nextblocks"),
                 'wrap="virtual" rows="8" cols="80"');
-            $mform->addHelpButton('blockpythongenerator', 'blockgeneratorPython', 'mod_nextblocks');
+            $mform->addHelpButton('blockpythongenerator', 'blockpythongenerator', 'mod_nextblocks');
             $mform->setType('blockpythongenerator', PARAM_TEXT);
         }
 
@@ -275,7 +275,7 @@ class mod_nextblocks_mod_form extends moodleform_mod {
             if ($customrecs) {
                 $mform->addElement('html',
                     '<details style="margin-top:1em;"><summary><strong>'
-                    . 'Custom Blocks' .
+                    . get_string('customblocks', 'mod_nextblocks') .
                     '</strong></summary>'
                 );
                 foreach ($customrecs as $rec) {
