@@ -50,8 +50,6 @@ require_login($course, true, $cm);
 
 $modulecontext = context_module::instance($cm->id);
 
-// Import css.
-echo '<link rel="stylesheet" href="styles.css">';
 // Import icons.
 echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">';
 
@@ -83,7 +81,7 @@ foreach ($customblocks as $customblock) {
 }
 
 $fs = get_file_storage();
-$filenamehash = get_filenamehash($instanceid);
+$filenamehash = nextblocks_get_filenamehash($instanceid);
 
 $testsfile = $fs->get_file_by_hash($filenamehash);
 $testsfilecontents = $testsfile ? $testsfile->get_content() : null;

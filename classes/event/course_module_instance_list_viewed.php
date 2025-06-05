@@ -14,14 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_nextblocks\event;
+
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * Event observer definitions for the mod_nextblocks plugin.
  *
  * @package     mod_nextblocks
  * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
  * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class course_module_instance_list_viewed extends \core\event\course_module_instance_list_viewed {
+    /**
+     * Returns localised event name.
+     *
+     * @return string
+     */
+    public static function get_name() {
+        return get_string('eventcourselistviewed', 'mod_nextblocks');
+    }
 
-$observers = [
-];
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
+    public function get_description() {
+        return "The user with id {$this->userid} viewed the list of NextBlocks instances " .
+            "for the course with id {$this->contextinstanceid}.";
+    }
+}

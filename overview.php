@@ -40,13 +40,10 @@ require_login($course, true, $cm);
 
 $modulecontext = context_module::instance($cm->id);
 
-// Import css.
-echo '<link rel="stylesheet" href="styles.css">';
-
 $instanceid = $cm->instance;
 
 $PAGE->set_url('/mod/nextblocks/overview.php', ['id' => $cm->id]);
-$PAGE->set_title(format_string($moduleinstance->name) . " Overview");
+$PAGE->set_title(format_string($moduleinstance->name) . " " . get_string('overview', 'mod_nextblocks'));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
 
@@ -64,10 +61,10 @@ foreach ($record as $r) {
     }
 }
 
-$avggrade = avg_filter(array_column($grades, 'grade'), function($value) {
+$avggrade = nextblocks_avg_filter(array_column($grades, 'grade'), function($value) {
     return $value != '-';
 });
-$avgreaction = avg_filter(array_column($grades, 'reaction'), function($value) {
+$avgreaction = nextblocks_avg_filter(array_column($grades, 'reaction'), function($value) {
     return $value != '-';
 });
 
@@ -92,7 +89,7 @@ echo $OUTPUT->footer();
  *
  * @return float The average of the filtered array.
  */
-function avg_filter(array $grades, callable $filter): float {
+function nextblocks_avg_filter(array $grades, callable $filter): float {
     $elements = array_filter($grades, $filter);
     // If there are no elements remaining, return 0 to avoid division by 0 error.
     if (count($elements) == 0) {

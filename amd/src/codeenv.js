@@ -8,11 +8,6 @@
 
 /* globals Blockly */
 
-/* globals javascript */
-
-/* globals python */
-
-
 let toolbox = {
     'kind': 'categoryToolbox',
     'readOnly': true,
@@ -309,7 +304,9 @@ let toolbox = {
 // GetMainWorkspace might remove need for global variable
 let nextblocksWorkspace;
 
-define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'], function(lib, repository, chat) {
+
+define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat', 'core/str'],
+    function(lib, repository, chat, str) {
     /**
      * @param {CodeString} code The Javascript code to be run
      * Runs the code and displays the output in the output div
@@ -370,7 +367,10 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         await delay(1000);
 
         location.reload();
-        alert("Submitted successfully");
+
+        str.get_string('submitsuccess', 'mod_nextblocks').then(function(text) {
+            alert(text);
+        });
     };
 
     /**
@@ -378,10 +378,11 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
      * @param {{}} tests The tests that were run
      * Displays the results of the tests in the output div
      */
-    function displayTestResults(results, tests) {
+    async function displayTestResults(results, tests) {
         const testResultsDiv = document.getElementById('output-div');
         testResultsDiv.classList.add('tests-active');
-        testResultsDiv.innerHTML = lib.testsAccordion(results, tests);
+        testResultsDiv.innerHTML = "";
+        testResultsDiv.innerHTML = await lib.testsAccordion(results, tests);
     }
 
     /**
@@ -622,9 +623,9 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                 // eslint-disable-next-line no-eval
                 eval(block.generator);
                 if (block.pythongenerator.length === 0) {
-                    var code = "python.pythonGenerator.forBlock['" + blockName + "'] = function(block) {\n" +
+                    var code = "Blockly.Python.forBlock['" + blockName + "'] = function(block) {\n" +
                         "  const code = '" + blockName + "()';\n" +
-                        "  return [code, python.pythonGenerator.ORDER_ATOMIC];\n" +
+                        "  return [code, Blockly.Python.ORDER_ATOMIC];\n" +
                         "};\n";
                     // eslint-disable-next-line no-eval
                     eval(code);
@@ -640,8 +641,8 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
 
 
             nextblocksWorkspace = Blockly.inject(blocklyDiv, getOptions(remainingSubmissions, reportType !== 0, blockLimits));
-            javascript.javascriptGenerator.init(nextblocksWorkspace);
-            python.pythonGenerator.init(nextblocksWorkspace);
+            Blockly.JavaScript.init(nextblocksWorkspace);
+            Blockly.Python.init(nextblocksWorkspace);
             // Use resize observer instead of window resize event. This captures both window resize and element resize
             const resizeObserver = new ResizeObserver(() => onResize(blocklyArea, blocklyDiv, nextblocksWorkspace));
             resizeObserver.observe(blocklyArea);
@@ -869,7 +870,7 @@ String.prototype.hideWrapperFunction = function() {
     return lines.join('\n');
 };
 
-javascript.javascriptGenerator.forBlock.text_print = function(block, generator) {
+Blockly.JavaScript.forBlock.text_print = function(block, generator) {
     return (
         "customPrintln(" +
         (generator.valueToCode(
@@ -881,7 +882,7 @@ javascript.javascriptGenerator.forBlock.text_print = function(block, generator) 
     );
 };
 
-javascript.javascriptGenerator.forBlock.text_ask = function(block, generator) {
+Blockly.JavaScript.forBlock.text_ask = function(block, generator) {
     const question = (generator.valueToCode(
         block,
         'TEXT',
@@ -891,7 +892,7 @@ javascript.javascriptGenerator.forBlock.text_ask = function(block, generator) {
     return [code, Blockly.JavaScript.ORDER_NONE];
 };
 
-python.pythonGenerator.forBlock.text_ask = function(block, generator) {
+Blockly.Python.forBlock.text_ask = function(block, generator) {
     const question = (generator.valueToCode(
         block,
         'TEXT',
@@ -913,7 +914,7 @@ Blockly.Blocks['text_ask'] = {
     }
 };
 
-javascript.javascriptGenerator.forBlock.text_to_number = function(block, generator) {
+Blockly.JavaScript.forBlock.text_to_number = function(block, generator) {
     const prompt = (generator.valueToCode(
         block,
         'TEXT',
@@ -923,7 +924,7 @@ javascript.javascriptGenerator.forBlock.text_to_number = function(block, generat
     return [code, Blockly.JavaScript.ORDER_NONE];
 };
 
-python.pythonGenerator.forBlock.text_to_number = function(block, generator) {
+Blockly.Python.forBlock.text_to_number = function(block, generator) {
     const prompt = (generator.valueToCode(
         block,
         'TEXT',
@@ -996,28 +997,28 @@ Blockly.Blocks.start = {
 };
 
 // eslint-disable-next-line no-unused-vars
-javascript.javascriptGenerator.forBlock.start = function(block, generator) {
+Blockly.JavaScript.forBlock.start = function(block, generator) {
     // Get all blocks attached to this block
     let code = '';
     return code;
 };
 
 // eslint-disable-next-line no-unused-vars
-javascript.javascriptGenerator.forBlock.number_input = function(block, generator) {
+Blockly.JavaScript.forBlock.number_input = function(block, generator) {
     const number = block.getFieldValue('number_input');
     let code = 'input(' + number + ')';
     return [code, Blockly.JavaScript.ORDER_NONE];
 };
 
 // eslint-disable-next-line no-unused-vars
-javascript.javascriptGenerator.forBlock.text_input = function(block, generator) {
+Blockly.JavaScript.forBlock.text_input = function(block, generator) {
     const text = block.getFieldValue('text_input');
     let code = 'input("' + text + '")';
     return [code, Blockly.JavaScript.ORDER_NONE];
 };
 
 // eslint-disable-next-line no-unused-vars
-javascript.javascriptGenerator.forBlock.text_multiline_input = function(block, generator) {
+Blockly.JavaScript.forBlock.text_multiline_input = function(block, generator) {
     const text = block.getFieldValue('text_input');
     let code = "input(`" + text + "`)";
     return [code, Blockly.JavaScript.ORDER_NONE];

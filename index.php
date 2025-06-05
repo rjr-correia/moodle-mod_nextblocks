@@ -47,7 +47,7 @@ $PAGE->set_context($coursecontext);
 
 echo $OUTPUT->header();
 
-$modulenameplural = get_string('modulenameplural', 'mod_nextblocks');
+$modulenameplural = get_string('customblocks', 'mod_nextblocks');
 echo $OUTPUT->heading($modulenameplural);
 
 $nextblockss = get_all_instances_in_course('nextblocks', $course);

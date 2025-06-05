@@ -32,7 +32,11 @@ function xmldb_nextblocks_uninstall() {
     global $DB;
 
     // Deletes all test files since their activities are also deleted.
-    $DB->delete_records('files');
+    $DB->delete_records_select(
+        'files',
+        "filename LIKE ?",
+        ['%nextblockstests%']
+    );
 
     return true;
 }

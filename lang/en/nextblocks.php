@@ -90,3 +90,115 @@ $string['judge0token']    = 'sk_live_spZDwoQjgwyN4GTGuNoSrdy8qCdU3vUD';
 $string['judge0tokendesc']= 'Your Judge0 (or RapidAPI) key, if required.';
 $string['judge0submissionfailed'] = 'Could not submit code to Judge0.';
 $string['judge0timeout']          = 'Timed out waiting for Judge0 execution.';
+$string['testnotrun'] = 'Not Run';
+$string['testerror'] = 'Error';
+$string['testpassed'] = 'Passed';
+$string['testfailed'] = 'Failed';
+$string['submitsuccess'] = 'Submitted successfully';
+$string['testinput'] = 'Test Input: ';
+$string['expectedtestoutput'] = 'Expected test output: ';
+$string['youroutput'] = 'Your output: ';
+$string['test'] = 'Test ';
+$string['errormaxtime'] = 'Error: Maximum execution time exceeded.';
+$string['overview'] = 'Overview';
+$string['mod/nextblocks:addinstance']   = 'Add a new NextBlocks activity';
+$string['mod/nextblocks:view']          = 'View NextBlocks activity';
+$string['mod/nextblocks:viewreports']   = 'View NextBlocks reports';
+$string['mod/nextblocks:gradeitems']    = 'Manage NextBlocks grade items';
+$string['mod/nextblocks:isgraded']      = 'Allow NextBlocks to be graded';
+$string['eventcourselistviewed'] = 'NextBlocks instance list viewed';
+
+$string['privacy:metadata:nextblocks_userdata']               = 'Stored user workspace and test-run data for NextBlocks.';
+$string['privacy:metadata:nextblocks_userdata:userid']        = 'The user ID who saved the workspace.';
+$string['privacy:metadata:nextblocks_userdata:nextblocksid']  = 'The NextBlocks activity instance ID.';
+$string['privacy:metadata:nextblocks_userdata:saved_workspace'] = 'The user’s saved Blockly workspace XML.';
+$string['privacy:metadata:nextblocks_userdata:testsfile']     = 'The JSON file of test cases uploaded by the user.';
+$string['privacy:metadata:nextblocks_userdata:lastrun']       = 'Timestamp of the user’s last test run.';
+$string['privacy:metadata:nextblocks_customblocks']           = 'Stored custom blocks created by users for this NextBlocks activity.';
+$string['privacy:metadata:nextblocks_customblocks:nextblocksid'] = 'The NextBlocks activity instance ID.';
+$string['privacy:metadata:nextblocks_customblocks:userid']    = 'The user ID who created the custom block.';
+$string['privacy:metadata:nextblocks_customblocks:blockxml']  = 'The XML definition of the custom block.';
+$string['privacy:metadata:nextblocks_customblocks:timecreated'] = 'Timestamp when the custom block was created.';
+
+// Category names
+$string['category_logic']      = 'Logic';
+$string['category_loops']      = 'Loops';
+$string['category_math']       = 'Math';
+$string['category_text']       = 'Text';
+$string['category_lists']      = 'Lists';
+$string['category_variables']  = 'Variables';
+$string['category_functions']  = 'Functions';
+
+// “Logic” blocks
+$string['controls_if']         = 'If / Else';
+$string['logic_compare']       = 'Number Compare';
+$string['logic_negate']        = 'Not';
+$string['logic_operation']     = 'AND/OR';
+$string['logic_boolean']       = 'True/False';
+$string['logic_null']          = 'Null';
+$string['logic_ternary']       = 'If {1} return {2} else return {3}';
+
+// “Loops” blocks
+$string['controls_repeat_ext']     = 'Repeat {1} Times';
+$string['controls_whileUntil']     = 'While / Until';
+$string['controls_for']            = 'Count from {1} to {2} step {3}';
+$string['controls_forEach']        = 'For Each';
+$string['controls_flow_statements'] = 'Continue / Break';
+
+// “Math” blocks
+$string['math_number']          = 'Number';
+$string['math_arithmetic']      = '2 argument arithmetic operations';
+$string['math_single']          = '1 argument arithmetic operations';
+$string['math_trig']            = 'Trigonometric functions';
+$string['math_constant']        = 'Constants';
+$string['math_number_property'] = 'Number Properties';
+$string['math_round']           = 'Round';
+$string['math_on_list']         = 'Math on List';
+$string['math_modulo']          = 'Remainder';
+$string['math_constrain']       = 'Constrain';
+$string['math_random_int']      = 'Random Integer';
+$string['math_random_float']    = 'Random Fractional Number';
+$string['math_atan2']           = 'Arctangent of point';
+$string['text_to_number']       = 'Convert text to number';
+
+// “Text” blocks
+$string['text']                 = 'Text';
+$string['text_multiline']       = 'Multiline Text';
+$string['text_join']            = 'Join Text';
+$string['text_append']          = 'Append Text';
+$string['text_length']          = 'Length';
+$string['text_isEmpty']         = 'Is Empty';
+$string['text_indexOf']         = 'Index Of';
+$string['text_charAt']          = 'Char At';
+$string['text_getSubstring']    = 'Get Substring';
+$string['text_changeCase']      = 'Change Case';
+$string['text_trim']            = 'Trim';
+$string['text_count']           = 'Count';
+$string['text_replace']         = 'Replace';
+$string['text_reverse']         = 'Reverse';
+$string['text_print']           = 'Print';
+$string['text_ask']             = 'Input';
+
+// “Lists” blocks
+$string['lists_create_with']    = 'Create List from enumeration';
+$string['lists_repeat']         = 'Create List by repetition';
+$string['lists_length']         = 'Length of List';
+$string['lists_isEmpty']        = 'Is List Empty';
+$string['lists_indexOf']        = 'Index Of Item';
+$string['lists_getIndex']       = 'Get Item at Index';
+$string['lists_setIndex']       = 'Set Item at Index';
+$string['lists_getSublist']     = 'Get Sublist';
+$string['lists_split']          = 'Split Text';
+$string['lists_sort']           = 'Sort List';
+$string['lists_reverse']        = 'Reverse List';
+
+// “Variables” blocks
+$string['variables_get']        = 'Get Variable';
+$string['variables_set']        = 'Set Variable';
+
+// “Functions” blocks
+$string['procedures_defnoreturn']  = 'Define Function';
+$string['procedures_defreturn']    = 'Define Function w/ Return';
+$string['procedures_callnoreturn'] = 'Call Function';
+$string['procedures_callreturn']   = 'Call Function w/ Return';
+$string['procedures_ifreturn']     = 'If Return';

@@ -99,9 +99,13 @@ class mod_nextblocks_external extends external_api {
     public static function submit_workspace($nextblocksid, $submittedworkspace, $codestring) {
         global $DB, $USER, $PAGE;
 
+        $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
+        $context = context_module::instance($cm->id);
+        self::validate_context($context);
+        require_capability('mod/nextblocks:view', $context);
+
         $params = self::validate_parameters(self::submit_workspace_parameters(),
             ['nextblocksid' => $nextblocksid, 'submitted_workspace' => $submittedworkspace, 'codeString' => $codestring]);
-        $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
         // Check if record exists.
         $record = $DB->get_record('nextblocks_userdata', ['userid' => $USER->id, 'nextblocksid' => $cm->instance]);
         // If record exists with same userid and nextblocksid, update it, else insert new record.
@@ -116,11 +120,10 @@ class mod_nextblocks_external extends external_api {
 
         $nextblocks = $DB->get_record('nextblocks', ['id' => $cm->instance]);
 
-        $context = context_module::instance($cm->id);
         $PAGE->set_context($context);
 
         $fs = get_file_storage();
-        $filenamehash = get_filenamehash($cm->instance);
+        $filenamehash = nextblocks_get_filenamehash($cm->instance);
 
         // If has point grade and tests, run auto grading.
         if ($nextblocks->grade > 0 && $filenamehash != false) {

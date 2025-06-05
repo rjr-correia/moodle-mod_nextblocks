@@ -76,14 +76,14 @@ function nextblocks_add_instance(object $moduleinstance, ?mod_nextblocks_mod_for
         // the `get_data()` function will return the data posted in the form.
 
         // Save custom blocks.
-        save_custom_blocks($fromform, $id);
+        nextblocks_save_custom_blocks($fromform, $id);
 
-        if (hastestsfile($fromform)) {
+        if (nextblocks_has_tests_file($fromform)) {
             // Save the tests file in File API.
-            save_tests_file($fromform, $id);
+            nextblocks_save_tests_file($fromform, $id);
 
             // Save hash of the file in the database for later file retrieval.
-            save_tests_file_hash($id);
+            nextblocks_save_tests_file_hash($id);
         }
 
         $record = $DB->get_record('nextblocks', ['id' => $id]);
@@ -180,7 +180,7 @@ function nextblocks_grade_item_update($nextblocks, $grades=null): int {
  * @param object $fromform general data related to the blocks
  * @param int $id block id
  */
-function save_custom_blocks(object $fromform, int $id) {
+function nextblocks_save_custom_blocks(object $fromform, int $id) {
     global $DB;
 
     $blockdefinitions = $fromform->definition;
@@ -211,7 +211,7 @@ function save_custom_blocks(object $fromform, int $id) {
  * @param object $fromform General data related to test file
  * @return bool true if test file is present, false otherwise
  */
-function hastestsfile(object $fromform): bool {
+function nextblocks_has_tests_file(object $fromform): bool {
     $files = file_get_all_files_in_draftarea($fromform->attachments);
     return count($files) > 0;
 }
@@ -222,7 +222,7 @@ function hastestsfile(object $fromform): bool {
  * @param string $file_string text inside file
  * @return bool true if structure is valid, false otherwise
  */
-function file_structure_is_valid(string $filestring): bool {
+function nextblocks_file_structure_is_valid(string $filestring): bool {
     // Validate file structure with regular expression.
     $exp = "/(\|\s+(\w+\s+)*-\s+(\w+\s+)+)+/";
     return preg_match_all($exp, $filestring) !== 1;
@@ -233,7 +233,7 @@ function file_structure_is_valid(string $filestring): bool {
  *
  * @param int $id file id
  */
-function convert_tests_file_to_json(int $id) {
+function nextblocks_convert_tests_file_to_json(int $id) {
     global $PAGE, $DB;
     $fileinfo = [
         'contextid' => $PAGE->context->id,
@@ -241,7 +241,7 @@ function convert_tests_file_to_json(int $id) {
         'filearea' => 'attachment',
         'itemid' => $id,
         'filepath' => '/',
-        'filename' => 'tests'.$id.'.json',
+        'filename' => 'nextblockstests'.$id.'.json',
     ];
 
     $fs = get_file_storage();
@@ -256,7 +256,7 @@ function convert_tests_file_to_json(int $id) {
             'component' => 'mod_nextblocks',
             'filearea' => 'attachment',
             'itemid' => $id,
-            'filename' => 'tests'.$id.'.txt',
+            'filename' => 'nextblockstests'.$id.'.txt',
         ]
     );
 
@@ -272,7 +272,7 @@ function convert_tests_file_to_json(int $id) {
     );
     $filestring = $file->get_content();
 
-    $json = parse_tests_file($filestring);
+    $json = nextblocks_parse_tests_file($filestring);
     $newfile = $fs->create_file_from_string($fileinfo, json_encode($json));
 
     $file->replace_file_with($newfile);
@@ -285,7 +285,7 @@ function convert_tests_file_to_json(int $id) {
  * 
  * @param int $id id of the test file
  */
-function save_tests_file_hash(int $id) {
+function nextblocks_save_tests_file_hash(int $id) {
     global $DB, $PAGE;
     $fs = get_file_storage();
 
@@ -316,7 +316,7 @@ function save_tests_file_hash(int $id) {
  * @return false|mixed The pathnamehash of the file or false if it does not exist.
  * @throws dml_exception
  */
-function get_filenamehash(int $id) {
+function nextblocks_get_filenamehash(int $id) {
     global $PAGE;
     $fs = get_file_storage();
     $files = $fs->get_area_files(
@@ -340,7 +340,7 @@ function get_filenamehash(int $id) {
  * @param object $fromform file information
  * @param int $id file id
  */
-function save_tests_file(object $fromform, int $id) {
+function nextblocks_save_tests_file(object $fromform, int $id) {
     // Save the tests file with File API.
     // Will need a check for whether the exercise creator selected the file option or not.
     global $PAGE;
@@ -383,7 +383,7 @@ function save_tests_file(object $fromform, int $id) {
         'filearea'  => 'attachment',
         'itemid'    => $id,
         'filepath'  => '/',
-        'filename'  => 'tests'.$id.'.txt',
+        'filename'  => 'nextblockstests'.$id.'.txt',
     ];
 
     $fs->create_file_from_string($fileinfo, $content);
@@ -398,7 +398,7 @@ function save_tests_file(object $fromform, int $id) {
  * @return array [{}] An array of test cases, each test case containing a list of inputs and an output, in JSON format
  * @throws Exception If the file is not in the correct format
  */
-function parse_tests_file(String $filestring): array {
+function nextblocks_parse_tests_file(String $filestring): array {
     try {
         // The returned object has a list of test cases.
         $jsonreturn = [];

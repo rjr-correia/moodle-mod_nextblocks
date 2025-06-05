@@ -1,70 +1,67 @@
-.blocklySvg {
+.path-mod-nextblocks .blocklySvg {
     background-color: #f9f9f9 !important;
 }
 
-/* Makes our label white. */
-.blocklyTreeLabel {
+.path-mod-nextblocks .blocklyTreeLabel {
     color: white;
 }
-/* Adds padding around the group of categories and separators. */
-.blocklyToolboxContents {
+
+.path-mod-nextblocks .blocklyToolboxContents {
     padding: 0.5em;
 }
-/* Adds space between the categories, rounds the corners and adds space around the label. */
-.blocklyTreeRow {
+
+.path-mod-nextblocks .blocklyTreeRow {
     padding: 3px;
     margin-bottom: 0.5em;
     border-radius: 4px;
+    height: initial;
 }
 
-/* Changes color of the icon to white. */
-.customIcon {
+.path-mod-nextblocks .customIcon {
     color: white;
 }
-/* Stacks the icon on top of the label. */
-.blocklyTreeRowContentContainer {
+
+.path-mod-nextblocks .blocklyTreeRowContentContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-.blocklyTreeRow {
-    height: initial;
-}
 
-.blocklyDiv {
+.path-mod-nextblocks .blocklyDiv {
     position: absolute;
 }
 
-#nextblocks-container {
+.path-mod-nextblocks #nextblocks-container {
     height: 70vh;
 }
 
-.h-10 {
+.path-mod-nextblocks .h-10 {
     height: 10%;
 }
 
-.h-15 {
+.path-mod-nextblocks .h-15 {
     height: 15%;
 }
 
-.border {
+.path-mod-nextblocks .border {
     border: 1px solid #000;
 }
 
-
-.chat {
+.path-mod-nextblocks .chat {
     box-sizing: border-box;
 }
-.container {
+
+.path-mod-nextblocks .container {
     display: flex;
     justify-content: center;
     align-items: center;
 }
-.chat-container {
+
+.path-mod-nextblocks .chat-container {
     position: relative;
 }
 
-.messages {
+.path-mod-nextblocks .messages {
     height: 300px;
     width: 500px;
     border: 2px solid #ccc;
@@ -73,37 +70,39 @@
     overflow: scroll;
 }
 
-.msg {
+.path-mod-nextblocks .msg {
     margin-bottom: 5px;
 }
-.msg-text {
+
+.path-mod-nextblocks .msg-text {
     padding: 5px;
     display: inline-block;
     border-radius: 5px;
 }
-.msg-normal .msg-text {
+
+.path-mod-nextblocks .msg-normal .msg-text {
     background: rgb(39, 112, 215);
     color: white;
 }
 
-.msg-notification .msg-text,
-.msg-join .msg-text,
-.msg-left .msg-text {
+.path-mod-nextblocks .msg-notification .msg-text,
+.path-mod-nextblocks .msg-join .msg-text,
+.path-mod-nextblocks .msg-left .msg-text {
     background: #eee;
     border: 1px solid #ccc;
 }
 
-.msg-notification .msg-sender,
-.msg-join .msg-sender,
-.msg-left .msg-sender {
+.path-mod-nextblocks .msg-notification .msg-sender,
+.path-mod-nextblocks .msg-join .msg-sender,
+.path-mod-nextblocks .msg-left .msg-sender {
     display: none;
 }
 
-#showCodeButton {
+.path-mod-nextblocks #showCodeButton {
     margin: 0 !important;
 }
 
-.code-div {
+.path-mod-nextblocks .code-div {
     background-color: #f9f9f9;
     height: 100%;
     border: 1px solid #eee;
@@ -111,32 +110,31 @@
     font-family: "Lucida Console", "Courier New", monospace;
 }
 
-#output-div {
+.path-mod-nextblocks #output-div {
     background-color: black !important;
     color: white !important;
 }
 
-#output-div * {
+.path-mod-nextblocks #output-div * {
     background-color: transparent !important;
     color: inherit !important;
 }
 
-#output-div.tests-active {
+.path-mod-nextblocks #output-div.tests-active {
     background-color: white !important;
     color: black !important;
 }
 
-#output-div.tests-active * {
+.path-mod-nextblocks #output-div.tests-active * {
     background-color: transparent !important;
     color: black !important;
 }
 
-.reactions-heading img {
-    width: 70%;       !important
-    height: auto;     !important
+.path-mod-nextblocks .reactions-heading img {
+    width: 70% !important;
+    height: auto !important;
 }
 
-.selected-button {
+.path-mod-nextblocks .selected-button {
     background-color: #66ff66 !important;
 }
-

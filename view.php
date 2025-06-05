@@ -46,7 +46,6 @@ if ($id) {
 
 require_login($course, true, $cm);
 
-echo '<link rel="stylesheet" href="styles.css">';
 echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">';
 
 echo '<script src="./blockly/blockly_compressed.js"></script>
@@ -84,7 +83,7 @@ $existingjson = $fs->get_file(
     'attachment',
     $cm->instance,
     '/',
-    'tests'.$cm->instance.'.json'
+    'nextblockstests'.$cm->instance.'.json'
 );
 
 if (!$existingjson) {
@@ -104,14 +103,14 @@ if (!$existingjson) {
     $itemid = 0;
     $txtfilefound = false;
     foreach ($files as $file) {
-        if ($file->filename === 'tests'.$instanceid.'.txt') {
+        if ($file->filename === 'nextblockstests'.$instanceid.'.txt') {
             $itemid = $file->itemid;
             $txtfilefound = true;
             break;
         }
     }
     if ($txtfilefound) {
-        convert_tests_file_to_json($itemid);
+        nextblocks_convert_tests_file_to_json($itemid);
     }
 }
 
@@ -127,7 +126,7 @@ $records = $DB->get_records_sql("
         'component' => 'mod_nextblocks',
         'filearea'  => 'attachment',
         'itemid'    => $instanceid,
-        'filename'  => 'tests'.$instanceid.'.json',
+        'filename'  => 'nextblockstests'.$instanceid.'.json',
     ]
 );
 

@@ -163,81 +163,92 @@ class mod_nextblocks_mod_form extends moodleform_mod {
         $mform->addElement('header', 'hdr_blocklimits', 'Block Limits');
 
         $builtincategories = [
-            'Logic' => [
-                'controls_if'      => 'If / Else',
-                'logic_compare'    => 'Number Compare',
-                'logic_negate'     => 'Not',
-                'logic_operation'  => 'AND/OR',
-                'logic_boolean'    => 'True/False',
-                'logic_null'       => 'Null',
-                'logic_ternary'    => 'If {1} return {2} else return {3}',
+            // Logic
+            get_string('category_logic', 'mod_nextblocks') => [
+                'controls_if'       => get_string('controls_if',        'mod_nextblocks'),
+                'logic_compare'     => get_string('logic_compare',      'mod_nextblocks'),
+                'logic_negate'      => get_string('logic_negate',       'mod_nextblocks'),
+                'logic_operation'   => get_string('logic_operation',    'mod_nextblocks'),
+                'logic_boolean'     => get_string('logic_boolean',      'mod_nextblocks'),
+                'logic_null'        => get_string('logic_null',         'mod_nextblocks'),
+                'logic_ternary'     => get_string('logic_ternary',      'mod_nextblocks'),
             ],
-            'Loops' => [
-                'controls_repeat_ext'    => 'Repeat {1} Times',
-                'controls_whileUntil'    => 'While / Until',
-                'controls_for'           => 'Count from {1} to {2} step {3}',
-                'controls_forEach'       => 'For Each',
-                'controls_flow_statements' => 'Continue / Break',
-            ],
-            'Math' => [
-                'math_number'        => 'Number',
-                'math_arithmetic'    => '2 argument arithmetic operations',
-                'math_single'        => '1 argument arithmetic operations',
-                'math_trig'          => 'Trigonometric functions',
-                'math_constant'      => 'Constants',
-                'math_number_property' => 'Number Properties',
-                'math_round'         => 'Round',
-                'math_on_list'       => 'Math on List',
-                'math_modulo'        => 'Remainder',
-                'math_constrain'     => 'Constrain',
-                'math_random_int'    => 'Random Integer',
-                'math_random_float'  => 'Random Fractional Number',
-                'math_atan2'         => 'Arctangent of point',
-                'text_to_number'     => 'Convert text to number',
 
+            // Loops
+            get_string('category_loops', 'mod_nextblocks') => [
+                'controls_repeat_ext'      => get_string('controls_repeat_ext',     'mod_nextblocks'),
+                'controls_whileUntil'      => get_string('controls_whileUntil',     'mod_nextblocks'),
+                'controls_for'             => get_string('controls_for',              'mod_nextblocks'),
+                'controls_forEach'         => get_string('controls_forEach',          'mod_nextblocks'),
+                'controls_flow_statements' => get_string('controls_flow_statements','mod_nextblocks'),
             ],
-            'Text' => [
-                'text'               => 'Text',
-                'text_multiline'     => 'Multiline Text',
-                'text_join'          => 'Join Text',
-                'text_append'        => 'Append Text',
-                'text_length'        => 'Length',
-                'text_isEmpty'       => 'Is Empty',
-                'text_indexOf'       => 'Index Of',
-                'text_charAt'        => 'Char At',
-                'text_getSubstring'  => 'Get Substring',
-                'text_changeCase'    => 'Change Case',
-                'text_trim'          => 'Trim',
-                'text_count'         => 'Count',
-                'text_replace'       => 'Replace',
-                'text_reverse'       => 'Reverse',
-                'text_print'         => 'Print',
-                'text_ask'           => 'Input',
-            ],
-            'Lists' => [
-                'lists_create_with'    => 'Create List from enumeration',
-                'lists_repeat'         => 'Create List by repetition',
-                'lists_length'         => 'Length of List',
-                'lists_isEmpty'        => 'Is List Empty',
-                'lists_indexOf'        => 'Index Of Item',
-                'lists_getIndex'       => 'Get Item at Index',
-                'lists_setIndex'       => 'Set Item at Index',
-                'lists_getSublist'     => 'Get Sublist',
-                'lists_split'          => 'Split Text',
-                'lists_sort'           => 'Sort List',
-                'lists_reverse'        => 'Reverse List',
 
+            // Math
+            get_string('category_math', 'mod_nextblocks') => [
+                'math_number'         => get_string('math_number',        'mod_nextblocks'),
+                'math_arithmetic'     => get_string('math_arithmetic',    'mod_nextblocks'),
+                'math_single'         => get_string('math_single',        'mod_nextblocks'),
+                'math_trig'           => get_string('math_trig',          'mod_nextblocks'),
+                'math_constant'       => get_string('math_constant',      'mod_nextblocks'),
+                'math_number_property'=> get_string('math_number_property','mod_nextblocks'),
+                'math_round'          => get_string('math_round',         'mod_nextblocks'),
+                'math_on_list'        => get_string('math_on_list',       'mod_nextblocks'),
+                'math_modulo'         => get_string('math_modulo',        'mod_nextblocks'),
+                'math_constrain'      => get_string('math_constrain',     'mod_nextblocks'),
+                'math_random_int'     => get_string('math_random_int',    'mod_nextblocks'),
+                'math_random_float'   => get_string('math_random_float',  'mod_nextblocks'),
+                'math_atan2'          => get_string('math_atan2',         'mod_nextblocks'),
+                'text_to_number'      => get_string('text_to_number',     'mod_nextblocks'),
             ],
-            'Variables' => [
-                'variables_get'    => 'Get Variable',
-                'variables_set'    => 'Set Variable',
+
+            // Text
+            get_string('category_text', 'mod_nextblocks') => [
+                'text'              => get_string('text',               'mod_nextblocks'),
+                'text_multiline'    => get_string('text_multiline',     'mod_nextblocks'),
+                'text_join'         => get_string('text_join',          'mod_nextblocks'),
+                'text_append'       => get_string('text_append',        'mod_nextblocks'),
+                'text_length'       => get_string('text_length',        'mod_nextblocks'),
+                'text_isEmpty'      => get_string('text_isEmpty',       'mod_nextblocks'),
+                'text_indexOf'      => get_string('text_indexOf',       'mod_nextblocks'),
+                'text_charAt'       => get_string('text_charAt',        'mod_nextblocks'),
+                'text_getSubstring' => get_string('text_getSubstring',  'mod_nextblocks'),
+                'text_changeCase'   => get_string('text_changeCase',    'mod_nextblocks'),
+                'text_trim'         => get_string('text_trim',          'mod_nextblocks'),
+                'text_count'        => get_string('text_count',         'mod_nextblocks'),
+                'text_replace'      => get_string('text_replace',       'mod_nextblocks'),
+                'text_reverse'      => get_string('text_reverse',       'mod_nextblocks'),
+                'text_print'        => get_string('text_print',         'mod_nextblocks'),
+                'text_ask'          => get_string('text_ask',           'mod_nextblocks'),
             ],
-            'Functions' => [
-                'procedures_defnoreturn' => 'Define Function',
-                'procedures_defreturn'   => 'Define Function w/ Return',
-                'procedures_callnoreturn' => 'Call Function',
-                'procedures_callreturn'  => 'Call Function w/ Return',
-                'procedures_ifreturn'    => 'If Return',
+
+            // Lists
+            get_string('category_lists', 'mod_nextblocks') => [
+                'lists_create_with' => get_string('lists_create_with',  'mod_nextblocks'),
+                'lists_repeat'      => get_string('lists_repeat',       'mod_nextblocks'),
+                'lists_length'      => get_string('lists_length',       'mod_nextblocks'),
+                'lists_isEmpty'     => get_string('lists_isEmpty',      'mod_nextblocks'),
+                'lists_indexOf'     => get_string('lists_indexOf',      'mod_nextblocks'),
+                'lists_getIndex'    => get_string('lists_getIndex',     'mod_nextblocks'),
+                'lists_setIndex'    => get_string('lists_setIndex',     'mod_nextblocks'),
+                'lists_getSublist'  => get_string('lists_getSublist',   'mod_nextblocks'),
+                'lists_split'       => get_string('lists_split',        'mod_nextblocks'),
+                'lists_sort'        => get_string('lists_sort',         'mod_nextblocks'),
+                'lists_reverse'     => get_string('lists_reverse',      'mod_nextblocks'),
+            ],
+
+            // Variables
+            get_string('category_variables', 'mod_nextblocks') => [
+                'variables_get' => get_string('variables_get', 'mod_nextblocks'),
+                'variables_set' => get_string('variables_set', 'mod_nextblocks'),
+            ],
+
+            // Functions
+            get_string('category_functions', 'mod_nextblocks') => [
+                'procedures_defnoreturn'  => get_string('procedures_defnoreturn',  'mod_nextblocks'),
+                'procedures_defreturn'    => get_string('procedures_defreturn',    'mod_nextblocks'),
+                'procedures_callnoreturn' => get_string('procedures_callnoreturn','mod_nextblocks'),
+                'procedures_callreturn'   => get_string('procedures_callreturn',   'mod_nextblocks'),
+                'procedures_ifreturn'     => get_string('procedures_ifreturn',     'mod_nextblocks'),
             ],
         ];
 
@@ -257,26 +268,28 @@ class mod_nextblocks_mod_form extends moodleform_mod {
             $mform->addElement('html', '</details>');
         }
 
-        $customrecs = $DB->get_records('nextblocks_customblocks',
-            ['nextblocksid' => $this->current->instance]
-        );
-        if ($customrecs) {
-            $mform->addElement('html',
-                '<details style="margin-top:1em;"><summary><strong>'
-                . 'Custom Blocks' .
-                '</strong></summary>'
+        if(!empty($this->current->instance)) {
+            $customrecs = $DB->get_records('nextblocks_customblocks',
+                ['nextblocksid' => $this->current->instance]
             );
-            foreach ($customrecs as $rec) {
-                $def = json_decode($rec->blockdefinition, true);
-                if (!empty($def['type'])) {
-                    $label = !empty($def['message0']) ? $def['message0'] : $def['type'];
-                    $field = 'limit_' . $def['type'];
-                    $mform->addElement('text', $field, $label, ['size' => 4]);
-                    $mform->setType($field, PARAM_INT);
-                    $mform->setDefault($field, 0);
+            if ($customrecs) {
+                $mform->addElement('html',
+                    '<details style="margin-top:1em;"><summary><strong>'
+                    . 'Custom Blocks' .
+                    '</strong></summary>'
+                );
+                foreach ($customrecs as $rec) {
+                    $def = json_decode($rec->blockdefinition, true);
+                    if (!empty($def['type'])) {
+                        $label = !empty($def['message0']) ? $def['message0'] : $def['type'];
+                        $field = 'limit_' . $def['type'];
+                        $mform->addElement('text', $field, $label, ['size' => 4]);
+                        $mform->setType($field, PARAM_INT);
+                        $mform->setDefault($field, 0);
+                    }
                 }
+                $mform->addElement('html', '</details>');
             }
-            $mform->addElement('html', '</details>');
         }
 
         // ...<<------------------------------------------ Submissions tab ------------------------------------------>>//
@@ -323,7 +336,7 @@ class mod_nextblocks_mod_form extends moodleform_mod {
         if (count($files) === 1) {
             $file = reset($files);
             $filestring = $file->get_content();
-            if (file_structure_is_valid($filestring)) {
+            if (nextblocks_file_structure_is_valid($filestring)) {
                 $errors['attachments'] = get_string('invalidfilestructure', 'mod_nextblocks');
             }
         }
