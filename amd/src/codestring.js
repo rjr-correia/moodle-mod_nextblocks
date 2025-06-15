@@ -12,7 +12,6 @@ define([], function() {
         #codeString;
         #originalCodeString;
         #userFunctionLinesCount;
-
         static #judge0codeheader = `
         const fs = require('fs');
         const stdin = fs.readFileSync(0, 'utf-8').trim().split('\\n');

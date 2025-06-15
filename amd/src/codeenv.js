@@ -6,307 +6,305 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *  */
 
-/* globals Blockly */
+// eslint-disable-next-line max-len
+define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat', 'core/str'], function(lib, repository, chat, str) {
 
-let toolbox = {
-    'kind': 'categoryToolbox',
-    'readOnly': true,
-    'contents': [
-        {
-            'kind': 'toolboxlabel',
-            'name': 'NextBlocks',
-            'colour': 'darkslategrey'
-        },
-        {
-            'kind': 'category',
-            'name': 'Logic',
-            'colour': '5b80a5',
-            "cssConfig": {
-                'icon': 'customIcon fa fa-cog',
-            },
+        /* globals Blockly */
+        let toolbox = {
+            'kind': 'categoryToolbox',
+            'readOnly': true,
             'contents': [
                 {
-                    'kind': 'block',
-                    'type': 'controls_if',
+                    'kind': 'toolboxlabel',
+                    'name': 'NextBlocks',
+                    'colour': 'darkslategrey'
                 },
                 {
-                    'kind': 'block',
-                    'type': 'logic_compare',
+                    'kind': 'category',
+                    'name': 'Logic',
+                    'colour': '5b80a5',
+                    "cssConfig": {
+                        'icon': 'customIcon fa fa-cog',
+                    },
+                    'contents': [
+                        {
+                            'kind': 'block',
+                            'type': 'controls_if',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'logic_compare',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'logic_negate',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'logic_operation',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'logic_boolean',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'logic_null',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'logic_ternary',
+                        }
+                    ],
                 },
                 {
-                    'kind': 'block',
-                    'type': 'logic_negate',
+                    'kind': 'category',
+                    'name': 'Loops',
+                    'colour': '5ba580',
+                    "cssConfig": {
+                        'icon': 'customIcon fa-solid fa-sync',
+                    },
+                    'contents': [
+                        {
+                            'kind': 'block',
+                            'type': 'controls_repeat_ext',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'controls_whileUntil',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'controls_for',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'controls_forEach',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'controls_flow_statements',
+                        }
+                    ],
                 },
                 {
-                    'kind': 'block',
-                    'type': 'logic_operation',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'logic_boolean',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'logic_null',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'logic_ternary',
-                }
-            ],
-        },
-        {
-            'kind': 'category',
-            'name': 'Loops',
-            'colour': '5ba580',
-            "cssConfig": {
-                'icon': 'customIcon fa-solid fa-sync',
-            },
-            'contents': [
-                {
-                    'kind': 'block',
-                    'type': 'controls_repeat_ext',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'controls_whileUntil',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'controls_for',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'controls_forEach',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'controls_flow_statements',
-                }
-            ],
-        },
-        {
-            'kind': 'category',
-            'name': 'Math',
-            'colour': '5b67a5',
-            "cssConfig": {
-                'icon': 'customIcon fa-solid fa-plus-minus',
-            },
-            'contents': [
-                {
-                    'kind': 'block',
-                    'type': 'math_number',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_arithmetic',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_single',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_trig',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_constant',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_number_property',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_round',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_on_list',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_modulo',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_constrain',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_random_int',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_random_float',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'math_atan2',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_to_number',
-                },
+                    'kind': 'category',
+                    'name': 'Math',
+                    'colour': '5b67a5',
+                    "cssConfig": {
+                        'icon': 'customIcon fa-solid fa-plus-minus',
+                    },
+                    'contents': [
+                        {
+                            'kind': 'block',
+                            'type': 'math_number',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_arithmetic',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_single',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_trig',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_constant',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_number_property',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_round',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_on_list',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_modulo',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_constrain',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_random_int',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_random_float',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'math_atan2',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_to_number',
+                        },
 
+                    ],
+                },
+                {
+                    'kind': 'category',
+                    'name': 'Text',
+                    'colour': '5ba58c',
+                    "cssConfig": {
+                        'icon': 'customIcon fa-solid fa-font',
+                    },
+                    'contents': [
+                        {
+                            'kind': 'block',
+                            'type': 'text',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_multiline',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_join',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_append',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_length',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_isEmpty',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_indexOf',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_charAt',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_getSubstring',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_changeCase',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_trim',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_count',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_replace',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_reverse',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_print',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_ask',
+                        },
+                    ],
+                },
+                {
+                    'kind': 'category',
+                    'name': 'Lists',
+                    'colour': '5b80a5',
+                    "cssConfig": {
+                        'icon': 'customIcon fa-solid fa-list',
+                    },
+                    'contents': [
+                        {
+                            'kind': 'block',
+                            'type': 'lists_create_with',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'lists_repeat',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'lists_length',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'lists_isEmpty',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'lists_indexOf',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'lists_getIndex',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'lists_setIndex',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'lists_getSublist',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'lists_split',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'lists_sort',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'lists_reverse',
+                        }
+                    ],
+                },
+                {
+                    'kind': 'category',
+                    'name': 'Variables',
+                    'colour': 'a55b80',
+                    "cssConfig": {
+                        'icon': 'customIcon fa-solid fa-clipboard-list',
+                    },
+                    'custom': 'VARIABLE',
+                },
+                {
+                    'kind': 'category',
+                    'name': 'Functions',
+                    'colour': '995ba5',
+                    "cssConfig": {
+                        'icon': 'customIcon fa-solid fa-code',
+                    },
+                    'custom': 'PROCEDURE',
+                },
             ],
-        },
-        {
-            'kind': 'category',
-            'name': 'Text',
-            'colour': '5ba58c',
-            "cssConfig": {
-                'icon': 'customIcon fa-solid fa-font',
-            },
-            'contents': [
-                {
-                    'kind': 'block',
-                    'type': 'text',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_multiline',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_join',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_append',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_length',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_isEmpty',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_indexOf',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_charAt',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_getSubstring',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_changeCase',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_trim',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_count',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_replace',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_reverse',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_print',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'text_ask',
-                },
-            ],
-        },
-        {
-            'kind': 'category',
-            'name': 'Lists',
-            'colour': '5b80a5',
-            "cssConfig": {
-                'icon': 'customIcon fa-solid fa-list',
-            },
-            'contents': [
-                {
-                    'kind': 'block',
-                    'type': 'lists_create_with',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'lists_repeat',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'lists_length',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'lists_isEmpty',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'lists_indexOf',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'lists_getIndex',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'lists_setIndex',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'lists_getSublist',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'lists_split',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'lists_sort',
-                },
-                {
-                    'kind': 'block',
-                    'type': 'lists_reverse',
-                }
-            ],
-        },
-        {
-            'kind': 'category',
-            'name': 'Variables',
-            'colour': 'a55b80',
-            "cssConfig": {
-                'icon': 'customIcon fa-solid fa-clipboard-list',
-            },
-            'custom': 'VARIABLE',
-        },
-        {
-            'kind': 'category',
-            'name': 'Functions',
-            'colour': '995ba5',
-            "cssConfig": {
-                'icon': 'customIcon fa-solid fa-code',
-            },
-            'custom': 'PROCEDURE',
-        },
-    ],
-};
+        };
 
-// GetMainWorkspace might remove need for global variable
-let nextblocksWorkspace;
+        let nextblocksWorkspace;
 
-
-define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat', 'core/str'],
-    function(lib, repository, chat, str) {
     /**
      * @param {CodeString} code The Javascript code to be run
      * Runs the code and displays the output in the output div
@@ -668,421 +666,421 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
             chat.run(userName, activityId, repository.saveMessage);
         },
     };
-});
-
-/**
- * Locks all blocks in a workspace, preventing them from being moved or deleted
- * @param {WorkspaceSvg} workspace The workspace to lock
- */
-const lockWorkspaceBlocks = function(workspace) {
-    workspace.getTopBlocks(false).forEach((block) => {
-        lockBlock(block);
-        lockChildren(block);
-    });
 
     /**
-     * Recursively locks a block and all its children, preventing them from being moved or deleted
-     * @param {BlockSvg} block The block that will be locked and have its children locked
+     * Locks all blocks in a workspace, preventing them from being moved or deleted
+     * @param {WorkspaceSvg} workspace The workspace to lock
      */
-    function lockChildren(block) {
-        block.getChildren(false).forEach((child) => {
-            lockBlock(child);
-
-            // Have to mess with internal Blockly stuff to block only the inputs while still allowing comments
-            child.inputList.forEach((input) => {
-                input.fieldRow.forEach((field) => {
-                    field.setEnabled(false);
-                });
-            });
-
-            lockChildren(child);
+    const lockWorkspaceBlocks = function(workspace) {
+        workspace.getTopBlocks(false).forEach((block) => {
+            lockBlock(block);
+            lockChildren(block);
         });
-    }
 
-    /**
-     * Locks a block, preventing it from being moved or deleted
-     * @param {BlockSvg} block The block that will be locked
-     */
-    function lockBlock(block) {
-        block.setMovable(false);
-        block.setDeletable(false);
-    }
-};
+        /**
+         * Recursively locks a block and all its children, preventing them from being moved or deleted
+         * @param {BlockSvg} block The block that will be locked and have its children locked
+         */
+        function lockChildren(block) {
+            block.getChildren(false).forEach((child) => {
+                lockBlock(child);
 
-// Makes background of image blue if it is not blue, and vice versa
-const changeImageBackground = function(img) {
-    // Change background of all other images to secondary
-    const imgs = document.getElementsByClassName("emoji-img");
-    Array.from(imgs).forEach((otherImg) => {
-        if (otherImg !== img) {
-            otherImg.classList.remove("bg-primary");
-            otherImg.classList.add("bg-secondary");
+                // Have to mess with internal Blockly stuff to block only the inputs while still allowing comments
+                child.inputList.forEach((input) => {
+                    input.fieldRow.forEach((field) => {
+                        field.setEnabled(false);
+                    });
+                });
+
+                lockChildren(child);
+            });
         }
-    });
 
-    // Toggle background of clicked image
-    if (img.classList.contains("bg-primary")) {
-        img.classList.remove("bg-primary");
-        img.classList.add("bg-secondary");
-    } else {
-        img.classList.remove("bg-secondary");
-        img.classList.add("bg-primary");
-    }
-};
-
-/**
- * Updates the percentages of difficulty levels (easy, medium, hard) on the page.
- *
- * @param {number} easy - The count of 'easy' reactions.
- * @param {number} medium - The count of 'medium' reactions.
- * @param {number} hard - The count of 'hard' reactions.
- * @param {string} [inc=""] - The difficulty level to increment. If not provided, no level is incremented.
- * Unused right now, just for future-proofing
- */
-const updatePercentages = function(easy, medium, hard, inc = "") {
-    // Mapping of difficulty levels to their corresponding HTML elements
-    const elements = {
-        "easy": document.getElementById('percentage-easy'),
-        "medium": document.getElementById('percentage-medium'),
-        "hard": document.getElementById('percentage-hard')
+        /**
+         * Locks a block, preventing it from being moved or deleted
+         * @param {BlockSvg} block The block that will be locked
+         */
+        function lockBlock(block) {
+            block.setMovable(false);
+            block.setDeletable(false);
+        }
     };
 
-    // Mapping of difficulty levels to their counts
-    const values = {
-        "easy": easy,
-        "medium": medium,
-        "hard": hard
-    };
+    // Makes background of image blue if it is not blue, and vice versa
+    const changeImageBackground = function(img) {
+        // Change background of all other images to secondary
+        const imgs = document.getElementsByClassName("emoji-img");
+        Array.from(imgs).forEach((otherImg) => {
+            if (otherImg !== img) {
+                otherImg.classList.remove("bg-primary");
+                otherImg.classList.add("bg-secondary");
+            }
+        });
 
-    // If a difficulty level to increment is provided, increment its count
-    if (inc in values) {
-        values[inc]++;
-    }
-
-    // Calculate the percentages for each difficulty level
-    let percentages = calcPercentages(values.easy, values.medium, values.hard);
-
-    // Update the HTML elements with the new percentages
-    elements.easy.innerHTML = percentages[0] + '%';
-    elements.medium.innerHTML = percentages[1] + '%';
-    elements.hard.innerHTML = percentages[2] + '%';
-};
-
-const calcPercentages = (easy, medium, hard) => {
-    const total = easy + medium + hard;
-    return total === 0 ? [0, 0, 0] : [easy, medium, hard].map(val => Math.round((val / total) * 100));
-};
-
-const getOptions = function(remainingSubmissions, readOnly, blockLimits) {
-    return {
-        toolbox: readOnly ? null : toolbox,
-        collapse: true,
-        comments: true,
-        disable: false,
-        maxBlocks: Infinity,
-        trashcan: !readOnly,
-        horizontalLayout: false,
-        toolboxPosition: 'start',
-        css: true,
-        media: 'https://blockly-demo.appspot.com/static/media/',
-        rtl: false,
-        scrollbars: true,
-        sounds: true,
-        oneBasedIndex: false,
-        readOnly: remainingSubmissions <= 0,
-        grid: {
-            spacing: 20,
-            length: 1,
-            colour: '#888',
-            snap: false,
-        },
-        zoom: {
-            controls: true,
-            wheel: true,
-            startScale: 1,
-            maxScale: 3,
-            minScale: 0.3,
-            scaleSpeed: 1.2,
-        },
-        maxInstances: blockLimits,
-    };
-};
-
-const onResize = function(blocklyArea, blocklyDiv, nextblocksWorkspace) {
-    // Compute the absolute coordinates and dimensions of blocklyArea.
-    let element = blocklyArea;
-    let x = 0;
-    let y = 0;
-    do {
-        x += element.offsetLeft;
-        y += element.offsetTop;
-        element = element.offsetParent;
-    } while (element);
-    // Position blocklyDiv over blocklyArea.
-    blocklyDiv.style.left = x + 'px';
-    blocklyDiv.style.top = y + 'px';
-    blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
-    blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
-    Blockly.svgResize(nextblocksWorkspace);
-};
-
-/**
- * @param {String} blockName The name of the input block to be added (prompt on the left side of the block
- * @param {WorkspaceSvg} workspace The workspace to add the input block to
- * @returns {BlockSvg} The newly created block
- */
-function addBlockToWorkspace(blockName, workspace) {
-    const newBlock = workspace.newBlock(blockName);
-    newBlock.initSvg();
-    newBlock.render();
-    return newBlock;
-}
-
-/**
- * @param {String} loadedSave
- * @param {WorkspaceSvg} workspace
- */
-function loadSave(loadedSave, workspace) {
-    const state = JSON.parse(atob(loadedSave));
-    Blockly.serialization.workspaces.load(state, workspace);
-}
-
-/**
- * @returns {Number} The course module id of the current page
- */
-function getCMID() {
-    const classList = document.body.classList;
-    const cmidClass = Array.from(classList).find((className) => className.startsWith('cmid-'));
-    return parseInt(cmidClass.split('-')[1]);
-}
-
-/**
- * @param {string} prompt The name of the input block to be added (prompt on the left side of the block)
- * @param {string} inputType The type of the input block to be added (string, number, etc.)
- * @param {object} inputFunctionDeclarations Contains the string containing the function declarations for the input
- * blocks, to be added to the top of the code. Is an object so that it is passed by reference.
- */
-
-// eslint-disable-next-line no-extend-native
-String.prototype.hideWrapperFunction = function() {
-    const lines = this.split('\n');
-    lines.splice(0, 2); // Remove the first two lines
-    return lines.join('\n');
-};
-
-Blockly.JavaScript.forBlock.text_print = function(block, generator) {
-    return (
-        "customPrintln(" +
-        (generator.valueToCode(
-            block,
-            "TEXT",
-            Blockly.JavaScript.ORDER_NONE
-        ) || "''") +
-        ");\n"
-    );
-};
-
-Blockly.JavaScript.forBlock.text_ask = function(block, generator) {
-    const question = (generator.valueToCode(
-        block,
-        'TEXT',
-        Blockly.JavaScript.ORDER_NONE
-    ) || "''");
-    let code = "await input(" + question + ")";
-    return [code, Blockly.JavaScript.ORDER_NONE];
-};
-
-Blockly.Python.forBlock.text_ask = function(block, generator) {
-    const question = (generator.valueToCode(
-        block,
-        'TEXT',
-        Blockly.Python.ORDER_NONE
-    ) || "''");
-    let code = "input(" + question + ")";
-    return [code, Blockly.Python.ORDER_NONE];
-};
-
-Blockly.Blocks['text_ask'] = {
-    init: function() {
-        this.appendValueInput("TEXT")
-            .setCheck(null)
-            .appendField("input");
-        this.setOutput(true, "String");
-        this.setColour(160);
-        this.setTooltip("");
-        this.setHelpUrl("");
-    }
-};
-
-Blockly.JavaScript.forBlock.text_to_number = function(block, generator) {
-    const prompt = (generator.valueToCode(
-        block,
-        'TEXT',
-        Blockly.JavaScript.ORDER_NONE
-    ) || "''").trim();
-    let code = "text_to_number(" + prompt + ")";
-    return [code, Blockly.JavaScript.ORDER_NONE];
-};
-
-Blockly.Python.forBlock.text_to_number = function(block, generator) {
-    const prompt = (generator.valueToCode(
-        block,
-        'TEXT',
-        Blockly.Python.ORDER_NONE
-    ) || "''").trim();
-    let code = "text_to_number(" + prompt + ")";
-    return [code, Blockly.Python.ORDER_NONE];
-};
-
-Blockly.Blocks['text_to_number'] = {
-    init: function() {
-        this.appendValueInput("TEXT")
-            .setCheck(null)
-            .appendField("text to number");
-        this.setOutput(true, "Number");
-        this.setColour("#5b67a5");
-        this.setTooltip("");
-        this.setHelpUrl("");
-    }
-};
-
-Blockly.Blocks.number_input = {
-    init: function() {
-        this.appendDummyInput()
-        .appendField("number input")
-        .appendField(new Blockly.FieldNumber(0), "number_input");
-        this.setOutput(true, "Number");
-        this.setColour(180);
-        this.setTooltip("");
-        this.setHelpUrl("");
-    }
-};
-
-Blockly.Blocks.text_input = {
-    init: function() {
-        this.appendDummyInput()
-            .appendField("text input:")
-            .appendField(new Blockly.FieldTextInput('text'),
-                'text_input');
-        this.setOutput(true, "String");
-        this.setColour(180);
-        this.setTooltip("");
-        this.setHelpUrl("");
-    }
-};
-
-Blockly.Blocks.text_multiline_input = {
-    init: function() {
-        this.appendDummyInput()
-            .appendField("multiline text input:")
-            .appendField(new Blockly.FieldMultilineInput('multiline \n text'),
-                'text_input');
-        this.setOutput(true, "String");
-        this.setColour(180);
-        this.setTooltip("");
-        this.setHelpUrl("");
-    }
-};
-
-Blockly.Blocks.start = {
-    init: function() {
-        this.appendDummyInput()
-            .appendField("start");
-        this.setNextStatement(true, null);
-        this.setColour(60);
-        this.setTooltip("");
-        this.setHelpUrl("");
-        this.setDeletable(false);
-    }
-};
-
-// eslint-disable-next-line no-unused-vars
-Blockly.JavaScript.forBlock.start = function(block, generator) {
-    // Get all blocks attached to this block
-    let code = '';
-    return code;
-};
-
-// eslint-disable-next-line no-unused-vars
-Blockly.JavaScript.forBlock.number_input = function(block, generator) {
-    const number = block.getFieldValue('number_input');
-    let code = 'input(' + number + ')';
-    return [code, Blockly.JavaScript.ORDER_NONE];
-};
-
-// eslint-disable-next-line no-unused-vars
-Blockly.JavaScript.forBlock.text_input = function(block, generator) {
-    const text = block.getFieldValue('text_input');
-    let code = 'input("' + text + '")';
-    return [code, Blockly.JavaScript.ORDER_NONE];
-};
-
-// eslint-disable-next-line no-unused-vars
-Blockly.JavaScript.forBlock.text_multiline_input = function(block, generator) {
-    const text = block.getFieldValue('text_input');
-    let code = "input(`" + text + "`)";
-    return [code, Blockly.JavaScript.ORDER_NONE];
-};
-
-class CustomCategory extends Blockly.ToolboxCategory {
-    /**
-     * Constructor for a custom category.
-     * @override
-     */
-    constructor(categoryDef, toolbox, optParent) {
-        super(categoryDef, toolbox, optParent);
-    }
-
-    /** @override */
-    addColourBorder_(colour) {
-        this.rowDiv_.style.backgroundColor = colour;
-    }
-
-    /** @override */
-    setSelected(isSelected) {
-        // We do not store the label span on the category, so use getElementsByClassName.
-        var labelDom = this.rowDiv_.getElementsByClassName('blocklyTreeLabel')[0];
-        if (isSelected) {
-            // Change the background color of the div to white.
-            this.rowDiv_.style.backgroundColor = 'white';
-            // Set the colour of the text to the colour of the category.
-            labelDom.style.color = this.colour_;
-            this.iconDom_.style.color = this.colour_;
+        // Toggle background of clicked image
+        if (img.classList.contains("bg-primary")) {
+            img.classList.remove("bg-primary");
+            img.classList.add("bg-secondary");
         } else {
-            // Set the background back to the original colour.
-            this.rowDiv_.style.backgroundColor = this.colour_;
-            // Set the text back to white.
-            labelDom.style.color = 'white';
-            this.iconDom_.style.color = 'white';
+            img.classList.remove("bg-secondary");
+            img.classList.add("bg-primary");
         }
-        // This is used for accessibility purposes.
-        Blockly.utils.aria.setState(/** @type {!Element} */ (this.htmlDiv_),
-            Blockly.utils.aria.State.SELECTED, isSelected);
+    };
+
+    /**
+     * Updates the percentages of difficulty levels (easy, medium, hard) on the page.
+     *
+     * @param {number} easy - The count of 'easy' reactions.
+     * @param {number} medium - The count of 'medium' reactions.
+     * @param {number} hard - The count of 'hard' reactions.
+     * @param {string} [inc=""] - The difficulty level to increment. If not provided, no level is incremented.
+     * Unused right now, just for future-proofing
+     */
+    const updatePercentages = function(easy, medium, hard, inc = "") {
+        // Mapping of difficulty levels to their corresponding HTML elements
+        const elements = {
+            "easy": document.getElementById('percentage-easy'),
+            "medium": document.getElementById('percentage-medium'),
+            "hard": document.getElementById('percentage-hard')
+        };
+
+        // Mapping of difficulty levels to their counts
+        const values = {
+            "easy": easy,
+            "medium": medium,
+            "hard": hard
+        };
+
+        // If a difficulty level to increment is provided, increment its count
+        if (inc in values) {
+            values[inc]++;
+        }
+
+        // Calculate the percentages for each difficulty level
+        let percentages = calcPercentages(values.easy, values.medium, values.hard);
+
+        // Update the HTML elements with the new percentages
+        elements.easy.innerHTML = percentages[0] + '%';
+        elements.medium.innerHTML = percentages[1] + '%';
+        elements.hard.innerHTML = percentages[2] + '%';
+    };
+
+    const calcPercentages = (easy, medium, hard) => {
+        const total = easy + medium + hard;
+        return total === 0 ? [0, 0, 0] : [easy, medium, hard].map(val => Math.round((val / total) * 100));
+    };
+
+    const getOptions = function(remainingSubmissions, readOnly, blockLimits) {
+        return {
+            toolbox: readOnly ? null : toolbox,
+            collapse: true,
+            comments: true,
+            disable: false,
+            maxBlocks: Infinity,
+            trashcan: !readOnly,
+            horizontalLayout: false,
+            toolboxPosition: 'start',
+            css: true,
+            media: 'https://blockly-demo.appspot.com/static/media/',
+            rtl: false,
+            scrollbars: true,
+            sounds: true,
+            oneBasedIndex: false,
+            readOnly: remainingSubmissions <= 0,
+            grid: {
+                spacing: 20,
+                length: 1,
+                colour: '#888',
+                snap: false,
+            },
+            zoom: {
+                controls: true,
+                wheel: true,
+                startScale: 1,
+                maxScale: 3,
+                minScale: 0.3,
+                scaleSpeed: 1.2,
+            },
+            maxInstances: blockLimits,
+        };
+    };
+
+    const onResize = function(blocklyArea, blocklyDiv, nextblocksWorkspace) {
+        // Compute the absolute coordinates and dimensions of blocklyArea.
+        let element = blocklyArea;
+        let x = 0;
+        let y = 0;
+        do {
+            x += element.offsetLeft;
+            y += element.offsetTop;
+            element = element.offsetParent;
+        } while (element);
+        // Position blocklyDiv over blocklyArea.
+        blocklyDiv.style.left = x + 'px';
+        blocklyDiv.style.top = y + 'px';
+        blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+        blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
+        Blockly.svgResize(nextblocksWorkspace);
+    };
+
+    /**
+     * @param {String} blockName The name of the input block to be added (prompt on the left side of the block
+     * @param {WorkspaceSvg} workspace The workspace to add the input block to
+     * @returns {BlockSvg} The newly created block
+     */
+    function addBlockToWorkspace(blockName, workspace) {
+        const newBlock = workspace.newBlock(blockName);
+        newBlock.initSvg();
+        newBlock.render();
+        return newBlock;
     }
-}
 
-class ToolboxLabel extends Blockly.ToolboxItem {
-    constructor(toolboxItemDef, parentToolbox) {
-        super(toolboxItemDef, parentToolbox);
+    /**
+     * @param {String} loadedSave
+     * @param {WorkspaceSvg} workspace
+     */
+    function loadSave(loadedSave, workspace) {
+        const state = JSON.parse(atob(loadedSave));
+        Blockly.serialization.workspaces.load(state, workspace);
     }
 
-    /** @override */
-    init() {
-        // Create the label.
-        this.label = document.createElement('label');
-
-        // Set the name.
-        this.label.textContent = this.toolboxItemDef_.name;
-        // Set the color.
-        this.label.style.color = this.toolboxItemDef_.colour;
+    /**
+     * @returns {Number} The course module id of the current page
+     */
+    function getCMID() {
+        const classList = document.body.classList;
+        const cmidClass = Array.from(classList).find((className) => className.startsWith('cmid-'));
+        return parseInt(cmidClass.split('-')[1]);
     }
 
-    /** @override */
-    getDiv() {
-        return this.label;
+    /**
+     * @param {string} prompt The name of the input block to be added (prompt on the left side of the block)
+     * @param {string} inputType The type of the input block to be added (string, number, etc.)
+     * @param {object} inputFunctionDeclarations Contains the string containing the function declarations for the input
+     * blocks, to be added to the top of the code. Is an object so that it is passed by reference.
+     */
+
+    // eslint-disable-next-line no-extend-native
+    String.prototype.hideWrapperFunction = function() {
+        const lines = this.split('\n');
+        lines.splice(0, 2); // Remove the first two lines
+        return lines.join('\n');
+    };
+
+    Blockly.JavaScript.forBlock.text_print = function(block, generator) {
+        return (
+            "customPrintln(" +
+            (generator.valueToCode(
+                block,
+                "TEXT",
+                Blockly.JavaScript.ORDER_NONE
+            ) || "''") +
+            ");\n"
+        );
+    };
+
+    Blockly.JavaScript.forBlock.text_ask = function(block, generator) {
+        const question = (generator.valueToCode(
+            block,
+            'TEXT',
+            Blockly.JavaScript.ORDER_NONE
+        ) || "''");
+        let code = "await input(" + question + ")";
+        return [code, Blockly.JavaScript.ORDER_NONE];
+    };
+
+    Blockly.Python.forBlock.text_ask = function(block, generator) {
+        const question = (generator.valueToCode(
+            block,
+            'TEXT',
+            Blockly.Python.ORDER_NONE
+        ) || "''");
+        let code = "input(" + question + ")";
+        return [code, Blockly.Python.ORDER_NONE];
+    };
+
+    Blockly.Blocks['text_ask'] = {
+        init: function() {
+            this.appendValueInput("TEXT")
+                .setCheck(null)
+                .appendField("input");
+            this.setOutput(true, "String");
+            this.setColour(160);
+            this.setTooltip("");
+            this.setHelpUrl("");
+        }
+    };
+
+    Blockly.JavaScript.forBlock.text_to_number = function(block, generator) {
+        const prompt = (generator.valueToCode(
+            block,
+            'TEXT',
+            Blockly.JavaScript.ORDER_NONE
+        ) || "''").trim();
+        let code = "text_to_number(" + prompt + ")";
+        return [code, Blockly.JavaScript.ORDER_NONE];
+    };
+
+    Blockly.Python.forBlock.text_to_number = function(block, generator) {
+        const prompt = (generator.valueToCode(
+            block,
+            'TEXT',
+            Blockly.Python.ORDER_NONE
+        ) || "''").trim();
+        let code = "text_to_number(" + prompt + ")";
+        return [code, Blockly.Python.ORDER_NONE];
+    };
+
+    Blockly.Blocks['text_to_number'] = {
+        init: function() {
+            this.appendValueInput("TEXT")
+                .setCheck(null)
+                .appendField("text to number");
+            this.setOutput(true, "Number");
+            this.setColour("#5b67a5");
+            this.setTooltip("");
+            this.setHelpUrl("");
+        }
+    };
+
+    Blockly.Blocks.number_input = {
+        init: function() {
+            this.appendDummyInput()
+            .appendField("number input")
+            .appendField(new Blockly.FieldNumber(0), "number_input");
+            this.setOutput(true, "Number");
+            this.setColour(180);
+            this.setTooltip("");
+            this.setHelpUrl("");
+        }
+    };
+
+    Blockly.Blocks.text_input = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField("text input:")
+                .appendField(new Blockly.FieldTextInput('text'),
+                    'text_input');
+            this.setOutput(true, "String");
+            this.setColour(180);
+            this.setTooltip("");
+            this.setHelpUrl("");
+        }
+    };
+
+    Blockly.Blocks.text_multiline_input = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField("multiline text input:")
+                .appendField(new Blockly.FieldMultilineInput('multiline \n text'),
+                    'text_input');
+            this.setOutput(true, "String");
+            this.setColour(180);
+            this.setTooltip("");
+            this.setHelpUrl("");
+        }
+    };
+
+    Blockly.Blocks.start = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField("start");
+            this.setNextStatement(true, null);
+            this.setColour(60);
+            this.setTooltip("");
+            this.setHelpUrl("");
+            this.setDeletable(false);
+        }
+    };
+
+    // eslint-disable-next-line no-unused-vars
+    Blockly.JavaScript.forBlock.start = function(block, generator) {
+        // Get all blocks attached to this block
+        let code = '';
+        return code;
+    };
+
+    // eslint-disable-next-line no-unused-vars
+    Blockly.JavaScript.forBlock.number_input = function(block, generator) {
+        const number = block.getFieldValue('number_input');
+        let code = 'input(' + number + ')';
+        return [code, Blockly.JavaScript.ORDER_NONE];
+    };
+
+    // eslint-disable-next-line no-unused-vars
+    Blockly.JavaScript.forBlock.text_input = function(block, generator) {
+        const text = block.getFieldValue('text_input');
+        let code = 'input("' + text + '")';
+        return [code, Blockly.JavaScript.ORDER_NONE];
+    };
+
+    // eslint-disable-next-line no-unused-vars
+    Blockly.JavaScript.forBlock.text_multiline_input = function(block, generator) {
+        const text = block.getFieldValue('text_input');
+        let code = "input(`" + text + "`)";
+        return [code, Blockly.JavaScript.ORDER_NONE];
+    };
+
+    class CustomCategory extends Blockly.ToolboxCategory {
+        /**
+         * Constructor for a custom category.
+         * @override
+         */
+        constructor(categoryDef, toolbox, optParent) {
+            super(categoryDef, toolbox, optParent);
+        }
+
+        /** @override */
+        addColourBorder_(colour) {
+            this.rowDiv_.style.backgroundColor = colour;
+        }
+
+        /** @override */
+        setSelected(isSelected) {
+            // We do not store the label span on the category, so use getElementsByClassName.
+            var labelDom = this.rowDiv_.getElementsByClassName('blocklyTreeLabel')[0];
+            if (isSelected) {
+                // Change the background color of the div to white.
+                this.rowDiv_.style.backgroundColor = 'white';
+                // Set the colour of the text to the colour of the category.
+                labelDom.style.color = this.colour_;
+                this.iconDom_.style.color = this.colour_;
+            } else {
+                // Set the background back to the original colour.
+                this.rowDiv_.style.backgroundColor = this.colour_;
+                // Set the text back to white.
+                labelDom.style.color = 'white';
+                this.iconDom_.style.color = 'white';
+            }
+            // This is used for accessibility purposes.
+            Blockly.utils.aria.setState(/** @type {!Element} */ (this.htmlDiv_),
+                Blockly.utils.aria.State.SELECTED, isSelected);
+        }
     }
-}
 
-Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, 'toolboxlabel', ToolboxLabel);
+    class ToolboxLabel extends Blockly.ToolboxItem {
+        constructor(toolboxItemDef, parentToolbox) {
+            super(toolboxItemDef, parentToolbox);
+        }
 
-Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, Blockly.ToolboxCategory.registrationName, CustomCategory, true);
+        /** @override */
+        init() {
+            // Create the label.
+            this.label = document.createElement('label');
+
+            // Set the name.
+            this.label.textContent = this.toolboxItemDef_.name;
+            // Set the color.
+            this.label.style.color = this.toolboxItemDef_.colour;
+        }
+
+        /** @override */
+        getDiv() {
+            return this.label;
+        }
+    }
+
+    Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, 'toolboxlabel', ToolboxLabel);
+
+    Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, Blockly.ToolboxCategory.registrationName, CustomCategory, true);
+});

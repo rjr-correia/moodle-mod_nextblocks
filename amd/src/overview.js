@@ -6,12 +6,16 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-export const init = (activityId) => {
-    const rows = document.querySelectorAll('.user-submission-url');
-    for (const row of rows) {
-        const userId = row.getAttribute('id').split("=")[1];
+define([], function() {
+    return {
+        init: function(activityId) {
+            const rows = document.querySelectorAll('.user-submission-url');
+            for (const row of rows) {
+                const userId = row.getAttribute('id').split("=")[1];
 
-        // Change row href to report.php
-        row.href = `report.php?id=${activityId}&userid=${userId}`;
-    }
-};
+                // Change row href to report.php
+                row.href = `report.php?id=${activityId}&userid=${userId}`;
+            }
+        }
+    };
+});

@@ -148,10 +148,14 @@ class mod_nextblocks_external extends external_api {
     public static function auto_grade($cm, $codestring, $nextblocks, $testsfile) {
         global $USER, $DB;
 
+        $context = context_module::instance($cm->id);
+        self::validate_context($context);
+        require_capability('mod/nextblocks:view', $context);
+
         $testsfilecontents = $testsfile->get_content();
         $tests = json_decode($testsfilecontents, true);
         $testscount = count($tests);
-        $testscorrectcount = self::run_tests_judge0($tests, $codestring);
+        $testscorrectcount = self::run_tests_judge0($cm, $tests, $codestring);
         $newgrade = $testscorrectcount / $testscount * $nextblocks->grade; // ...$nextblocks->grade is the max grade.
 
         $grades = new stdClass();
@@ -169,11 +173,17 @@ class mod_nextblocks_external extends external_api {
     /**
      * Run all tests via Judge0.
      *
+     * @param object $cm context module
      * @param array  $tests      Array of tests (with 'inputs' and 'output').
      * @param string $codestring The raw code.
      * @return int               Number of tests passed.
      */
-    public static function run_tests_judge0($tests, $codestring) {
+    public static function run_tests_judge0($cm, $tests, $codestring) {
+
+        $context = context_module::instance($cm->id);
+        self::validate_context($context);
+        require_capability('mod/nextblocks:view', $context);
+
         $submissions = [];
         $languageid = "102"; // JavaScript (Node.js 22.08.0)
         foreach ($tests as $test) {
@@ -264,10 +274,15 @@ class mod_nextblocks_external extends external_api {
      */
     public static function submit_reaction($nextblocksid, $reaction) {
         global $DB, $USER;
+
+        $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
+        $context = context_module::instance($cm->id);
+        self::validate_context($context);
+        require_capability('mod/nextblocks:view', $context);
+
         $params = self::validate_parameters(self::submit_reaction_parameters(),
             ['nextblocksid' => $nextblocksid, 'reaction' => $reaction]);
 
-        $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
         $nextblocks = $DB->get_record('nextblocks', ['id' => $cm->instance]);
         $userdata = $DB->get_record('nextblocks_userdata', ['userid' => $USER->id, 'nextblocksid' => $cm->instance]);
         // If userdata does not exist, insert new record.
@@ -356,6 +371,12 @@ class mod_nextblocks_external extends external_api {
      */
     public static function save_message($message, $username, $nextblocksid, $timestamp) {
         global $DB;
+
+        $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
+        $context = context_module::instance($cm->id);
+        self::validate_context($context);
+        require_capability('mod/nextblocks:view', $context);
+
         $params = self::validate_parameters(self::save_message_parameters(),
             ['message' => $message, 'userName' => $username, 'nextblocksId' => $nextblocksid, 'timestamp' => $timestamp]);
         $DB->insert_record('nextblocks_messages', ['message' => $message, 'username' => $username, 
@@ -392,6 +413,12 @@ class mod_nextblocks_external extends external_api {
      */
     public static function get_messages($messagecount, $nextblocksid) {
         global $DB;
+
+        $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
+        $context = context_module::instance($cm->id);
+        self::validate_context($context);
+        require_capability('mod/nextblocks:view', $context);
+
         $params = self::validate_parameters(self::get_messages_parameters(),
             ['messageCount' => $messagecount, 'nextblocksId' => $nextblocksid]);
         $messages = $DB->get_records('nextblocks_messages', ['nextblocksid' => $nextblocksid], 

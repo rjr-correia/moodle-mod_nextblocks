@@ -40,15 +40,12 @@ use core_privacy\local\request\plugin_provider;
 use core_privacy\local\request\contextlist\user_contextlist;
 
 /**
- * Privacy provider for mod_nextblocks.
+ * Privacy provider for NextBlocks.
  *
- * This plugin stores the following user data:
- *  - nextblocks_userdata (saved workspaces, last submissions, etc.)
- *  - nextblocks_customblocks (if user‐created custom blocks are saved per user)
- *
- * @package    mod_nextblocks
- * @copyright  2025 Your Name <youremail@example.com>
- * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     mod_nextblocks
+ * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
+ * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
     metadata_provider,
