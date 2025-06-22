@@ -798,7 +798,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
             }
             updatePercentages(reactions[0], reactions[1], reactions[2]);
 
-            chat.populate(repository.getMessages, activityId);
+            //chat.populate(repository.getMessages, activityId);
 
             const blocklyDiv = document.getElementById('blocklyDiv');
             const blocklyArea = document.getElementById('blocklyArea');
@@ -880,7 +880,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
 
             setupButtons(tests, nextblocksWorkspace, inputFunctionDeclarations.funcDecs, lastUserReaction, reportType === 1);
 
-            chat.run(userName, activityId, repository.saveMessage);
+            //chat.run(userName, activityId, repository.saveMessage);
         },
     };
 
