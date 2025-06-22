@@ -29,6 +29,6 @@ $plugin->component = 'mod_nextblocks';
 $plugin->type = "mod";
 $plugin->name = 'nextblocks';
 $plugin->release = '1.0.8';
-$plugin->version = 2025061500;
+$plugin->version = 2025062200;
 $plugin->requires = 2021060900;
 $plugin->maturity = MATURITY_ALPHA;
