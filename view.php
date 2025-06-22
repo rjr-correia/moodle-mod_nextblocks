@@ -48,11 +48,19 @@ require_login($course, true, $cm);
 
 echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">';
 
-echo '<script src="./blockly/blockly_compressed.js"></script>
+/*echo '<script src="./blockly/blockly_compressed.js"></script>
     <script src="./blockly/blocks_compressed.js"></script>
     <script src="./blockly/msg/en.js"></script>
     <script src="./blockly/javascript_compressed.js"></script>
-    <script src="./blockly/python_compressed.js"></script>';
+    <script src="./blockly/python_compressed.js"></script>';*/
+
+$blocklyPath = new moodle_url('/mod/nextblocks/blockly/');
+echo '
+<script src="' . $blocklyPath->out() . 'blockly_compressed.js"></script>
+<script src="' . $blocklyPath->out() . 'blocks_compressed.js"></script>
+<script src="' . $blocklyPath->out() . 'msg/en.js"></script>
+<script src="' . $blocklyPath->out() . 'javascript_compressed.js"></script>
+<script src="' . $blocklyPath->out() . 'python_compressed.js"></script>';
 
 $cmid = $PAGE->cm->id;
 $cm = get_coursemodule_from_id('nextblocks', $cmid, 0, false, MUST_EXIST);

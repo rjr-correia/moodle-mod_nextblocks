@@ -557,6 +557,223 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         }
     }
 
+    Blockly.JavaScript.forBlock.text_print = function(block, generator) {
+        return (
+            "customPrintln(" +
+            (generator.valueToCode(
+                block,
+                "TEXT",
+                Blockly.JavaScript.ORDER_NONE
+            ) || "''") +
+            ");\n"
+        );
+    };
+
+    Blockly.JavaScript.forBlock.text_ask = function(block, generator) {
+        const question = (generator.valueToCode(
+            block,
+            'TEXT',
+            Blockly.JavaScript.ORDER_NONE
+        ) || "''");
+        let code = "await input(" + question + ")";
+        return [code, Blockly.JavaScript.ORDER_NONE];
+    };
+
+    Blockly.Python.forBlock.text_ask = function(block, generator) {
+        const question = (generator.valueToCode(
+            block,
+            'TEXT',
+            Blockly.Python.ORDER_NONE
+        ) || "''");
+        let code = "input(" + question + ")";
+        return [code, Blockly.Python.ORDER_NONE];
+    };
+
+    Blockly.Blocks['text_ask'] = {
+        init: function() {
+            this.appendValueInput("TEXT")
+                .setCheck(null)
+                .appendField("input");
+            this.setOutput(true, "String");
+            this.setColour(160);
+            this.setTooltip("");
+            this.setHelpUrl("");
+        }
+    };
+
+    Blockly.JavaScript.forBlock.text_to_number = function(block, generator) {
+        const prompt = (generator.valueToCode(
+            block,
+            'TEXT',
+            Blockly.JavaScript.ORDER_NONE
+        ) || "''").trim();
+        let code = "text_to_number(" + prompt + ")";
+        return [code, Blockly.JavaScript.ORDER_NONE];
+    };
+
+    Blockly.Python.forBlock.text_to_number = function(block, generator) {
+        const prompt = (generator.valueToCode(
+            block,
+            'TEXT',
+            Blockly.Python.ORDER_NONE
+        ) || "''").trim();
+        let code = "text_to_number(" + prompt + ")";
+        return [code, Blockly.Python.ORDER_NONE];
+    };
+
+    Blockly.Blocks['text_to_number'] = {
+        init: function() {
+            this.appendValueInput("TEXT")
+                .setCheck(null)
+                .appendField("text to number");
+            this.setOutput(true, "Number");
+            this.setColour("#5b67a5");
+            this.setTooltip("");
+            this.setHelpUrl("");
+        }
+    };
+
+    Blockly.Blocks.number_input = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField("number input")
+                .appendField(new Blockly.FieldNumber(0), "number_input");
+            this.setOutput(true, "Number");
+            this.setColour(180);
+            this.setTooltip("");
+            this.setHelpUrl("");
+        }
+    };
+
+    Blockly.Blocks.text_input = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField("text input:")
+                .appendField(new Blockly.FieldTextInput('text'),
+                    'text_input');
+            this.setOutput(true, "String");
+            this.setColour(180);
+            this.setTooltip("");
+            this.setHelpUrl("");
+        }
+    };
+
+    Blockly.Blocks.text_multiline_input = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField("multiline text input:")
+                .appendField(new Blockly.FieldMultilineInput('multiline \n text'),
+                    'text_input');
+            this.setOutput(true, "String");
+            this.setColour(180);
+            this.setTooltip("");
+            this.setHelpUrl("");
+        }
+    };
+
+    Blockly.Blocks.start = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField("start");
+            this.setNextStatement(true, null);
+            this.setColour(60);
+            this.setTooltip("");
+            this.setHelpUrl("");
+            this.setDeletable(false);
+        }
+    };
+
+    // eslint-disable-next-line no-unused-vars
+    Blockly.JavaScript.forBlock.start = function(block, generator) {
+        // Get all blocks attached to this block
+        let code = '';
+        return code;
+    };
+
+    // eslint-disable-next-line no-unused-vars
+    Blockly.JavaScript.forBlock.number_input = function(block, generator) {
+        const number = block.getFieldValue('number_input');
+        let code = 'input(' + number + ')';
+        return [code, Blockly.JavaScript.ORDER_NONE];
+    };
+
+    // eslint-disable-next-line no-unused-vars
+    Blockly.JavaScript.forBlock.text_input = function(block, generator) {
+        const text = block.getFieldValue('text_input');
+        let code = 'input("' + text + '")';
+        return [code, Blockly.JavaScript.ORDER_NONE];
+    };
+
+    // eslint-disable-next-line no-unused-vars
+    Blockly.JavaScript.forBlock.text_multiline_input = function(block, generator) {
+        const text = block.getFieldValue('text_input');
+        let code = "input(`" + text + "`)";
+        return [code, Blockly.JavaScript.ORDER_NONE];
+    };
+
+    class ToolboxLabel extends Blockly.ToolboxItem {
+        constructor(toolboxItemDef, parentToolbox) {
+            super(toolboxItemDef, parentToolbox);
+        }
+
+        /** @override */
+        init() {
+            // Create the label.
+            this.label = document.createElement('label');
+
+            // Set the name.
+            this.label.textContent = this.toolboxItemDef_.name;
+            // Set the color.
+            this.label.style.color = this.toolboxItemDef_.colour;
+        }
+
+        /** @override */
+        getDiv() {
+            return this.label;
+        }
+    }
+
+    class CustomCategory extends Blockly.ToolboxCategory {
+        /**
+         * Constructor for a custom category.
+         * @override
+         */
+        constructor(categoryDef, toolbox, optParent) {
+            super(categoryDef, toolbox, optParent);
+        }
+
+        /** @override */
+        addColourBorder_(colour) {
+            this.rowDiv_.style.backgroundColor = colour;
+        }
+
+        /** @override */
+        setSelected(isSelected) {
+            // We do not store the label span on the category, so use getElementsByClassName.
+            var labelDom = this.rowDiv_.getElementsByClassName('blocklyTreeLabel')[0];
+            if (isSelected) {
+                // Change the background color of the div to white.
+                this.rowDiv_.style.backgroundColor = 'white';
+                // Set the colour of the text to the colour of the category.
+                labelDom.style.color = this.colour_;
+                this.iconDom_.style.color = this.colour_;
+            } else {
+                // Set the background back to the original colour.
+                this.rowDiv_.style.backgroundColor = this.colour_;
+                // Set the text back to white.
+                labelDom.style.color = 'white';
+                this.iconDom_.style.color = 'white';
+            }
+            // This is used for accessibility purposes.
+            Blockly.utils.aria.setState(/** @type {!Element} */ (this.htmlDiv_),
+                Blockly.utils.aria.State.SELECTED, isSelected);
+        }
+    }
+
+    Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, 'toolboxlabel', ToolboxLabel);
+
+    Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, Blockly.ToolboxCategory.registrationName, CustomCategory, true);
+
     return {
         /**
          * @param {string} contents The contents of the tests file.
@@ -736,7 +953,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
      * @param {string} [inc=""] - The difficulty level to increment. If not provided, no level is incremented.
      * Unused right now, just for future-proofing
      */
-    const updatePercentages = function(easy, medium, hard, inc = "") {
+    function updatePercentages(easy, medium, hard, inc = "") {
         // Mapping of difficulty levels to their corresponding HTML elements
         const elements = {
             "easy": document.getElementById('percentage-easy'),
@@ -763,14 +980,28 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         elements.easy.innerHTML = percentages[0] + '%';
         elements.medium.innerHTML = percentages[1] + '%';
         elements.hard.innerHTML = percentages[2] + '%';
-    };
+    }
 
-    const calcPercentages = (easy, medium, hard) => {
+    /**
+     *
+     * @param {number} easy - The count of 'easy' reactions.
+     * @param {number} medium - The count of 'medium' reactions.
+     * @param {number} hard - The count of 'hard' reactions.
+     * @returns {number[]|number[]} - The percentages of each reaction.
+     */
+    function calcPercentages (easy, medium, hard) {
         const total = easy + medium + hard;
         return total === 0 ? [0, 0, 0] : [easy, medium, hard].map(val => Math.round((val / total) * 100));
-    };
+    }
 
-    const getOptions = function(remainingSubmissions, readOnly, blockLimits) {
+    /**
+     *
+     * @param {number} remainingSubmissions how many times can the user submit
+     * @param {bool} readOnly whether the user can interact or not with the toolbox
+     * @param {number[]} blockLimits the limits of each block
+     * @returns {toolboxPosition} the options of the toolbox
+     */
+    function getOptions (remainingSubmissions, readOnly, blockLimits) {
         return {
             toolbox: readOnly ? null : toolbox,
             collapse: true,
@@ -803,9 +1034,15 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
             },
             maxInstances: blockLimits,
         };
-    };
+    }
 
-    const onResize = function(blocklyArea, blocklyDiv, nextblocksWorkspace) {
+    /**
+     * Handles window resize
+     * @param {object} blocklyArea
+     * @param {object} blocklyDiv
+     * @param {object} nextblocksWorkspace
+     */
+    function onResize(blocklyArea, blocklyDiv, nextblocksWorkspace) {
         // Compute the absolute coordinates and dimensions of blocklyArea.
         let element = blocklyArea;
         let x = 0;
@@ -821,7 +1058,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
         blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
         Blockly.svgResize(nextblocksWorkspace);
-    };
+    }
 
     /**
      * @param {String} blockName The name of the input block to be added (prompt on the left side of the block
@@ -867,220 +1104,4 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         return lines.join('\n');
     };
 
-    Blockly.JavaScript.forBlock.text_print = function(block, generator) {
-        return (
-            "customPrintln(" +
-            (generator.valueToCode(
-                block,
-                "TEXT",
-                Blockly.JavaScript.ORDER_NONE
-            ) || "''") +
-            ");\n"
-        );
-    };
-
-    Blockly.JavaScript.forBlock.text_ask = function(block, generator) {
-        const question = (generator.valueToCode(
-            block,
-            'TEXT',
-            Blockly.JavaScript.ORDER_NONE
-        ) || "''");
-        let code = "await input(" + question + ")";
-        return [code, Blockly.JavaScript.ORDER_NONE];
-    };
-
-    Blockly.Python.forBlock.text_ask = function(block, generator) {
-        const question = (generator.valueToCode(
-            block,
-            'TEXT',
-            Blockly.Python.ORDER_NONE
-        ) || "''");
-        let code = "input(" + question + ")";
-        return [code, Blockly.Python.ORDER_NONE];
-    };
-
-    Blockly.Blocks['text_ask'] = {
-        init: function() {
-            this.appendValueInput("TEXT")
-                .setCheck(null)
-                .appendField("input");
-            this.setOutput(true, "String");
-            this.setColour(160);
-            this.setTooltip("");
-            this.setHelpUrl("");
-        }
-    };
-
-    Blockly.JavaScript.forBlock.text_to_number = function(block, generator) {
-        const prompt = (generator.valueToCode(
-            block,
-            'TEXT',
-            Blockly.JavaScript.ORDER_NONE
-        ) || "''").trim();
-        let code = "text_to_number(" + prompt + ")";
-        return [code, Blockly.JavaScript.ORDER_NONE];
-    };
-
-    Blockly.Python.forBlock.text_to_number = function(block, generator) {
-        const prompt = (generator.valueToCode(
-            block,
-            'TEXT',
-            Blockly.Python.ORDER_NONE
-        ) || "''").trim();
-        let code = "text_to_number(" + prompt + ")";
-        return [code, Blockly.Python.ORDER_NONE];
-    };
-
-    Blockly.Blocks['text_to_number'] = {
-        init: function() {
-            this.appendValueInput("TEXT")
-                .setCheck(null)
-                .appendField("text to number");
-            this.setOutput(true, "Number");
-            this.setColour("#5b67a5");
-            this.setTooltip("");
-            this.setHelpUrl("");
-        }
-    };
-
-    Blockly.Blocks.number_input = {
-        init: function() {
-            this.appendDummyInput()
-            .appendField("number input")
-            .appendField(new Blockly.FieldNumber(0), "number_input");
-            this.setOutput(true, "Number");
-            this.setColour(180);
-            this.setTooltip("");
-            this.setHelpUrl("");
-        }
-    };
-
-    Blockly.Blocks.text_input = {
-        init: function() {
-            this.appendDummyInput()
-                .appendField("text input:")
-                .appendField(new Blockly.FieldTextInput('text'),
-                    'text_input');
-            this.setOutput(true, "String");
-            this.setColour(180);
-            this.setTooltip("");
-            this.setHelpUrl("");
-        }
-    };
-
-    Blockly.Blocks.text_multiline_input = {
-        init: function() {
-            this.appendDummyInput()
-                .appendField("multiline text input:")
-                .appendField(new Blockly.FieldMultilineInput('multiline \n text'),
-                    'text_input');
-            this.setOutput(true, "String");
-            this.setColour(180);
-            this.setTooltip("");
-            this.setHelpUrl("");
-        }
-    };
-
-    Blockly.Blocks.start = {
-        init: function() {
-            this.appendDummyInput()
-                .appendField("start");
-            this.setNextStatement(true, null);
-            this.setColour(60);
-            this.setTooltip("");
-            this.setHelpUrl("");
-            this.setDeletable(false);
-        }
-    };
-
-    // eslint-disable-next-line no-unused-vars
-    Blockly.JavaScript.forBlock.start = function(block, generator) {
-        // Get all blocks attached to this block
-        let code = '';
-        return code;
-    };
-
-    // eslint-disable-next-line no-unused-vars
-    Blockly.JavaScript.forBlock.number_input = function(block, generator) {
-        const number = block.getFieldValue('number_input');
-        let code = 'input(' + number + ')';
-        return [code, Blockly.JavaScript.ORDER_NONE];
-    };
-
-    // eslint-disable-next-line no-unused-vars
-    Blockly.JavaScript.forBlock.text_input = function(block, generator) {
-        const text = block.getFieldValue('text_input');
-        let code = 'input("' + text + '")';
-        return [code, Blockly.JavaScript.ORDER_NONE];
-    };
-
-    // eslint-disable-next-line no-unused-vars
-    Blockly.JavaScript.forBlock.text_multiline_input = function(block, generator) {
-        const text = block.getFieldValue('text_input');
-        let code = "input(`" + text + "`)";
-        return [code, Blockly.JavaScript.ORDER_NONE];
-    };
-
-    class CustomCategory extends Blockly.ToolboxCategory {
-        /**
-         * Constructor for a custom category.
-         * @override
-         */
-        constructor(categoryDef, toolbox, optParent) {
-            super(categoryDef, toolbox, optParent);
-        }
-
-        /** @override */
-        addColourBorder_(colour) {
-            this.rowDiv_.style.backgroundColor = colour;
-        }
-
-        /** @override */
-        setSelected(isSelected) {
-            // We do not store the label span on the category, so use getElementsByClassName.
-            var labelDom = this.rowDiv_.getElementsByClassName('blocklyTreeLabel')[0];
-            if (isSelected) {
-                // Change the background color of the div to white.
-                this.rowDiv_.style.backgroundColor = 'white';
-                // Set the colour of the text to the colour of the category.
-                labelDom.style.color = this.colour_;
-                this.iconDom_.style.color = this.colour_;
-            } else {
-                // Set the background back to the original colour.
-                this.rowDiv_.style.backgroundColor = this.colour_;
-                // Set the text back to white.
-                labelDom.style.color = 'white';
-                this.iconDom_.style.color = 'white';
-            }
-            // This is used for accessibility purposes.
-            Blockly.utils.aria.setState(/** @type {!Element} */ (this.htmlDiv_),
-                Blockly.utils.aria.State.SELECTED, isSelected);
-        }
-    }
-
-    class ToolboxLabel extends Blockly.ToolboxItem {
-        constructor(toolboxItemDef, parentToolbox) {
-            super(toolboxItemDef, parentToolbox);
-        }
-
-        /** @override */
-        init() {
-            // Create the label.
-            this.label = document.createElement('label');
-
-            // Set the name.
-            this.label.textContent = this.toolboxItemDef_.name;
-            // Set the color.
-            this.label.style.color = this.toolboxItemDef_.colour;
-        }
-
-        /** @override */
-        getDiv() {
-            return this.label;
-        }
-    }
-
-    Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, 'toolboxlabel', ToolboxLabel);
-
-    Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, Blockly.ToolboxCategory.registrationName, CustomCategory, true);
 });
