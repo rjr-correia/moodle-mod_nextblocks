@@ -127,17 +127,14 @@ $string['averagegrade'] = 'Average grade';
 $string['averagereaction'] = 'Average reaction';
 $string['workspacedata'] = 'NextBlocks Workspace Data';
 
-$string['privacy:metadata:nextblocks_userdata']               = 'Stored user workspace and test-run data for NextBlocks.';
-$string['privacy:metadata:nextblocks_userdata:userid']        = 'The user ID who saved the workspace.';
-$string['privacy:metadata:nextblocks_userdata:nextblocksid']  = 'The NextBlocks activity instance ID.';
-$string['privacy:metadata:nextblocks_userdata:saved_workspace'] = 'The user’s saved Blockly workspace XML.';
-$string['privacy:metadata:nextblocks_userdata:testsfile']     = 'The JSON file of test cases uploaded by the user.';
-$string['privacy:metadata:nextblocks_userdata:lastrun']       = 'Timestamp of the user’s last test run.';
-$string['privacy:metadata:nextblocks_customblocks']           = 'Stored custom blocks created by users for this NextBlocks activity.';
-$string['privacy:metadata:nextblocks_customblocks:nextblocksid'] = 'The NextBlocks activity instance ID.';
-$string['privacy:metadata:nextblocks_customblocks:userid']    = 'The user ID who created the custom block.';
-$string['privacy:metadata:nextblocks_customblocks:blockxml']  = 'The XML definition of the custom block.';
-$string['privacy:metadata:nextblocks_customblocks:timecreated'] = 'Timestamp when the custom block was created.';
+// Privacy
+$string['privacy:metadata:nextblocks_userdata'] = 'Stores user Blockly workspaces';
+$string['privacy:metadata:userid'] = 'User ID';
+$string['privacy:metadata:saved_workspace'] = 'Serialized Blockly workspace';
+$string['privacy:metadata:submitted_workspace'] = 'Submitted Blockly workspace state';
+$string['privacy:metadata:submissionnumber'] = 'Number of the current submission';
+$string['privacy:metadata:reacted'] = 'Whether user reacted to the exercise';
+$string['privacy:metadata:grade'] = 'Current grade on the exercise';
 
 // Category names
 $string['category_logic']      = 'Logic';
