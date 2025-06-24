@@ -383,6 +383,27 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         testResultsDiv.innerHTML = await lib.testsAccordion(results, tests);
     }
 
+    // Makes background of image blue if it is not blue, and vice versa
+    const changeImageBackground = function(img) {
+        // Change background of all other images to secondary
+        const imgs = document.getElementsByClassName("emoji-img");
+        Array.from(imgs).forEach((otherImg) => {
+            if (otherImg !== img) {
+                otherImg.classList.remove("bg-primary");
+                otherImg.classList.add("bg-secondary");
+            }
+        });
+
+        // Toggle background of clicked image
+        if (img.classList.contains("bg-primary")) {
+            img.classList.remove("bg-primary");
+            img.classList.add("bg-secondary");
+        } else {
+            img.classList.remove("bg-secondary");
+            img.classList.add("bg-primary");
+        }
+    };
+
     /**
      * @param {{}} tests The tests to be run
      * @param {WorkspaceSvg} workspace The workspace to get the code from
@@ -920,27 +941,6 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         function lockBlock(block) {
             block.setMovable(false);
             block.setDeletable(false);
-        }
-    };
-
-    // Makes background of image blue if it is not blue, and vice versa
-    const changeImageBackground = function(img) {
-        // Change background of all other images to secondary
-        const imgs = document.getElementsByClassName("emoji-img");
-        Array.from(imgs).forEach((otherImg) => {
-            if (otherImg !== img) {
-                otherImg.classList.remove("bg-primary");
-                otherImg.classList.add("bg-secondary");
-            }
-        });
-
-        // Toggle background of clicked image
-        if (img.classList.contains("bg-primary")) {
-            img.classList.remove("bg-primary");
-            img.classList.add("bg-secondary");
-        } else {
-            img.classList.remove("bg-secondary");
-            img.classList.add("bg-primary");
         }
     };
 

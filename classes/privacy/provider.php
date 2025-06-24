@@ -8,6 +8,7 @@ use core_privacy\local\request\writer;
 
 class provider implements
     \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\core_userlist_provider,
     \core_privacy\local\request\plugin\provider {
 
     public static function get_metadata(collection $collection) : collection {
@@ -102,5 +103,43 @@ class provider implements
                 'userid' => $userid
             ]);
         }
+    }
+
+    public static function get_users_in_context(\core_privacy\local\request\userlist $userlist) {
+        $context = $userlist->get_context();
+
+        if ($context->contextlevel != CONTEXT_MODULE) {
+            return;
+        }
+
+        $sql = "SELECT ud.userid
+                FROM {nextblocks_userdata} ud
+                JOIN {course_modules} cm ON cm.instance = ud.nextblocksid
+                WHERE cm.id = :instanceid";
+
+        $params = ['instanceid' => $context->instanceid];
+        $userlist->add_from_sql('userid', $sql, $params);
+    }
+
+    public static function delete_data_for_users(\core_privacy\local\request\approved_userlist $userlist) {
+        global $DB;
+
+        $context = $userlist->get_context();
+        if ($context->contextlevel != CONTEXT_MODULE) {
+            return;
+        }
+
+        $userids = $userlist->get_userids();
+        if (empty($userids)) {
+            return;
+        }
+
+        list($insql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        $params['instanceid'] = $context->instanceid;
+
+        $DB->delete_records_select('nextblocks_userdata',
+            "nextblocksid = :instanceid AND userid $insql",
+            $params
+        );
     }
 }

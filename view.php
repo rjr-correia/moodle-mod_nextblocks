@@ -46,13 +46,10 @@ if ($id) {
 
 require_login($course, true, $cm);
 
-echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">';
+$context = context_module::instance($cm->id);
+require_capability('mod/nextblocks:view', $context);
 
-/*echo '<script src="./blockly/blockly_compressed.js"></script>
-    <script src="./blockly/blocks_compressed.js"></script>
-    <script src="./blockly/msg/en.js"></script>
-    <script src="./blockly/javascript_compressed.js"></script>
-    <script src="./blockly/python_compressed.js"></script>';*/
+echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">';
 
 $blocklyPath = new moodle_url('/mod/nextblocks/blockly/');
 echo '

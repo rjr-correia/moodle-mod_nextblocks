@@ -15,7 +15,7 @@ A guide to NextBlocks installation is available in the [README page](README.md).
 1. Students open the NextBlocks activity by clicking its link in the course. They are presented with a Blockly workspace containing the permitted blocks in the toolbox on the right. 
 2. After dragging blocks into the workspace and snapping them together, students can click Run to execute their program interactively. If the program uses input blocks, the execution will pause and a prompt will appear in the terminal to collect the input. 
 3. On the top left of the interface students can open the block to text code translation, where they will be shown a read-only view with the automatic translation of their program to JavaScript and Python. 
-4. To provide feedback and communication between students and teachers there is a chat functionality and a reaction bar. 
+4. To provide feedback and communication between students and teachers there is a chat functionality (temporarily disabled) and a reaction bar. 
 5. To ensure their solution meets the teacher’s requirements, students can click Run tests to compare their output against each test case (if these were made available by the teacher); the results appear in a collapsible list showing the inputs, expected output, actual output and a pass/fail badge. 
 6. When satisfied, students use the Save button to store their work or the Submit button to send their final solution for grading.
 

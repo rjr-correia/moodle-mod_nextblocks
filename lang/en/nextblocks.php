@@ -125,6 +125,7 @@ $string['reaction'] = 'Reaction';
 $string['totalsubmissions'] = 'Total submissions';
 $string['averagegrade'] = 'Average grade';
 $string['averagereaction'] = 'Average reaction';
+$string['workspacedata'] = 'NextBlocks Workspace Data';
 
 $string['privacy:metadata:nextblocks_userdata']               = 'Stored user workspace and test-run data for NextBlocks.';
 $string['privacy:metadata:nextblocks_userdata:userid']        = 'The user ID who saved the workspace.';
