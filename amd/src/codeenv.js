@@ -7,7 +7,8 @@
  *  */
 
 // eslint-disable-next-line max-len
-define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat', 'core/str'], function(lib, repository, chat, str) {
+define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat', 'core/str', 'core/ajax'],
+    function(lib, repository, chat, str, ajax) {
 
         /* globals Blockly */
         let toolbox = {
@@ -791,6 +792,241 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         }
     }
 
+    // Remove native blockly comments
+    Blockly.ContextMenuRegistry.registry.unregister('blockComment');
+
+    str.get_string('viewaddcomments', 'mod_nextblocks').then(function(text) {
+        Blockly.ContextMenuRegistry.registry.register({
+            displayText: function () {
+                return text;
+            },
+            preconditionFn: function () {
+                return 'enabled';
+            },
+            scopeType: Blockly.ContextMenuRegistry.ScopeType.BLOCK,
+            id: 'custom_comments',
+            weight: 100,
+            callback: function (scope) {
+                openCommentDialog(scope.block, getCMID());
+            }
+        });
+    });
+
+    let currentBlockId = null;
+    let currentDialog = null;
+
+    /**
+     * Opens the comments from a specific block
+     * @param {object} block the block with the comments
+     * @param {Number} cmid context module id
+     */
+    function openCommentDialog(block, cmid) {
+        if (currentDialog) {
+            currentDialog.remove();
+            currentDialog = null;
+        }
+
+        currentBlockId = block.id;
+
+        currentDialog = document.createElement('div');
+        currentDialog.className = 'custom-comment-dialog';
+        currentDialog.style = `position: absolute; z-index: 1000; background: white; 
+                           border: 1px solid #ddd; padding: 15px; width: 350px;`;
+
+        const commentsContainer = document.createElement('div');
+        commentsContainer.id = 'comments-container';
+        commentsContainer.style.maxHeight = '200px';
+        commentsContainer.style.overflowY = 'auto';
+        currentDialog.appendChild(commentsContainer);
+
+        const form = document.createElement('div');
+        form.innerHTML = `
+        <textarea class="new-comment-text" rows="3" style="width:100%; margin:10px 0"></textarea>
+        <button class="add-comment-btn">Add Comment</button>
+    `;
+        currentDialog.appendChild(form);
+
+        const closeBtn = document.createElement('button');
+        closeBtn.innerText = 'Close';
+        closeBtn.onclick = () => {
+            currentDialog.remove();
+            currentDialog = null;
+        };
+        currentDialog.appendChild(closeBtn);
+
+        document.body.appendChild(currentDialog);
+
+        currentDialog.querySelector('.add-comment-btn').addEventListener('click', () => {
+            saveComment(cmid);
+        });
+
+        loadComments(cmid);
+    }
+
+    /**
+     * Loads the comments from a specific block
+     * @param {Number} cmid context module id
+     * @returns {Promise<void>}
+     */
+    async function loadComments(cmid) {
+        if (!currentDialog || !currentBlockId){
+            return;
+        }
+
+        const container = document.getElementById('comments-container');
+
+        const request = {
+            methodname: 'mod_nextblocks_get_comments',
+            args: { blockid: currentBlockId, cmid: cmid}
+        };
+
+        const response = await new Promise((resolve, reject) => {
+            ajax.call([request])[0]
+                .then(resolve)
+                .catch(reject);
+        });
+        container.innerHTML = '';
+
+        response.sort((a, b) => a.timecreated - b.timecreated);
+
+        response.forEach(comment => {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-item';
+            commentDiv.style.borderBottom = '1px solid #eee';
+            commentDiv.style.padding = '8px 0';
+
+            commentDiv.innerHTML = `
+            <div class="comment-meta">
+                <strong>${comment.firstname} ${comment.lastname}</strong>
+                <span>${new Date(comment.timecreated * 1000).toLocaleString()}</span>
+            </div>
+            <div class="comment-content">${comment.content}</div>
+        `;
+            container.appendChild(commentDiv);
+        });
+
+        if (response.length === 0) {
+            str.get_string('nocomments', 'mod_nextblocks').then(function(text) {
+                container.innerHTML = '<div class="no-comments">'+text+'</div>';
+            });
+        }
+    }
+
+    /**
+     * Saves the previously created comment
+     * @param {Number} cmid context module id
+     * @returns {Promise<void>}
+     */
+    async function saveComment(cmid) {
+        if (!currentDialog || !currentBlockId){
+            return;
+        }
+
+        const textarea = currentDialog.querySelector('.new-comment-text');
+        const content = textarea.value.trim();
+        const button = currentDialog.querySelector('.add-comment-btn');
+
+        if (!content){
+            return;
+        }
+
+        button.disabled = true;
+
+        const request = {
+            methodname: 'mod_nextblocks_save_comment',
+            args: {
+                blockid: currentBlockId,
+                content: content,
+                cmid: cmid,
+            }
+        };
+
+        await new Promise((resolve, reject) => {
+            ajax.call([request])[0]
+                .then(resolve)
+                .catch(reject);
+        });
+
+        const workspace = Blockly.getMainWorkspace();
+        markBlockWithComment(currentBlockId, workspace);
+
+        textarea.value = '';
+        await loadComments(cmid);
+
+        button.disabled = false;
+    }
+
+    /**
+     * Initializes the indicators for blocks that have comments
+     * @param {object} workspace blockly's workspace
+     */
+    function initCommentIndicators(workspace) {
+        workspace.getAllBlocks().forEach(block => {
+            checkBlockForComments(block.id, workspace);
+        });
+
+        workspace.addChangeListener(event => {
+            if (event.type === Blockly.Events.BLOCK_CREATE) {
+                setTimeout(() => {
+                    checkBlockForComments(event.blockId, workspace);
+                }, 500);
+            }
+        });
+    }
+
+    /**
+     * Marks a specific block with the comment indicator
+     * @param {Number} blockId the block's id
+     * @param {object} workspace blockly's workspace
+     */
+    function markBlockWithComment(blockId, workspace) {
+        const block = workspace.getBlockById(blockId);
+        if (block){
+            block.setWarningText(' ', 'comment_warning');
+        }
+    }
+
+    /**
+     * Removes the comment indicator from a specific block
+     * @param {Number} blockId the block's id
+     * @param {object} workspace blockly's workspace
+     */
+    function removeCommentIndicator(blockId, workspace) {
+        const block = workspace.getBlockById(blockId);
+        if (block){
+            block.setWarningText(null, 'comment_warning');
+        }
+    }
+
+    /**
+     * Checks whether a specific block has any comments
+     * @param {Number} blockId the block's id
+     * @param {object} workspace blockly's workspace
+     * @returns {Promise<void>}
+     */
+    async function checkBlockForComments(blockId, workspace) {
+        const request = {
+            methodname: 'mod_nextblocks_get_comments',
+            args: {
+                blockid: blockId,
+                cmid: getCMID(),
+            }
+        };
+
+        const response = await new Promise((resolve, reject) => {
+            ajax.call([request])[0]
+                .then(resolve)
+                .catch(reject);
+        });
+
+        if (response.length > 0) {
+            markBlockWithComment(blockId, workspace);
+        }
+        else{
+            removeCommentIndicator(blockId, workspace);
+        }
+    }
+
     Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, 'toolboxlabel', ToolboxLabel);
 
     Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM, Blockly.ToolboxCategory.registrationName, CustomCategory, true);
@@ -875,13 +1111,38 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                 blockLimits[k] = parseInt(blockLimits[k], 10);
             });
 
-
             nextblocksWorkspace = Blockly.inject(blocklyDiv, getOptions(remainingSubmissions, reportType !== 0, blockLimits));
             Blockly.JavaScript.init(nextblocksWorkspace);
             Blockly.Python.init(nextblocksWorkspace);
             // Use resize observer instead of window resize event. This captures both window resize and element resize
             const resizeObserver = new ResizeObserver(() => onResize(blocklyArea, blocklyDiv, nextblocksWorkspace));
             resizeObserver.observe(blocklyArea);
+
+            nextblocksWorkspace.getParentSvg().addEventListener('click', function(e) {
+                let target = e.target;
+                if (target.nodeType !== Node.ELEMENT_NODE) {
+                    target = target.parentElement;
+                }
+                const warningIcon = target.closest('.blocklyWarningIcon, .blocklyIconGroup');
+                if (!warningIcon){
+                    return;
+                }
+
+                const blockSvg = warningIcon.closest('g[data-id]');
+                if (!blockSvg){
+                    return;
+                }
+
+                const blockId = blockSvg.getAttribute('data-id');
+                if (!blockId){
+                    return;
+                }
+
+                const block = nextblocksWorkspace.getBlockById(blockId);
+                if (block) {
+                    openCommentDialog(block, getCMID());
+                }
+            });
 
             // Parse json from test file contents
             const tests = JSON.parse(contents);
@@ -899,6 +1160,8 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                 lockWorkspaceBlocks(nextblocksWorkspace);
             }
 
+            initCommentIndicators(nextblocksWorkspace);
+
             setupButtons(tests, nextblocksWorkspace, inputFunctionDeclarations.funcDecs, lastUserReaction, reportType === 1);
 
             //chat.run(userName, activityId, repository.saveMessage);
@@ -909,7 +1172,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
      * Locks all blocks in a workspace, preventing them from being moved or deleted
      * @param {WorkspaceSvg} workspace The workspace to lock
      */
-    const lockWorkspaceBlocks = function(workspace) {
+    function lockWorkspaceBlocks(workspace) {
         workspace.getTopBlocks(false).forEach((block) => {
             lockBlock(block);
             lockChildren(block);
@@ -942,7 +1205,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
             block.setMovable(false);
             block.setDeletable(false);
         }
-    };
+    }
 
     /**
      * Updates the percentages of difficulty levels (easy, medium, hard) on the page.
@@ -1005,7 +1268,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         return {
             toolbox: readOnly ? null : toolbox,
             collapse: true,
-            comments: true,
+            comments: false,
             disable: false,
             maxBlocks: Infinity,
             trashcan: !readOnly,

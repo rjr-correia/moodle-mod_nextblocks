@@ -461,4 +461,131 @@ class mod_nextblocks_external extends external_api {
             )
         );
     }
+
+    public static function get_comments_parameters() {
+        return new external_function_parameters([
+            'blockid' => new external_value(PARAM_RAW, get_string('blockid')),
+            'cmid' => new external_value(PARAM_INT, get_string('cmid')),
+        ]);
+    }
+
+    public static function get_comments($blockid, $cmid) {
+        global $DB;
+
+        $params = self::validate_parameters(self::get_comments_parameters(), [
+            'blockid' => $blockid,
+            'cmid' => $cmid
+        ]);
+        $blockid = $params['blockid'];
+
+        $context = context_module::instance($params['cmid']);
+        self::validate_context($context);
+        require_capability('mod/nextblocks:view', $context);
+
+        if (empty($blockid) || strlen($blockid) > 255) {
+            throw new invalid_parameter_exception('Invalid block ID');
+        }
+
+        $comments = $DB->get_records_sql("
+            SELECT c.*, u.firstname, u.lastname 
+            FROM {blockly_comments} c
+            JOIN {user} u ON u.id = c.userid
+            WHERE blockid = :blockid
+            AND contextid = :contextid
+            ORDER BY timecreated DESC",
+            ['blockid' => $blockid, 'contextid' => $context->id]
+        );
+
+        $result = [];
+        foreach ($comments as $comment) {
+            $result[] = [
+                'id' => $comment->id,
+                'blockid' => $comment->blockid,
+                'userid' => $comment->userid,
+                'content' => $comment->content,
+                'timecreated' => $comment->timecreated,
+                'firstname' => $comment->firstname,
+                'lastname' => $comment->lastname,
+            ];
+        }
+
+        return $result;
+    }
+
+    public static function get_comments_returns() {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'id' => new external_value(PARAM_INT, get_string('commentid')),
+                'blockid' => new external_value(PARAM_RAW, get_string('blockid')),
+                'userid' => new external_value(PARAM_INT, get_string('userid')),
+                'content' => new external_value(PARAM_TEXT, get_string('commentcontent')),
+                'timecreated' => new external_value(PARAM_INT, get_string('timestamp')),
+                'firstname' => new external_value(PARAM_TEXT, get_string('firstname')),
+                'lastname' => new external_value(PARAM_TEXT, get_string('lastname')),
+            ])
+        );
+    }
+
+    public static function save_comment_parameters() {
+        return new external_function_parameters([
+            'blockid' => new external_value(PARAM_RAW, get_string('blockid')),
+            'content' => new external_value(PARAM_TEXT, get_string('commentcontent')),
+            'cmid' => new external_value(PARAM_INT, get_string('cmid')),
+        ]);
+    }
+
+    public static function save_comment($blockid, $content, $cmid) {
+        global $DB, $USER;
+
+        $params = self::validate_parameters(self::save_comment_parameters(), [
+            'blockid' => $blockid,
+            'content' => $content,
+            'cmid' => $cmid
+        ]);
+
+        $context = context_module::instance($params['cmid']);
+        self::validate_context($context);
+        require_capability('mod/nextblocks:view', $context);
+
+        $record = new stdClass();
+        $record->blockid = $params['blockid'];
+        $record->userid = $USER->id;
+        $record->content = $params['content'];
+        $record->timecreated = time();
+        $record->contextid = $context->id;
+
+        $DB->insert_record('blockly_comments', $record);
+
+        return true;
+    }
+
+    public static function save_comment_returns() {
+        return new external_value(PARAM_BOOL, get_string('successstatus'));
+    }
+
+    public static function get_all_block_comments_parameters() {
+        return new external_function_parameters([
+            'cmid' => new external_value(PARAM_INT, get_string('cmid'))
+        ]);
+    }
+
+    public static function get_all_block_comments($cmid) {
+        global $DB;
+        $context = context_module::instance($cmid);
+        self::validate_context($context);
+        require_capability('mod/nextblocks:view', $context);
+
+        return $DB->get_fieldset_sql("
+        SELECT DISTINCT blockid
+        FROM {blockly_comments}
+        WHERE contextid = :contextid
+    ", ['contextid' => $context->id]);
+    }
+
+    public static function get_all_block_comments_returns() {
+        return new external_multiple_structure(
+            new external_value(PARAM_RAW, get_string('blockid'))
+        );
+    }
+
 }

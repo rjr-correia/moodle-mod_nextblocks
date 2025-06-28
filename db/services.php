@@ -86,4 +86,26 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
+
+    'mod_nextblocks_get_comments' => [
+        'classname' => 'mod_nextblocks_external',
+        'methodname' => 'get_comments',
+        'description' => 'Get comments for a block',
+        'type' => 'read',
+        'ajax' => true,
+    ],
+    'mod_nextblocks_save_comment' => [
+        'classname' => 'mod_nextblocks_external',
+        'methodname' => 'save_comment',
+        'description' => 'Save a comment',
+        'type' => 'write',
+        'ajax' => true,
+    ],
+    'mod_nextblocks_get_all_block_comments' => [
+        'classname' => 'mod_nextblocks_external',
+        'methodname' => 'get_all_block_comments',
+        'description' => 'Get all blocks with comments',
+        'type' => 'read',
+        'ajax' => true,
+    ],
 ];

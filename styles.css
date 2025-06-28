@@ -138,3 +138,42 @@
 .path-mod-nextblocks .selected-button {
     background-color: #66ff66 !important;
 }
+
+.path-mod-nextblocks .custom-comment-dialog {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.path-mod-nextblocks .comment-meta {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.path-mod-nextblocks .comment-content {
+    background: #f9f9f9;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.path-mod-nextblocks .new-comment-text {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+}
+.path-mod-nextblocks .blocklyCommentIcon {
+    display: none !important;
+}
+
+.path-mod-nextblocks .blocklyWarningIcon {
+    cursor: pointer;
+    pointer-events: auto !important;
+}
+
+.path-mod-nextblocks .blocklyWarningIcon:hover {
+    fill: #FF5722;
+    transform: scale(1.1);
+}

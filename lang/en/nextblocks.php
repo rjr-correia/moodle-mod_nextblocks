@@ -126,6 +126,18 @@ $string['totalsubmissions'] = 'Total submissions';
 $string['averagegrade'] = 'Average grade';
 $string['averagereaction'] = 'Average reaction';
 $string['workspacedata'] = 'NextBlocks Workspace Data';
+$string['viewaddcomments'] = 'Comments';
+$string['nocomments'] = 'No comments yet';
+$string['blockid'] = 'Block ID';
+$string['nocomments'] = 'No comments yet';
+$string['cmid'] = 'Course Module ID';
+$string['commentid'] = 'Comment ID';
+$string['userid'] = 'User ID';
+$string['commentcontent'] = 'Comment content';
+$string['timestamp'] = 'Timestamp';
+$string['firstname'] = 'First Name';
+$string['lastname'] = 'Last Name';
+$string['sucessstatus'] = 'Success status';
 
 // Privacy
 $string['privacy:metadata:nextblocks_userdata'] = 'Stores user Blockly workspaces';
