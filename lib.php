@@ -94,16 +94,23 @@ function nextblocks_add_instance(object $moduleinstance, ?mod_nextblocks_mod_for
     // ...-----------------------Save block limits------------------------------
 
     foreach ($moduleinstance as $fieldname => $value) {
-        if (strpos($fieldname, 'limit_') === 0 && $value !== '' && $value !== '0') {
+        if (strpos($fieldname, 'limit_') === 0) {
             $blocktype = substr($fieldname, 6);
-            $limit     = (int)$value;
+            $infinite_field = 'infinite_' . $blocktype;
 
-            $record = (object)[
-                'nextblocksid' => $id,
-                'blocktype'    => $blocktype,
-                'blocklimit'        => $limit,
-            ];
-            $DB->insert_record('nextblocks_blocklimit', $record);
+            if (!empty($moduleinstance->$infinite_field)) {
+                continue;
+            }
+
+            if ($value !== '' && $value !== '0') {
+                $limit = (int)$value;
+                $record = (object)[
+                    'nextblocksid' => $id,
+                    'blocktype'    => $blocktype,
+                    'blocklimit'   => $limit,
+                ];
+                $DB->insert_record('nextblocks_blocklimit', $record);
+            }
         }
     }
 
@@ -474,15 +481,25 @@ function nextblocks_update_instance(object $moduleinstance, ?mod_nextblocks_mod_
     $DB->delete_records('nextblocks_blocklimit', ['nextblocksid' => $moduleinstance->id]);
 
     foreach ($moduleinstance as $fieldname => $value) {
-        if (strpos($fieldname, 'limit_') === 0 && $value !== '' && $value !== '0') {
+        if (strpos($fieldname, 'limit_') === 0) {
             $blocktype = substr($fieldname, 6);
-            $limit     = (int)$value;
-            $record    = (object)[
-                'nextblocksid' => $moduleinstance->id,
-                'blocktype'    => $blocktype,
-                'blocklimit'        => $limit,
-            ];
-            $DB->insert_record('nextblocks_blocklimit', $record);
+            $infinite_field = 'infinite_' . $blocktype;
+
+            // Check if this block is set to infinite
+            if (!empty($moduleinstance->$infinite_field)) {
+                // For infinite blocks, skip creating a limit record
+                continue;
+            }
+
+            if ($value !== '' && $value !== '0') {
+                $limit = (int)$value;
+                $record = (object)[
+                    'nextblocksid' => $moduleinstance->id,
+                    'blocktype'    => $blocktype,
+                    'blocklimit'   => $limit,
+                ];
+                $DB->insert_record('nextblocks_blocklimit', $record);
+            }
         }
     }
 

@@ -261,9 +261,21 @@ class mod_nextblocks_mod_form extends moodleform_mod {
 
             foreach ($blocks as $type => $label) {
                 $field = 'limit_' . $type;
-                $mform->addElement('text', $field, $label, ['size' => 4]);
+                $infinite_field = 'infinite_' . $type;
+
+                $group = [];
+                $group[] = $mform->createElement('checkbox', $infinite_field, '', get_string('infinite', 'mod_nextblocks'));
+
+                $text_element = $mform->createElement('text', $field, '',
+                    ['size' => 4, 'class' => 'nextblocks-limit-input']
+                );
+                $group[] = $text_element;
+
+                $mform->addGroup($group, $field.'_group', $label, ' ', false);
                 $mform->setType($field, PARAM_INT);
-                $mform->setDefault($field, 10);
+
+                $mform->setDefault($infinite_field, 1);  // Checkbox on by default
+                $mform->setDefault($field, 0);          // Default value 0 (hidden initially)
             }
             $mform->addElement('html', '</details>');
         }
@@ -283,14 +295,69 @@ class mod_nextblocks_mod_form extends moodleform_mod {
                     if (!empty($def['type'])) {
                         $label = !empty($def['message0']) ? $def['message0'] : $def['type'];
                         $field = 'limit_' . $def['type'];
-                        $mform->addElement('text', $field, $label, ['size' => 4]);
+                        $infinite_field = 'infinite_' . $def['type'];
+
+                        $group = [];
+                        $group[] = $mform->createElement('checkbox', $infinite_field, '', get_string('infinite', 'mod_nextblocks'));
+
+                        $text_element = $mform->createElement('text', $field, '',
+                            ['size' => 4, 'class' => 'nextblocks-limit-input']
+                        );
+                        $group[] = $text_element;
+
+                        $mform->addGroup($group, $field.'_group', $label, ' ', false);
                         $mform->setType($field, PARAM_INT);
+
+                        $mform->setDefault($infinite_field, 1);
                         $mform->setDefault($field, 0);
                     }
                 }
                 $mform->addElement('html', '</details>');
             }
         }
+
+        $mform->addElement('html', '
+        <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            function updateLimitVisibility() {
+                document.querySelectorAll("input[type=\"checkbox\"][name^=\"infinite_\"]").forEach(checkbox => {
+                    const fieldName = checkbox.name.replace("infinite_", "limit_");
+                    const textInput = document.querySelector(`input[name="${fieldName}"]`);
+                    
+                    if (textInput) {
+                        textInput.style.display = checkbox.checked ? "none" : "inline-block";
+                    }
+                });
+            }
+            
+            updateLimitVisibility();
+            
+            document.querySelectorAll("input[type=\"checkbox\"][name^=\"infinite_\"]").forEach(checkbox => {
+                checkbox.addEventListener("change", updateLimitVisibility);
+            });
+            
+            document.querySelectorAll("details").forEach(details => {
+                details.addEventListener("toggle", updateLimitVisibility);
+            });
+            
+            const form = document.querySelector("form.mform");
+            if (form) {
+                form.addEventListener("submit", function() {
+                    document.querySelectorAll("input[name^=\"limit_\"]").forEach(input => {
+                        input.style.display = "inline-block";
+                    });
+                });
+            }
+        });
+        </script>
+        ');
+
+        $mform->addElement('html', '<style>
+        input[name^="limit_"] {
+            display: inline-block; 
+            width: 50px; 
+        }
+        </style>');
 
         // ...<<------------------------------------------ Submissions tab ------------------------------------------>>//
 

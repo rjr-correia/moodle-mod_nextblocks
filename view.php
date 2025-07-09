@@ -155,11 +155,12 @@ if ($record) {
     $remainingsubmissions = $moduleinstance->maxsubmissions;
 }
 
-$limits = $DB->get_records_menu(
-    'nextblocks_blocklimit',
-    ['nextblocksid' => $instanceid],
-    '',
-    'blocktype,blocklimit'
+$limits = $DB->get_records_sql_menu(
+    "SELECT blocktype, blocklimit
+     FROM {nextblocks_blocklimit}
+     WHERE nextblocksid = :instanceid
+     AND blocklimit != -1",  // Exclude infinite limits
+    ['instanceid' => $instanceid]
 );
 
 $reactions = [intval($moduleinstance->reactionseasy), intval($moduleinstance->reactionsmedium), 

@@ -138,6 +138,7 @@ $string['timestamp'] = 'Timestamp';
 $string['firstname'] = 'First Name';
 $string['lastname'] = 'Last Name';
 $string['sucessstatus'] = 'Success status';
+$string['infinite'] = 'Infinite';
 
 // Privacy
 $string['privacy:metadata:nextblocks_userdata'] = 'Stores user Blockly workspaces';
