@@ -279,9 +279,36 @@ function nextblocks_convert_tests_file_to_json(int $id) {
     );
     $filestring = $file->get_content();
 
+    // Update txt file to match current context id.
+
+    $new_txt_fileinfo = [
+        'contextid' => $PAGE->context->id,
+        'component' => 'mod_nextblocks',
+        'filearea' => 'attachment_txt',
+        'itemid' => $id,
+        'filepath' => '/',
+        'filename' => $rec->filename,
+    ];
+
+    $existing_file = $fs->get_file(
+        $new_txt_fileinfo['contextid'],
+        $new_txt_fileinfo['component'],
+        $new_txt_fileinfo['filearea'],
+        $new_txt_fileinfo['itemid'],
+        $new_txt_fileinfo['filepath'],
+        $new_txt_fileinfo['filename']
+    );
+
+    if ($existing_file) {
+        $existing_file->delete();
+    }
+
+    $new_txt_file = $fs->create_file_from_string($new_txt_fileinfo, $filestring);
+
+    // Create json file.
+
     $json = nextblocks_parse_tests_file($filestring);
     $newfile = $fs->create_file_from_string($fileinfo, json_encode($json));
-
     $file->replace_file_with($newfile);
 
     $file->delete();
@@ -502,6 +529,16 @@ function nextblocks_update_instance(object $moduleinstance, ?mod_nextblocks_mod_
             }
         }
     }
+
+    // ...--------------------------------Update tests file--------------------------.
+
+    nextblocks_save_tests_file($moduleinstance, $moduleinstance->instance);
+
+    // ...--------------------------------Update custom blocks-----------------------.
+
+    $fromform = $mform->get_data();
+
+    nextblocks_save_custom_blocks($fromform, $moduleinstance->id);
 
     return $DB->update_record('nextblocks', $moduleinstance);
 }

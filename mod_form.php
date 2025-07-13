@@ -87,12 +87,12 @@ class mod_nextblocks_mod_form extends moodleform_mod {
                 'subdirs' => 0,
                 'areamaxbytes' => 10485760,
                 'maxfiles' => 1,
-                'accepted_types' => ['txt'],
+                'accepted_types' => ['.txt'],
                 'return_types' => FILE_INTERNAL | FILE_EXTERNAL,
             ]
         );
         $mform->addHelpButton('attachments', 'testsfile', 'mod_nextblocks');
-        $mform->setType('testsfile', PARAM_FILE);
+        $mform->setType('attachments', PARAM_INT);
 
         // ...<<------------------------------------------ Custom Blocks tab ------------------------------------------>>//
 
@@ -121,11 +121,11 @@ class mod_nextblocks_mod_form extends moodleform_mod {
         $mform->addElement('html', get_string('customblockstext', 'mod_nextblocks'));
 
         $repeatarray = [
-            $mform->createElement('textarea', 'definition', get_string('blockdefinition', 'mod_nextblocks'), 
+            $mform->createElement('textarea', 'definition', get_string('blockdefinition', 'mod_nextblocks'),
                 'wrap="virtual" rows="8" cols="80"'),
-            $mform->createElement('textarea', 'generator', get_string('blockgenerator', 'mod_nextblocks'), 
+            $mform->createElement('textarea', 'generator', get_string('blockgenerator', 'mod_nextblocks'),
                 'wrap="virtual" rows="8" cols="80"'),
-            $mform->createElement('textarea', 'pythongenerator', get_string('blockpythongenerator', 'mod_nextblocks'), 
+            $mform->createElement('textarea', 'pythongenerator', get_string('blockpythongenerator', 'mod_nextblocks'),
                 'wrap="virtual" rows="8" cols="80"'),
             $mform->createElement('hidden', 'optionid', 0),
             $mform->createElement('submit', 'delete', get_string('deletestr', 'mod_nextblocks'), [], false),
@@ -252,6 +252,13 @@ class mod_nextblocks_mod_form extends moodleform_mod {
             ],
         ];
 
+        // Get previously created limits if the exercise was already created and is being edited.
+        $existing_limits = [];
+        $limits = $DB->get_records('nextblocks_blocklimit', ['nextblocksid' => $this->current->instance]);
+        foreach ($limits as $limit) {
+            $existing_limits[$limit->blocktype] = $limit->blocklimit;
+        }
+
         foreach ($builtincategories as $catname => $blocks) {
             $mform->addElement('html',
                 '<details style="margin-top:1em;"><summary><strong>'
@@ -274,8 +281,13 @@ class mod_nextblocks_mod_form extends moodleform_mod {
                 $mform->addGroup($group, $field.'_group', $label, ' ', false);
                 $mform->setType($field, PARAM_INT);
 
-                $mform->setDefault($infinite_field, 1);  // Checkbox on by default
-                $mform->setDefault($field, 0);          // Default value 0 (hidden initially)
+                if (array_key_exists($type, $existing_limits)) {
+                    $mform->setDefault($infinite_field, 0);
+                    $mform->setDefault($field, $existing_limits[$type]);
+                } else {
+                    $mform->setDefault($infinite_field, 1); // Default: checked
+                    $mform->setDefault($field, 0);
+                }
             }
             $mform->addElement('html', '</details>');
         }
@@ -308,8 +320,13 @@ class mod_nextblocks_mod_form extends moodleform_mod {
                         $mform->addGroup($group, $field.'_group', $label, ' ', false);
                         $mform->setType($field, PARAM_INT);
 
-                        $mform->setDefault($infinite_field, 1);
-                        $mform->setDefault($field, 0);
+                        if (array_key_exists($def['type'], $existing_limits)) {
+                            $mform->setDefault($infinite_field, 0);
+                            $mform->setDefault($field, $existing_limits[$def['type']]);
+                        } else {
+                            $mform->setDefault($infinite_field, 1); // Default: checked
+                            $mform->setDefault($field, 0);
+                        }
                     }
                 }
                 $mform->addElement('html', '</details>');
@@ -381,6 +398,29 @@ class mod_nextblocks_mod_form extends moodleform_mod {
 
         // Add standard buttons.
         $this->add_action_buttons();
+    }
+
+    public function data_preprocessing(&$defaultvalues) {
+        if ($this->current && $this->current->instance) {
+            $context = context_module::instance($this->_cm->id);
+            $draftitemid = file_get_submitted_draft_itemid('attachments');
+
+            file_prepare_draft_area(
+                $draftitemid,
+                $context->id,
+                'mod_nextblocks',
+                'attachment_txt',
+                $this->current->instance,
+                [
+                    'subdirs' => 0,
+                    'maxfiles' => 1,
+                    'accepted_types' => ['.txt']
+                ]
+            );
+
+            $defaultvalues['attachments'] = $draftitemid;
+        }
+        return $defaultvalues;
     }
 
     /**
