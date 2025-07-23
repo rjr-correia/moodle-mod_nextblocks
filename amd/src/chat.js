@@ -1,125 +1,125 @@
 /**
  *
- * @module      mod_nextblocks/chat
+ * @module      mod_nextblocks/codestring
  * @copyright   2025 Rui Correia<rjr.correia@campus.fct.unl.pt>
  * @copyright   based on work by 2024 Duarte Pereira<dg.pereira@campus.fct.unl.pt>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+define(['jquery', 'core/ajax'], function($, ajax) {
+    const ChatManager = {
+        lastTimestamp: 0,
+        activityId: 0,
+        fullname: '',
 
-define([], function() {
-    return {
-        /**
-         *
-         * @param {string} userName username of the user
-         * @param {number} activityId id of the activity
-         * @param {function(string, string, number, number): void} saveMessage function to save the message in the database
-         * @param {string} serverUrl url of the chat server to connect to
-         * */
-        run: function(userName, activityId, saveMessage, serverUrl = 'ws://localhost:8060') {
-            const socket = new WebSocket(serverUrl);
-            socket.addEventListener("open", () => chatSetup(socket, userName, activityId, saveMessage));
-            socket.addEventListener("message", (event) => appendMessage(event.data, activityId));
-            // Socket.addEventListener("close", () => socketError(activityId, "Connection closed by server"));
-            // socket.addEventListener("error", () => socketError(activityId));
+        init: function(activityId, username) {
+            this.activityId = activityId;
+            this.fullname = username;
+            this.setupEventListeners();
+            this.loadInitialMessages();
+            this.startPolling();
         },
 
-        /**
-         * Populates the chat box with the last 100 messages from the database
-         * @param {function(number, number): Promise} getMessages function to fetch the messages from the database
-         * @param {number} activityId id of the activity
-         */
-        populate: function(getMessages, activityId) {
-            // Get last 100 messages from database
-            const messagesPromise = getMessages(100, activityId);
-
-            messagesPromise.then((messages) => {
-                // Add messages to chat box
-                messages.forEach((dbMessage) => {
-                    const message = {type: "dbMessage", sender: dbMessage.username, text: dbMessage.message, activity: activityId,
-                        timestamp: dbMessage.timestamp};
-                    appendMessage(message, activityId, true);
-                });
-                return;
+        setupEventListeners: function() {
+            $('.msg-form').submit((e) => {
+                e.preventDefault();
+                const message = $('#msg').val().trim();
+                if (message) {
+                    this.sendMessage(message);
+                    $('#msg').val('');
+                }
+                return false;
             });
         },
+
+        loadInitialMessages: function() {
+            ajax.call([{
+                methodname: 'mod_nextblocks_get_messages',
+                args: {
+                    messagecount: 50,
+                    nextblocksid: this.activityId
+                },
+                done: (messages) => {
+                    this.processMessages(messages);
+                    $('#messages').scrollTop($('#messages')[0].scrollHeight);
+                }
+            }]);
+        },
+
+        sendMessage: function(message) {
+            const timestamp = Math.floor(Date.now() / 1000);
+            ajax.call([{
+                methodname: 'mod_nextblocks_save_message',
+                args: {
+                    message: message,
+                    username: this.fullname,
+                    nextblocksid: this.activityId,
+                    timestamp: timestamp
+                },
+                done: () => {
+                    this.displayMessage({
+                        message: message,
+                        username: this.fullname,
+                        timestamp: timestamp
+                    });
+
+                    // Scroll to bottom.
+                    $('#messages').scrollTop($('#messages')[0].scrollHeight);
+                }
+            }]);
+        },
+
+        startPolling: function() {
+            setInterval(() => {
+                ajax.call([{
+                    methodname: 'mod_nextblocks_get_messages',
+                    args: {
+                        messagecount: 50,
+                        nextblocksid: this.activityId
+                    },
+                    done: this.processMessages.bind(this)
+                }]);
+            }, 3000);
+        },
+
+        processMessages: function(messages) {
+            messages.forEach(msg => {
+                if (msg.timestamp > this.lastTimestamp) {
+                    this.displayMessage(msg);
+                }
+            });
+
+            if (messages.length > 0) {
+                $('#messages').scrollTop($('#messages')[0].scrollHeight);
+            }
+        },
+
+        displayMessage: function(msg) {
+            this.lastTimestamp = Math.max(this.lastTimestamp, msg.timestamp);
+            const date = new Date(msg.timestamp * 1000);
+            const timeString = date.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const dateString = `${day}/${month}/${year}`;
+
+            $('#messages').append(`
+                <div class="message">
+                    <div class="message-header">
+                        <span class="user">${msg.username}</span>
+                        <span class="time">${timeString} ${dateString}</span>
+                    </div>
+                    <div class="message-text">${msg.message}</div>
+                </div>
+            `);
+        }
+    };
+
+    return {
+        init: ChatManager.init.bind(ChatManager)
     };
 });
-
-// eslint-disable-next-line no-unused-vars
-const socketError = function(activityId, errorMessage = "Connection error") {
-    const errorJSON = {type: "error", sender: "System", text: errorMessage, activity: activityId, timestamp: Date.now()};
-    appendMessage(errorJSON, activityId, true);
-};
-
-/**
- * Adds a message to the chat box
- * @param {string | {type: string, sender: string, text: string, activity: number, timestamp: number}} message message to append
- * @param {number} activityId id of the activity. If the message is not for this activity, it is not appended
- * @param {boolean} isParsed true if the message is already in JSON format, false otherwise
- * @throws {Error} if the message is not in a valid JSON format
- */
-const appendMessage = function(message, activityId, isParsed = false) {
-    if (!isParsed) {
-        message = parseMessage(message);
-    }
-    if (activityId === message.activity) {
-        const chatDiv = document.getElementById('messages');
-        const timestampDate = new Date(message.timestamp);
-        chatDiv.innerHTML +=
-            `<p>(${String(timestampDate.getHours()).padStart(2, '0')}:${String(timestampDate.getMinutes()).padStart(2, '0')})
-            ${message.sender}: ${message.text}</p>`;
-    }
-};
-
-/**
- * Parses a message from a string to a JSON object
- * @param {string} message string to be parsed
- * @returns {{type: string, sender: string, text: string, activity: number, timestamp: number}}
- * @throws {Error} if the message is not in a valid JSON format
- */
-const parseMessage = function(message) {
-    let msg;
-    try {
-        msg = JSON.parse(message);
-    } catch (e) {
-        throw new Error("Invalid message format");
-    }
-    return msg;
-};
-
-/**
- * Sets up the listener for sending messages. Also stores the message in the database, using the saveMessage function.
- * @param {WebSocket} socket websocket object to send and receive messages
- * @param {string} userName username of the user
- * @param {number} activityId id of the activity
- * @param {function(string, string, number, number): void} saveMessage function to save the message in the database
- */
-const chatSetup = function(socket, userName, activityId, saveMessage) {
-    const msgForm = document.querySelector('form.msg-form');
-
-    const msgFormSubmit = (event) => {
-        event.preventDefault();
-
-        const msgField = document.getElementById('msg');
-        const msgText = msgField.value;
-        const timestamp = Date.now();
-
-        // Store message in database. Ajax is asynchronous, so it might be faster to execute this before sending the message
-        saveMessage(msgText, userName, activityId, timestamp);
-
-        // Prepare and send message to websocket
-        let msg = {
-            type: "normal",
-            sender: userName,
-            text: msgText,
-            activity: activityId,
-            timestamp: timestamp
-        };
-        msg = JSON.stringify(msg);
-        socket.send(msg);
-
-        msgField.value = ''; // Clear message field in the form
-    };
-
-    msgForm.addEventListener('submit', (event) => msgFormSubmit(event, socket));
-};

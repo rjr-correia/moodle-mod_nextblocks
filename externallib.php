@@ -378,7 +378,7 @@ class mod_nextblocks_external extends external_api {
         require_capability('mod/nextblocks:view', $context);
 
         $params = self::validate_parameters(self::save_message_parameters(),
-            ['message' => $message, 'userName' => $username, 'nextblocksId' => $nextblocksid, 'timestamp' => $timestamp]);
+            ['message' => $message, 'username' => $username, 'nextblocksid' => $nextblocksid, 'timestamp' => $timestamp]);
         $DB->insert_record('nextblocks_messages', ['message' => $message, 'username' => $username, 
             'nextblocksid' => $nextblocksid, 'timestamp' => $timestamp]);
     }
@@ -390,8 +390,8 @@ class mod_nextblocks_external extends external_api {
         return new external_function_parameters(
             [
                 'message' => new external_value(PARAM_TEXT, 'message sent'),
-                'userName' => new external_value(PARAM_TEXT, 'name of the user who sent the message'),
-                'nextblocksId' => new external_value(PARAM_INT, 'id of the activity where the message was sent'),
+                'username' => new external_value(PARAM_TEXT, 'name of the user who sent the message'),
+                'nextblocksid' => new external_value(PARAM_INT, 'id of the activity where the message was sent'),
                 'timestamp' => new external_value(PARAM_INT, 'when the message was sent (UNIX time)'),
             ]
         );
@@ -420,7 +420,7 @@ class mod_nextblocks_external extends external_api {
         require_capability('mod/nextblocks:view', $context);
 
         $params = self::validate_parameters(self::get_messages_parameters(),
-            ['messageCount' => $messagecount, 'nextblocksId' => $nextblocksid]);
+            ['messagecount' => $messagecount, 'nextblocksid' => $nextblocksid]);
         $messages = $DB->get_records('nextblocks_messages', ['nextblocksid' => $nextblocksid], 
             'timestamp ASC', '*', 0, $messagecount);
         $messagesarray = [];
@@ -441,8 +441,8 @@ class mod_nextblocks_external extends external_api {
     public static function get_messages_parameters() {
         return new external_function_parameters(
             [
-                'messageCount' => new external_value(PARAM_INT, 'number of messages to get'),
-                'nextblocksId' => new external_value(PARAM_INT, 'id of the activity where the messages were sent'),
+                'messagecount' => new external_value(PARAM_INT, 'number of messages to get'),
+                'nextblocksid' => new external_value(PARAM_INT, 'id of the activity where the messages were sent'),
             ]
         );
     }
