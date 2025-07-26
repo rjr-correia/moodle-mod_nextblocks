@@ -258,60 +258,40 @@ function nextblocks_convert_tests_file_to_json(int $id) {
     WHERE component = :component
       AND filearea = :filearea
       AND itemid = :itemid
-      AND filename != '.'",
+      AND filename = :filename",
         [
             'component' => 'mod_nextblocks',
-            'filearea' => 'attachment',
+            'filearea' => 'attachment_txt',
             'itemid' => $id,
             'filename' => 'nextblockstests'.$id.'.txt',
         ]
     );
+
+    if(empty($records)){
+        return;
+    }
 
     $rec = reset($records);
 
     $file = $fs->get_file(
         $rec->contextid,
         'mod_nextblocks',
-        'attachment',
+        'attachment_txt',
         $id,
         $rec->filepath,
         $rec->filename
     );
-    $filestring = $file->get_content();
+    //Ignore the first line since its always the old context id.
+    $filestring = preg_replace('/^.*?\R/', '', $file->get_content(), 1);
 
-    // Update txt file to match current context id.
-
-    $new_txt_fileinfo = [
-        'contextid' => $PAGE->context->id,
-        'component' => 'mod_nextblocks',
-        'filearea' => 'attachment_txt',
-        'itemid' => $id,
-        'filepath' => '/',
-        'filename' => $rec->filename,
-    ];
-
-    $existing_file = $fs->get_file(
-        $new_txt_fileinfo['contextid'],
-        $new_txt_fileinfo['component'],
-        $new_txt_fileinfo['filearea'],
-        $new_txt_fileinfo['itemid'],
-        $new_txt_fileinfo['filepath'],
-        $new_txt_fileinfo['filename']
-    );
-
-    if ($existing_file) {
-        $existing_file->delete();
+    // If it only had the contextid then there are no tests, no need to create json.
+    if(empty($filestring)){
+        return;
     }
 
-    $new_txt_file = $fs->create_file_from_string($new_txt_fileinfo, $filestring);
-
     // Create json file.
-
     $json = nextblocks_parse_tests_file($filestring);
-    $newfile = $fs->create_file_from_string($fileinfo, json_encode($json));
-    $file->replace_file_with($newfile);
-
-    $file->delete();
+    $fs->create_file_from_string($fileinfo, json_encode($json));
 }
 
 /**
@@ -375,54 +355,142 @@ function nextblocks_get_filenamehash(int $id) {
  * @param int $id file id
  */
 function nextblocks_save_tests_file(object $fromform, int $id) {
-    // Save the tests file with File API.
-    // Will need a check for whether the exercise creator selected the file option or not.
-    global $PAGE;
+    global $DB, $PAGE, $USER;
 
-    file_save_draft_area_files(
-        // The $fromform->attachments property contains the itemid of the draft file area.
-        $fromform->attachments,
+    $context = $PAGE->context;
+    $usercontext = context_user::instance($USER->id);
 
-        // The combination of contextid / component / filearea / itemid
-        // form the virtual bucket that file are stored in.
-        $PAGE->context->id,
-        'mod_nextblocks',
-        'attachment',
-        $id,
+    $fs = get_file_storage();
+
+    $records = $DB->get_records_sql("
+            SELECT *
+            FROM {files}
+            WHERE component = :component
+              AND filearea = :filearea
+              AND itemid = :itemid
+              AND filename = :filename",
         [
-            'subdirs' => 0,
-            'maxfiles' => 1,
+            'component' => 'mod_nextblocks',
+            'filearea' => 'attachment_txt',
+            'itemid' => $id,
+            'filename' => 'nextblockstests'.$id.'.txt',
         ]
     );
 
-    $fs    = get_file_storage();
-    $files = $fs->get_area_files(
-        $PAGE->context->id,
-        'mod_nextblocks',
-        'attachment',
-        $id,
+    if(!empty($records)){
+        // Since there were previous files it means we are editing the exercise.
+        // Delete the previous files to update them.
+        $rec = reset($records);
+
+        $file = $fs->get_file(
+            $rec->contextid,
+            'mod_nextblocks',
+            'attachment_txt',
+            $id,
+            $rec->filepath,
+            $rec->filename
+        );
+
+        $oldcontextid = (int)strtok($file->get_content(), "\n");
+
+        $fs->delete_area_files($oldcontextid, 'mod_nextblocks', 'testfiles', $id);
+        $fs->delete_area_files($context->id, 'mod_nextblocks', 'attachment', $id);
+        $fs->delete_area_files($oldcontextid, 'mod_nextblocks', 'attachment_txt', $id);
+    }
+    else{
+        // If there isnt a previous iteration then both contextids can be the same
+        $oldcontextid = $context->id;
+    }
+
+    $draftfiles = $fs->get_area_files(
+        $usercontext->id,
+        'user',
+        'draft',
+        $fromform->attachments,
         'id',
         false
     );
-    if (empty($files)) {
-        return;
+
+    $testMap = [];
+
+    foreach ($draftfiles as $file) {
+        $filename = $file->get_filename();
+
+        // Skip non-text files
+        if (strtolower(pathinfo($filename, PATHINFO_EXTENSION)) !== 'txt') {
+            continue;
+        }
+
+        $fs->create_file_from_storedfile([
+            'contextid' => $oldcontextid,
+            'component' => 'mod_nextblocks',
+            'filearea'  => 'testfiles',
+            'itemid'    => $id,
+            'filepath'  => '/'
+        ], $file);
+
+        if (preg_match('/^input(\d+)\.txt$/i', $filename, $matches)) {
+            $num = (int)$matches[1];
+            $testMap[$num]['input'] = $filename;
+        }
+        elseif (preg_match('/^output(\d+)\.txt$/i', $filename, $matches)) {
+            $num = (int)$matches[1];
+            $testMap[$num]['output'] = $filename;
+        }
     }
-    $file = reset($files);
 
-    $content = $file->get_content();
+    ksort($testMap, SORT_NUMERIC);
 
-    $fileinfo = [
-        'contextid' => $PAGE->context->id,
-        'component' => 'mod_nextblocks',
-        'filearea'  => 'attachment',
-        'itemid'    => $id,
-        'filepath'  => '/',
-        'filename'  => 'nextblockstests'.$id.'.txt',
-    ];
+    // Add the contextid as the header of the file, as it might be needed later to find the original test files
+    $combinedContent = "{$oldcontextid}\n";
 
-    $fs->create_file_from_string($fileinfo, $content);
+    foreach ($testMap as $num => $filenames) {
+        if (empty($filenames['input']) || empty($filenames['output'])) {
+            continue;
+        }
 
-    $file->delete();
+        $inputFile = $fs->get_file(
+            $oldcontextid,
+            'mod_nextblocks',
+            'testfiles',
+            $id,
+            '/',
+            $filenames['input']
+        );
+
+        $outputFile = $fs->get_file(
+            $oldcontextid,
+            'mod_nextblocks',
+            'testfiles',
+            $id,
+            '/',
+            $filenames['output']
+        );
+
+        if (!$inputFile || !$outputFile) {
+            continue;
+        }
+
+        $inputContent = $inputFile->get_content();
+        $outputContent = $outputFile->get_content();
+
+        $combinedContent .= "|\n" .
+            rtrim($inputContent) . "\n-\n" .
+            rtrim($outputContent) . "\n";
+    }
+
+    if (!empty($combinedContent)) {
+        $fs->create_file_from_string([
+            'contextid' => $oldcontextid,
+            'component' => 'mod_nextblocks',
+            'filearea'  => 'attachment_txt',
+            'itemid'    => $id,
+            'filepath'  => '/',
+            'filename'  => "nextblockstests{$id}.txt"
+        ], $combinedContent);
+    }
+
+    $fs->delete_area_files($usercontext->id, 'user', 'draft', $fromform->attachments);
 }
 
 /**

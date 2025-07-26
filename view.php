@@ -92,31 +92,7 @@ $existingjson = $fs->get_file(
 );
 
 if (!$existingjson) {
-    $files = $DB->get_records_sql("
-    SELECT *
-    FROM {files}
-    WHERE component = :component
-      AND filearea = :filearea
-      AND itemid = :itemid
-      AND filename != '.'",
-        [
-            'component' => 'mod_nextblocks',
-            'filearea' => 'attachment',
-            'itemid' => $instanceid,
-        ]
-    );
-    $itemid = 0;
-    $txtfilefound = false;
-    foreach ($files as $file) {
-        if ($file->filename === 'nextblockstests'.$instanceid.'.txt') {
-            $itemid = $file->itemid;
-            $txtfilefound = true;
-            break;
-        }
-    }
-    if ($txtfilefound) {
-        nextblocks_convert_tests_file_to_json($itemid);
-    }
+    nextblocks_convert_tests_file_to_json($instanceid);
 }
 
 // The contextid might not be accurate, so we search based on instanceid instead.

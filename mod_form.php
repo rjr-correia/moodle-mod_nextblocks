@@ -86,7 +86,7 @@ class mod_nextblocks_mod_form extends moodleform_mod {
             [
                 'subdirs' => 0,
                 'areamaxbytes' => 10485760,
-                'maxfiles' => 1,
+                'maxfiles' => -1,
                 'accepted_types' => ['.txt'],
                 'return_types' => FILE_INTERNAL | FILE_EXTERNAL,
             ]
@@ -401,24 +401,62 @@ class mod_nextblocks_mod_form extends moodleform_mod {
     }
 
     public function data_preprocessing(&$defaultvalues) {
+        global $DB;
+
+        if (isset($defaultvalues['maxsubmissions'])) {
+            $defaultvalues['multiplesubmissions'] = ($defaultvalues['maxsubmissions'] != 1) ? 1 : 0;
+        }
+
+        $fs = get_file_storage();
+
         if ($this->current && $this->current->instance) {
-            $context = context_module::instance($this->_cm->id);
+
+            $id = $this->current->instance;
+            $records = $DB->get_records_sql("
+            SELECT *
+            FROM {files}
+            WHERE component = :component
+              AND filearea = :filearea
+              AND itemid = :itemid
+              AND filename = :filename",
+                [
+                    'component' => 'mod_nextblocks',
+                    'filearea' => 'attachment_txt',
+                    'itemid' => $id,
+                    'filename' => 'nextblockstests'.$id.'.txt',
+                ]
+            );
+
+            if(empty($records)){
+                return;
+            }
+
+            $rec = reset($records);
+
+            $file = $fs->get_file(
+                $rec->contextid,
+                'mod_nextblocks',
+                'attachment_txt',
+                $id,
+                $rec->filepath,
+                $rec->filename
+            );
+
+            $oldcontextid = (int)strtok($file->get_content(), "\n");
+
             $draftitemid = file_get_submitted_draft_itemid('attachments');
 
             file_prepare_draft_area(
                 $draftitemid,
-                $context->id,
+                $oldcontextid,
                 'mod_nextblocks',
-                'attachment_txt',
-                $this->current->instance,
-                [
-                    'subdirs' => 0,
-                    'maxfiles' => 1,
-                    'accepted_types' => ['.txt']
-                ]
+                'testfiles',  // Source area
+                $id,
+                ['subdirs' => 0, 'maxfiles' => -1]
             );
 
             $defaultvalues['attachments'] = $draftitemid;
+
         }
         return $defaultvalues;
     }
@@ -449,5 +487,19 @@ class mod_nextblocks_mod_form extends moodleform_mod {
         }
 
         return $errors;
+    }
+
+    /**
+     * Overrides original function to make sure that if the "multiple submissions" checkbox is unchecked then maxsubmissions is 1
+     * @return mixed
+     */
+    public function get_data() {
+        $data = parent::get_data();
+        if ($data) {
+            if (empty($data->multiplesubmissions)) {
+                $data->maxsubmissions = 1;
+            }
+        }
+        return $data;
     }
 }
