@@ -113,7 +113,7 @@ $loggedinusername = $USER->firstname . ' ' . $USER->lastname;
 
 $PAGE->requires->js_call_amd('mod_nextblocks/codeenv', 'init', [$testsfilecontents, $savedworkspace, $customblocksjson, 1, 
     $reactions, $lastuserreaction, $reporttype, $loggedinusername, $id, $limits]);
-$PAGE->requires->js_call_amd('mod_nextblocks/chat', 'init', [$id, $loggedinusername]);
+$PAGE->requires->js_call_amd('mod_nextblocks/chat', 'init', [$id, $instanceid, $loggedinusername]);
 
 $PAGE->set_url('/mod/nextblocks/report.php', ['id' => $cm->id]);
 $PAGE->set_title(get_string("report", "nextblocks") . format_string($moduleinstance->name));

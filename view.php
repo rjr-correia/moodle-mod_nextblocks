@@ -147,7 +147,7 @@ $user = $DB->get_record('user', ['id' => $USER->id]);
 $username = $user->firstname . ' ' . $user->lastname;
 $PAGE->requires->js_call_amd('mod_nextblocks/codeenv', 'init', [$testsfilecontents, $savedworkspace, $customblocksjson,
     $remainingsubmissions, $reactions, $lastuserreaction, 0, $username, $cmid, $limits]);
-$PAGE->requires->js_call_amd('mod_nextblocks/chat', 'init', [$cmid, $username]);
+$PAGE->requires->js_call_amd('mod_nextblocks/chat', 'init', [$cmid, $instanceid, $username]);
 
 $PAGE->set_url('/mod/nextblocks/view.php', ['id' => $cm->id]);
 $PAGE->set_title(format_string($moduleinstance->name));

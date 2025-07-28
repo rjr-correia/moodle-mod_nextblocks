@@ -365,20 +365,21 @@ class mod_nextblocks_external extends external_api {
      * Saves a message sent by a user in the database
      * 
      * @param $message string 
-     * @param $username string 
-     * @param $nextblocksid int activity id
+     * @param $username string
+     * @param $nextblocksid int
+     * @param $cmid int
      * @param $timestamp int
      */
-    public static function save_message($message, $username, $nextblocksid, $timestamp) {
+    public static function save_message($message, $username, $nextblocksid, $cmid, $timestamp) {
         global $DB;
 
-        $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('nextblocks', $cmid, 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         self::validate_context($context);
         require_capability('mod/nextblocks:view', $context);
 
         $params = self::validate_parameters(self::save_message_parameters(),
-            ['message' => $message, 'username' => $username, 'nextblocksid' => $nextblocksid, 'timestamp' => $timestamp]);
+            ['message' => $message, 'username' => $username, 'nextblocksid' => $nextblocksid, 'cmid' => $cmid, 'timestamp' => $timestamp]);
         $DB->insert_record('nextblocks_messages', ['message' => $message, 'username' => $username, 
             'nextblocksid' => $nextblocksid, 'timestamp' => $timestamp]);
     }
@@ -392,6 +393,7 @@ class mod_nextblocks_external extends external_api {
                 'message' => new external_value(PARAM_TEXT, 'message sent'),
                 'username' => new external_value(PARAM_TEXT, 'name of the user who sent the message'),
                 'nextblocksid' => new external_value(PARAM_INT, 'id of the activity where the message was sent'),
+                'cmid' => new external_value(PARAM_INT, 'context module id'),
                 'timestamp' => new external_value(PARAM_INT, 'when the message was sent (UNIX time)'),
             ]
         );
@@ -409,19 +411,20 @@ class mod_nextblocks_external extends external_api {
      * 
      * @param $messagecount int number of messages to get
      * @param $nextblocksid int activity id
+     * @param $cmid int context module id
      * @return array list of messages
      */
-    public static function get_messages($messagecount, $nextblocksid) {
+    public static function get_messages($messagecount, $nextblocksid, $cmid) {
         global $DB;
 
-        $cm = get_coursemodule_from_id('nextblocks', $nextblocksid, 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('nextblocks', $cmid, 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         self::validate_context($context);
         require_capability('mod/nextblocks:view', $context);
 
         $params = self::validate_parameters(self::get_messages_parameters(),
-            ['messagecount' => $messagecount, 'nextblocksid' => $nextblocksid]);
-        $messages = $DB->get_records('nextblocks_messages', ['nextblocksid' => $nextblocksid], 
+            ['messagecount' => $messagecount, 'nextblocksid' => $nextblocksid, 'cmid' => $cmid]);
+        $messages = $DB->get_records('nextblocks_messages', ['nextblocksid' => $nextblocksid],
             'timestamp ASC', '*', 0, $messagecount);
         $messagesarray = [];
         foreach ($messages as $message) {
@@ -443,6 +446,7 @@ class mod_nextblocks_external extends external_api {
             [
                 'messagecount' => new external_value(PARAM_INT, 'number of messages to get'),
                 'nextblocksid' => new external_value(PARAM_INT, 'id of the activity where the messages were sent'),
+                'cmid' => new external_value(PARAM_INT, 'context module id'),
             ]
         );
     }

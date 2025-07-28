@@ -8,11 +8,13 @@
 define(['jquery', 'core/ajax'], function($, ajax) {
     const ChatManager = {
         lastTimestamp: 0,
-        activityId: 0,
+        cmid: 0,
+        instanceid: 0,
         fullname: '',
 
-        init: function(activityId, username) {
-            this.activityId = activityId;
+        init: function(cmid, instanceid, username) {
+            this.cmid = cmid;
+            this.instanceid = instanceid;
             this.fullname = username;
             this.setupEventListeners();
             this.loadInitialMessages();
@@ -36,7 +38,8 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                 methodname: 'mod_nextblocks_get_messages',
                 args: {
                     messagecount: 50,
-                    nextblocksid: this.activityId
+                    nextblocksid: this.instanceid,
+                    cmid: this.cmid
                 },
                 done: (messages) => {
                     this.processMessages(messages);
@@ -52,7 +55,8 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                 args: {
                     message: message,
                     username: this.fullname,
-                    nextblocksid: this.activityId,
+                    nextblocksid: this.instanceid,
+                    cmid: this.cmid,
                     timestamp: timestamp
                 },
                 done: () => {
@@ -74,7 +78,8 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                     methodname: 'mod_nextblocks_get_messages',
                     args: {
                         messagecount: 50,
-                        nextblocksid: this.activityId
+                        nextblocksid: this.instanceid,
+                        cmid: this.cmid
                     },
                     done: this.processMessages.bind(this)
                 }]);
