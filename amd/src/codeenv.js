@@ -219,14 +219,6 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                             'kind': 'block',
                             'type': 'text_reverse',
                         },
-                        {
-                            'kind': 'block',
-                            'type': 'text_print',
-                        },
-                        {
-                            'kind': 'block',
-                            'type': 'text_ask',
-                        },
                     ],
                 },
                 {
@@ -281,6 +273,24 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                             'kind': 'block',
                             'type': 'lists_reverse',
                         }
+                    ],
+                },
+                {
+                    'kind': 'category',
+                    'name': 'Input/Output',
+                    'colour': '4682B4',
+                    "cssConfig": {
+                        'icon': 'customIcon fa-solid fa-terminal',
+                    },
+                    'contents': [
+                        {
+                            'kind': 'block',
+                            'type': 'text_print',
+                        },
+                        {
+                            'kind': 'block',
+                            'type': 'text_ask',
+                        },
                     ],
                 },
                 {
@@ -819,8 +829,9 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
      * Opens the comments from a specific block
      * @param {object} block the block with the comments
      * @param {Number} cmid context module id
+     * @param {Number} reportType 0 if student, 1 if teacher
      */
-    function openCommentDialog(block, cmid) {
+    function openCommentDialog(block, cmid, reportType) {
         if (currentDialog) {
             currentDialog.remove();
             currentDialog = null;
@@ -855,6 +866,11 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         currentDialog.appendChild(closeBtn);
 
         document.body.appendChild(currentDialog);
+
+        // Shift down by 100px in teacher view.
+        if (reportType == 1) {
+            currentDialog.style.top = '1000px';
+        }
 
         currentDialog.querySelector('.add-comment-btn').addEventListener('click', () => {
             saveComment(cmid);
@@ -1140,7 +1156,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
 
                 const block = nextblocksWorkspace.getBlockById(blockId);
                 if (block) {
-                    openCommentDialog(block, getCMID());
+                    openCommentDialog(block, getCMID(), reportType);
                 }
             });
 

@@ -155,6 +155,7 @@ $string['category_loops']      = 'Loops';
 $string['category_math']       = 'Math';
 $string['category_text']       = 'Text';
 $string['category_lists']      = 'Lists';
+$string['category_io']         = 'Input/Output';
 $string['category_variables']  = 'Variables';
 $string['category_functions']  = 'Functions';
 

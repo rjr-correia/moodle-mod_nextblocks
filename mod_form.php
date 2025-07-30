@@ -217,8 +217,6 @@ class mod_nextblocks_mod_form extends moodleform_mod {
                 'text_count'        => get_string('text_count',         'mod_nextblocks'),
                 'text_replace'      => get_string('text_replace',       'mod_nextblocks'),
                 'text_reverse'      => get_string('text_reverse',       'mod_nextblocks'),
-                'text_print'        => get_string('text_print',         'mod_nextblocks'),
-                'text_ask'          => get_string('text_ask',           'mod_nextblocks'),
             ],
 
             // Lists
@@ -234,6 +232,12 @@ class mod_nextblocks_mod_form extends moodleform_mod {
                 'lists_split'       => get_string('lists_split',        'mod_nextblocks'),
                 'lists_sort'        => get_string('lists_sort',         'mod_nextblocks'),
                 'lists_reverse'     => get_string('lists_reverse',      'mod_nextblocks'),
+            ],
+
+            // Input/Output
+            get_string('category_io', 'mod_nextblocks') => [
+                'text_print'        => get_string('text_print',         'mod_nextblocks'),
+                'text_ask'          => get_string('text_ask',           'mod_nextblocks'),
             ],
 
             // Variables
