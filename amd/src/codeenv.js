@@ -7,8 +7,8 @@
  *  */
 
 // eslint-disable-next-line max-len
-define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat', 'core/str', 'core/ajax'],
-    function(lib, repository, chat, str, ajax) {
+define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat', 'mod_nextblocks/block_categories', 'core/str', 'core/ajax'],
+    function(lib, repository, chat, categories, str, ajax) {
 
         /* globals Blockly */
         let toolbox = {
@@ -421,8 +421,9 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
      * @param {string} inputFuncDecs
      * @param {number} lastUserReaction The type of reaction the current user last submitted
      * @param {boolean} isTeacherReport Whether the report to be displayed is a teacher report
+     * @param {{}} blockLimits block limits set by the teacher
      */
-    function setupButtons(tests, workspace, inputFuncDecs, lastUserReaction, isTeacherReport) {
+    function setupButtons(tests, workspace, inputFuncDecs, lastUserReaction, isTeacherReport, blockLimits) {
         // Listen for clicks on the run button
         const runButton = document.getElementById('runButton');
         runButton.addEventListener('click', function() {
@@ -498,6 +499,7 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
         const textCodeButton = document.getElementById('showCodeButton');
         let codeVisible = false; // Variable to track the visibility state
         let overlayDiv;
+        let limitsDiv;
 
         textCodeButton.addEventListener('click', () => {
             const blocklyArea = document.getElementById('blocklyArea');
@@ -568,6 +570,114 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
                 });
                 overlayDiv.style.display = 'block';
                 codeVisible = true;
+            }
+        });
+
+        const blockLimitsButton = document.getElementById('showBlockLimits');
+        let blockLimitsVisible = false;
+        let builtinCategories;
+
+        categories.init().then(function(categoriesList) {
+            builtinCategories = categoriesList;
+        });
+
+        blockLimitsButton.addEventListener('click', () => {
+            if (blockLimitsVisible) {
+                document.body.removeChild(limitsDiv);
+                blockLimitsVisible = false;
+            } else {
+                limitsDiv = document.createElement('div');
+                limitsDiv.style.position = 'fixed';
+                limitsDiv.style.top = '50px';
+                limitsDiv.style.left = '50px';
+                limitsDiv.style.right = '50px';
+                limitsDiv.style.bottom = '50px';
+                limitsDiv.style.backgroundColor = 'white';
+                limitsDiv.style.border = '1px solid #ddd';
+                limitsDiv.style.padding = '10px';
+                limitsDiv.style.fontFamily = '"Lucida Console", "Courier New", monospace';
+                limitsDiv.style.zIndex = '10000';
+                limitsDiv.style.display = 'flex';
+                limitsDiv.style.flexDirection = 'column';
+                limitsDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+
+                const headerDiv = document.createElement('div');
+                headerDiv.style.flexShrink = '0';
+                headerDiv.style.padding = '0 10px';
+                limitsDiv.appendChild(headerDiv);
+
+                const heading = document.createElement('h3');
+                heading.textContent = 'Block Limits';
+                heading.style.marginBottom = '1em';
+                heading.style.borderBottom = '1px solid #dee2e6';
+                heading.style.paddingBottom = '0.5em';
+                headerDiv.appendChild(heading);
+
+                const scrollableDiv = document.createElement('div');
+                scrollableDiv.style.overflowY = 'auto';
+                scrollableDiv.style.flexGrow = '1';
+                scrollableDiv.style.minHeight = '0';
+                limitsDiv.appendChild(scrollableDiv);
+
+                const contentContainer = document.createElement('div');
+                contentContainer.id = 'block-limits-content';
+                contentContainer.style.padding = '10px';
+                scrollableDiv.appendChild(contentContainer);
+
+                for (const [catName, blocks] of Object.entries(builtinCategories)) {
+                    const details = document.createElement('details');
+                    details.style.marginBottom = '0.8em';
+
+                    const summary = document.createElement('summary');
+                    summary.style.fontWeight = 'bold';
+                    summary.style.cursor = 'pointer';
+                    summary.style.padding = '5px 0';
+                    summary.textContent = catName;
+                    details.appendChild(summary);
+
+                    for (const [blockType, blockLabel] of Object.entries(blocks)) {
+                        const blockRow = document.createElement('div');
+                        blockRow.style.display = 'flex';
+                        blockRow.style.justifyContent = 'space-between';
+                        blockRow.style.padding = '0.5em 1em';
+                        blockRow.style.borderBottom = '1px solid #eee';
+
+                        const labelSpan = document.createElement('span');
+                        labelSpan.textContent = blockLabel;
+                        blockRow.appendChild(labelSpan);
+
+                        const valueSpan = document.createElement('span');
+                        valueSpan.style.fontWeight = 'bold';
+                        valueSpan.style.minWidth = '80px';
+                        valueSpan.style.textAlign = 'right';
+
+                        if (blockLimits[blockType] !== undefined) {
+                            valueSpan.textContent = blockLimits[blockType];
+                            valueSpan.style.color = '#1e88e5';
+                        } else {
+                            valueSpan.textContent = '∞';
+                            valueSpan.style.color = '#43a047';
+                        }
+
+                        blockRow.appendChild(valueSpan);
+                        details.appendChild(blockRow);
+                    }
+                    contentContainer.appendChild(details);
+                }
+
+                const closeButton = document.createElement('button');
+                closeButton.textContent = 'Close';
+                closeButton.style.alignSelf = 'flex-end';
+                closeButton.style.marginTop = '10px';
+                closeButton.style.padding = '6px 15px';
+                closeButton.addEventListener('click', () => {
+                    document.body.removeChild(limitsDiv);
+                    blockLimitsVisible = false;
+                });
+                headerDiv.appendChild(closeButton);
+
+                document.body.appendChild(limitsDiv);
+                blockLimitsVisible = true;
             }
         });
         /**
@@ -817,13 +927,14 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
             id: 'custom_comments',
             weight: 100,
             callback: function (scope) {
-                openCommentDialog(scope.block, getCMID());
+                openCommentDialog(scope.block, getCMID(), globalReportType);
             }
         });
     });
 
     let currentBlockId = null;
     let currentDialog = null;
+    let globalReportType = 0;
 
     /**
      * Opens the comments from a specific block
@@ -1069,6 +1180,9 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
             if (reportType === 2 && remainingSubmissions > 0) {
                 reportType = 0;
             }
+
+            globalReportType = reportType;
+
             updatePercentages(reactions[0], reactions[1], reactions[2]);
 
             //chat.populate(repository.getMessages, activityId);
@@ -1178,7 +1292,8 @@ define(['mod_nextblocks/lib', 'mod_nextblocks/repository', 'mod_nextblocks/chat'
 
             initCommentIndicators(nextblocksWorkspace);
 
-            setupButtons(tests, nextblocksWorkspace, inputFunctionDeclarations.funcDecs, lastUserReaction, reportType === 1);
+            setupButtons(tests, nextblocksWorkspace, inputFunctionDeclarations.funcDecs,
+                lastUserReaction, reportType === 1, blockLimits);
 
             //chat.run(userName, activityId, repository.saveMessage);
         },
